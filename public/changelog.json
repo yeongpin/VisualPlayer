@@ -1,0 +1,236 @@
+{
+    "versions": [
+        {
+            "version": "v1.3.1-alpha",
+            "date": "2024-12-27",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.addNewFeature",
+                    "description": "新增新功能"
+                },
+                {
+                    "key": "settings.changelog.DecoderUpdate",
+                    "description": "解碼器更新"
+                }
+            ]
+        },
+        {
+            "version": "v1.2.3",
+            "date": "2024-12-26",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.addNewFeature",
+                    "description": "新增新功能"
+                }
+            ]
+        },
+        {
+            "version": "v1.2.2",
+            "date": "2024-12-26",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                }
+            ]
+        },
+        {
+            "version": "v1.2.1",
+            "date": "2024-12-25",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.addNewFeature",
+                    "description": "新增新功能"
+                },
+                {
+                    "key": "settings.changelog.BigUpdate",
+                    "description": "大更新"
+                },
+                {
+                    "key": "settings.changelog.Tired",
+                    "description": "累死了"
+                }
+            ]
+        },
+        {
+            "version": "v1.2.0",
+            "date": "2024-12-13",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.addNewFeature",
+                    "description": "新增新功能"
+                },
+                {
+                    "key": "settings.changelog.filterPageRefactor",
+                    "description": "濾鏡頁面全新改版"
+                }
+            ]
+        },
+        {
+            "version": "v1.1.5",
+            "date": "2024-12-12",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.addPreset",
+                    "description": "新增預設參數"
+                },
+                {
+                    "key": "settings.changelog.addFilter",
+                    "description": "新增濾鏡功能"
+                },
+                {
+                    "key": "settings.changelog.addNewFeature",
+                    "description": "新增新功能"
+                }
+            ]
+        },
+        {
+            "version": "v1.1.4",
+            "date": "2024-12-11",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.newFeature",
+                    "description": "新增功能"
+                }
+            ]
+        },
+        {
+            "version": "v1.1.3",
+            "date": "2024-12-10",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.fixCopyFilter",
+                    "description": "修復同一個視頻濾鏡設置複製的問題"
+                }
+            ]
+        },
+        {
+            "version": "v1.1.2",
+            "date": "2023-12-09",
+            "changes": [
+                {
+                    "key": "settings.changelog.newFeature",
+                    "description": "新增卡片列表功能"
+                },
+                {
+                    "key": "settings.changelog.improveFilter",
+                    "description": "改進濾鏡效果"
+                },
+                {
+                    "key": "settings.changelog.addLanguageSupport",
+                    "description": "新增多語言支持"
+                },
+                {
+                    "key": "settings.changelog.improveUI",
+                    "description": "改進用戶界面"
+                },
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                }
+            ]
+        },
+        {
+            "version": "v1.1.1",
+            "date": "2023-12-01",
+            "changes": [
+                {
+                    "key": "settings.changelog.addLayoutSaveLoad",
+                    "description": "新增布局保存和加載功能"
+                },
+                {
+                    "key": "settings.changelog.improveAudioControl",
+                    "description": "改進音頻控制"
+                },
+                {
+                    "key": "settings.changelog.optimizePerformance",
+                    "description": "優化性能"
+                },
+                {
+                    "key": "settings.changelog.fixDragDrop",
+                    "description": "修復拖放功能"
+                }
+            ]
+        },
+        {
+            "version": "v1.1.0",
+            "date": "2023-11-15",
+            "changes": [
+                {
+                    "key": "settings.changelog.addFilterSystem",
+                    "description": "新增濾鏡系統"
+                },
+                {
+                    "key": "settings.changelog.addBackgroundColorControl",
+                    "description": "新增背景顏色控制"
+                },
+                {
+                    "key": "settings.changelog.addPerformanceMonitoring",
+                    "description": "新增性能監控"
+                },
+                {
+                    "key": "settings.changelog.addShortcutSupport",
+                    "description": "新增快捷鍵支持"
+                },
+                {
+                    "key": "settings.changelog.optimizeUI",
+                    "description": "優化用戶界面"
+                }
+            ]
+        },
+        {
+            "version": "v1.0.0",
+            "date": "2023-11-01",
+            "changes": [
+                {
+                    "key": "settings.changelog.firstRelease",
+                    "description": "首次發布"
+                },
+                {
+                    "key": "settings.changelog.basicVideoPlayback",
+                    "description": "基本視頻播放功能"
+                },
+                {
+                    "key": "settings.changelog.imageDisplaySupport",
+                    "description": "圖片顯示支持"
+                },
+                {
+                    "key": "settings.changelog.basicControl",
+                    "description": "基本控制功能"
+                },
+                {
+                    "key": "settings.changelog.responsiveDesign",
+                    "description": "響應式設計"
+                }
+            ]
+        }
+    ]
+} 

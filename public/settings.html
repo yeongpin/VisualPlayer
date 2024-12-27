@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title data-i18n="settings.title">設置</title>
+    <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+    <div class="titlebar">
+        <div class="title" data-i18n="settings.title">設置</div>
+        <button class="close-button">×</button>
+    </div>
+    <div class="settings-container">
+        <div class="nav-sidebar">
+            <div class="nav-item active" data-tab="general">
+                <div class="nav-icon" data-icon="settings"></div>
+                <span data-i18n="settings.tabs.general">一般設置</span>
+            </div>
+            <div class="nav-item" data-tab="video">
+                <div class="nav-icon" data-icon="video"></div>
+                <span data-i18n="settings.tabs.video">視頻設置</span>
+            </div>
+            <div class="nav-item" data-tab="keybinding">
+                <div class="nav-icon" data-icon="keyboard"></div>
+                <span data-i18n="settings.tabs.keybinding">快捷鍵</span>
+            </div>
+            <div class="nav-item" data-tab="about">
+                <div class="nav-icon" data-icon="about"></div>
+                <span data-i18n="settings.tabs.about">關於</span>
+            </div>
+            <div class="nav-item" data-tab="changelog">
+                <div class="nav-icon" data-icon="changelog"></div>
+                <span data-i18n="settings.tabs.changelog">更新日誌</span>
+            </div>
+        </div>
+        <div class="content">
+            <div class="tab-content active" id="general">
+                <h2 data-i18n="settings.tabs.general">一般設置</h2>
+                <div class="settings-group">
+                    <label>
+                        <input type="checkbox" id="autoPlay">
+                        <span data-i18n="settings.general.autoPlay">自動播放視頻</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="rememberPosition">
+                        <span data-i18n="settings.general.rememberPosition">記住上次播放位置</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="darkMode">
+                        <span data-i18n="settings.general.darkMode">深色模式</span>
+                    </label>
+                    <div class="setting-item">
+                        <label for="language">語言 Language</label>
+                        <select id="language" class="language-select">
+                            <option value="zh_tw">繁體中文</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="video">
+                <h2 data-i18n="settings.tabs.video">視頻設置</h2>
+                <div class="settings-group">
+                    <label>
+                        <input type="checkbox" id="hardwareAcceleration">
+                        <span data-i18n="settings.video.hardwareAcceleration">啟用硬件加速</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="autoQuality">
+                        <span data-i18n="settings.video.autoQuality">自動調整畫質</span>
+                    </label>
+                    <div class="setting-item">
+                        <span data-i18n="settings.video.defaultVolume">默認音量</span>
+                        <input type="range" id="defaultVolume" min="0" max="100" value="100">
+                        <span class="value-display">100%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="keybinding">
+                <h2 data-i18n="settings.tabs.keybinding">快捷鍵設置</h2>
+                <div class="settings-group">
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.playPause">播放/暫停</span>
+                        <input type="text" value="Space" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.fullScreen">全屏</span>
+                        <input type="text" value="F11" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.speedUp">加速鍵 （1-10）</span>
+                        <input type="text" value="1-0" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.speedDown">0.25倍速</span>
+                        <input type="text" value="-" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.halfSpeed">0.5倍速</span>
+                        <input type="text" value="=" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.slowDown">減速 - 0.1</span>
+                        <input type="text" value="I" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.speedUp01">加速 + 0.1</span>
+                        <input type="text" value="O" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.restoreSpeed">恢復速度</span>
+                        <input type="text" value="P" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.blurUp">模糊度 + 1</span>
+                        <input type="text" value="E" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.blurDown">模糊度 - 1</span>
+                        <input type="text" value="W" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.restoreBlur">恢復模糊度</span>
+                        <input type="text" value="Q" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.showKeybinding">查看快捷鍵</span>
+                        <input type="text" value="K" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.infiniteLoop">無限重播</span>
+                        <input type="text" value="L" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.unmute">取消禁音</span>
+                        <input type="text" value="M" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.openSettings">開啟設定</span>
+                        <input type="text" value="N" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.setBackgroundColor">設置背景顏色</span>
+                        <input type="text" value="B" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.viewPerformance">查看性能參數</span>
+                        <input type="text" value="Tab" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.setFilter">設置Filter參數</span>
+                        <input type="text" value="G" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.drag">拖動</span>
+                        <input type="text" value="Left Click" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.rotate">旋轉</span>
+                        <input type="text" value="Shift + Right Click" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.zoom">放大比例</span>
+                        <input type="text" value="Alt + Left Click" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.moveToTop">移動至最上層</span>
+                        <input type="text" value="Ctrl + Left Click" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.saveLayout">保存佈局</span>
+                        <input type="text" value="Ctrl + S" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="settings.keybinding.loadLayout">加載佈局</span>
+                        <input type="text" value="Ctrl + F" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="keyInfo.shortcuts.seekBackward">後退 5 秒</span>
+                        <input type="text" value="←" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="keyInfo.shortcuts.seekForward">前進 5 秒</span>
+                        <input type="text" value="→" readonly>
+                    </div>
+                    <div class="key-binding">
+                        <span data-i18n="keyInfo.shortcuts.cardList">開啟卡片列表</span>
+                        <input type="text" value="H" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="about">
+                <h2 data-i18n="settings.tabs.about">關於</h2>
+                <div class="settings-group">
+                    <div class="about-info">
+                        <img src="../Logo.png" alt="Visual Player Logo" class="logo">
+                        <h3>Visual Player</h3>
+                        <p><span data-i18n="settings.about.version">版本</span>: <span id="version"></span></p>
+                        <p><span data-i18n="settings.about.author">作者</span>:  <span id="author"></span></p>
+                        <p data-i18n="settings.about.description">開發中……只有一個人很難開發</p>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="changelog">
+                <h2 data-i18n="settings.tabs.changelog">更新日誌</h2>
+                <div class="changelog-container">
+                    <!-- 這裡的內容會由 JavaScript 動態加載 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="languageManager.js"></script>
+    <script src="settings.js"></script>
+</body>
+</html>

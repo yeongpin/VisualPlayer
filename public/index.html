@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Multi Video Player</title>
+    <link href="../node_modules/video.js/dist/video-js.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="languageManager.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="viewport-fit=cover, user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';">
+</head>
+<body>
+    <div class="titlebar-trigger"></div>
+    <div class="titlebar">
+        <div class="titlebar-title" data-i18n="titlebar.title">Visual Player</div>
+        <div class="titlebar-controls">
+            <button class="titlebar-button minimize" id="minimizeBtn">
+                <svg width="10" height="1" viewBox="0 0 10 1">
+                    <path d="M0 0h10v1H0z" fill="currentColor"/>
+                </svg>
+            </button>
+            <button class="titlebar-button maximize" id="maximizeBtn">
+                <svg width="10" height="10" viewBox="0 0 10 10">
+                    <path d="M0 0v10h10V0H0zm1 1h8v8H1V1z" fill="currentColor"/>
+                </svg>
+            </button>
+            <button class="titlebar-button close" id="closeBtn">
+                <svg width="10" height="10" viewBox="0 0 10 10">
+                    <path d="M1 0L0 1l4 4-4 4 1 1 4-4 4 4 1-1-4-4 4-4-1-1-4 4-4-4z" fill="currentColor"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <div>
+        <div id="dropZone" data-i18n="dropZone.title">拖放視頻或圖片文件到這裡</div>
+        <div id="formatWarning" style="display: none;" class="warning-message">
+            <i18n="settings.changelog.warning.title"></i18n>⚠️ 阿彬提醒您:</i18n><br>
+            <strong i18n="settings.changelog.warning.title">視頻格式不支持</strong><br>
+            <i18n="settings.changelog.warning.suggestion"></i18n>建議將視頻轉換為以下格式：
+            <ul>
+                <li i18n="settings.changelog.warning.formats.mp4">MP4 (H.264 編碼)</li>
+                <li i18n="settings.changelog.warning.formats.webm">WebM (VP8/VP9 編碼)</li>
+                <li i18n="settings.changelog.warning.formats.colorDepth">使用 8-bit 色深</li>
+            </ul>
+            <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                <strong i18n="settings.changelog.ffmpegTip.title">提示：可以使用 FFmpeg 進行轉換</strong>
+                <br>
+                <i18n="settings.changelog.ffmpegTip.note"></i18n>FFmpeg 不支持 WebM 轉換為 MP4，請使用 MP4 轉換為 WebM。</i18n>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 確保 electron 可用
+        window.electron = require('electron');
+    </script>
+    <script src="filter_utils.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // Window control buttons
+        const { BrowserWindow } = require('@electron/remote');
+        const currentWindow = require('@electron/remote').getCurrentWindow();
+
+        document.getElementById('minimizeBtn').addEventListener('click', () => {
+            currentWindow.minimize();
+        });
+
+        document.getElementById('maximizeBtn').addEventListener('click', () => {
+            if (currentWindow.isMaximized()) {
+                currentWindow.unmaximize();
+            } else {
+                currentWindow.maximize();
+            }
+        });
+
+        document.getElementById('closeBtn').addEventListener('click', () => {
+            currentWindow.close();
+        });
+
+        // Update maximize button icon when window state changes
+        function updateMaximizeButton() {
+            const maximizeBtn = document.getElementById('maximizeBtn');
+            if (currentWindow.isMaximized()) {
+                maximizeBtn.innerHTML = `
+                    <svg width="10" height="10" viewBox="0 0 10 10">
+                        <path d="M0 0v10h10V0H0zm1 1h8v8H1V1z" fill="currentColor"/>
+                    </svg>`;
+            } else {
+                maximizeBtn.innerHTML = `
+                    <svg width="10" height="10" viewBox="0 0 10 10">
+                        <path d="M0 0v10h10V0H0zm1 1h8v8H1V1z" fill="currentColor"/>
+                    </svg>`;
+            }
+        }
+
+        currentWindow.on('maximize', updateMaximizeButton);
+        currentWindow.on('unmaximize', updateMaximizeButton);
+
+        // Show titlebar when mouse is near top
+        let timeoutId;
+        document.addEventListener('mousemove', (e) => {
+            const titlebar = document.querySelector('.titlebar');
+            if (e.clientY <= 32) {
+                titlebar.classList.add('show');
+                clearTimeout(timeoutId);
+            } else {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    titlebar.classList.remove('show');
+                }, 1000);
+            }
+        });
+        
+    </script>
+</body>
+</html>

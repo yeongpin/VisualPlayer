@@ -1,0 +1,194 @@
+{
+    "dropZone": "拖放視頻或圖片文件到這裡",
+    "warning": {
+        "title": "⚠️ 阿彬提醒您:",
+        "formatNotSupported": "視頻格式不支持",
+        "suggestion": "建議將視頻轉換為以下格式：",
+        "formats": {
+            "mp4": "MP4 (H.264 編碼)",
+            "webm": "WebM (VP8/VP9 編碼)",
+            "colorDepth": "使用 8-bit 色深"
+        },
+        "ffmpegTip": {
+            "title": "提示：可以使用 FFmpeg 進行轉換",
+            "note": "FFmpeg 不支持 WebM 轉換為 MP4，請使用 MP4 轉換為 WebM。"
+        }
+    },
+    "controls": {
+        "play": "播放",
+        "pause": "暫停",
+        "mute": "靜音",
+        "unmute": "取消靜音",
+        "loop": "循環播放",
+        "resetSize": "重置大小和旋轉",
+        "resize": "調整大小",
+        "close": "關閉",
+        "skipForward": "向前跳轉",
+        "skipBackward": "向後跳轉",
+        "resetTimeRange": "重置時間範圍"
+    },
+    "performance": {
+        "fps": "FPS",
+        "memory": "記憶體",
+        "videos": "視頻",
+        "images": "圖片",
+        "resolution": "解析度",
+        "gpu": "GPU"
+    },
+    "notifications": {
+        "layoutSaved": "布局已保存",
+        "layoutLoaded": "布局已加載",
+        "layoutSaveError": "保存布局失敗",
+        "layoutLoadError": "加載布局失敗",
+        "autoPlayPrevented": "自動播放被阻止",
+        "loading": "載入中..."
+    },
+    "filter": {
+        "title": "濾鏡控制",
+        "resetAll": "重置所有",
+        "basic": "基礎調整",
+        "color": "顏色調整",
+        "light": "明暗對比",
+        "curves": "曲線調整",
+        "effects": "特效處理",
+        "parameters": {
+            "red": "紅色",
+            "green": "綠色",
+            "blue": "藍色",
+            "brightness": "亮度",
+            "contrast": "對比度",
+            "saturation": "飽和度",
+            "hue": "色相",
+            "temperature": "色溫",
+            "gamma": "伽瑪",
+            "blur": "模糊",
+            "sharpness": "銳度",
+            "highlights": "高光",
+            "shadows": "陰影",
+            "clarity": "清晰度",
+            "grain": "顆粒",
+            "exposure": "曝光",
+            "blacks": "黑階",
+            "whites": "白階",
+            "rgbCurve": "RGB曲線"
+        }
+    },
+    "settings": {
+        "title": "設置",
+        "tabs": {
+            "general": "一般設置",
+            "video": "視頻設置",
+            "keybinding": "快捷鍵",
+            "about": "關於",
+            "changelog": "更新日誌"
+        },
+        "general": {
+            "autoPlay": "自動播放視頻",
+            "rememberPosition": "記住上次播放位置",
+            "darkMode": "深色模式"
+        },
+        "video": {
+            "hardwareAcceleration": "啟用硬件加速",
+            "autoQuality": "自動調整畫質",
+            "defaultVolume": "默認音量"
+        },
+        "about": {
+            "version": "版本",
+            "author": "作者",
+            "description": "開發中……只有一個人很難開發"
+        },
+        "changelog": {
+            "version": "版本",
+            "date": "日期",
+            "newFeature": "✨ 新增功能",
+            "improveFilter": "🔧 改進濾鏡控制界面",
+            "addLanguageSupport": "🌐 添加多語言支持",
+            "improveUI": "🎨 優化用戶界面",
+            "fixIssues": "🐛 修復已知問題",
+            "firstRelease": "🎉 首次發布",
+            "basicVideoPlayback": "✨ 基礎視頻播放功能",
+            "imageDisplaySupport": "🖼️ 圖片顯示支持",
+            "basicControl": "🎮 基本控制功能",
+            "responsiveDesign": "📱 響應式設計",
+            "addFilterSystem": "✨ 新增濾鏡系統",
+            "addBackgroundColorControl": "🎨 新增背景顏色控制",
+            "addPerformanceMonitoring": "📊 添加性能監控",
+            "addShortcutSupport": "⌨️ 增加快捷鍵支持",
+            "optimizeUI": "🔧 界面優化調整",
+            "addCardList": "✨ 新增卡片列表功能",
+            "addLayoutSaveLoad": "✨ 新增佈局保存/加載功能",
+            "improveAudioControl": "🎧 改進音頻控制",
+            "optimizePerformance": "🚀 優化性能",
+            "fixDragDrop": "🐛 修復拖放問題",
+            "fixCopyFilter": "✨ 修復同一個視頻濾鏡設置複製的問題",
+            "addPreset": "✨ 新增預設參數",
+            "addFilter": "✨ 新增濾鏡功能",
+            "addNewFeature": "✨ 新增新功能",
+            "filterPageRefactor": "✨ 濾鏡頁面全新改版",
+            "BigUpdate": "🚀 大更新",
+            "DecoderUpdate": "🚀 解碼器更新",
+            "Tired": "💤 累死了"
+        },
+        "keybinding": {
+            "playPause": "播放/暫停",
+            "fullScreen": "全屏",
+            "speedUp": "加速鍵 （1-10）",
+            "speedDown": "0.25倍速",
+            "halfSpeed": "0.5倍速",
+            "slowDown": "減速 - 0.1",
+            "speedUp01": "加速 + 0.1",
+            "restoreSpeed": "恢復速度",
+            "blurUp": "模糊度 + 1",
+            "blurDown": "模糊度 - 1",
+            "restoreBlur": "恢復模糊度",
+            "showKeybinding": "查看快捷鍵",
+            "infiniteLoop": "無限重播",
+            "unmute": "取消禁音",
+            "openSettings": "開啟設定",
+            "setBackgroundColor": "設置背景顏色",
+            "viewPerformance": "查看性能參數",
+            "setFilter": "設置Filter參數",
+            "drag": "拖動",
+            "rotate": "旋轉",
+            "zoom": "放大比例",
+            "moveToTop": "移動至最上層",
+            "saveLayout": "保存佈局",
+            "loadLayout": "加載佈局",
+            "seekBackward": "後退 5 秒",
+            "seekForward": "前進 5 秒",
+            "cardList": "開啟卡片列表"
+        }
+    },
+    "keyInfo": {
+        "title": "捷徑說明",
+        "shortcuts": {
+            "playPause": "播放/暫停所有視頻",
+            "reset": "重置所有視頻到起點",
+            "delete": "刪除當前懸停的視頻",
+            "speed": "設置播放速度 (0=10x, 1-9=1-9x)",
+            "seekBackward": "後退 5 秒",
+            "seekForward": "前進 5 秒",
+            "toggleMute": "切換靜音狀態",
+            "decreaseBlur": "減少模糊程度",
+            "increaseBlur": "增加模糊程度",
+            "resetBlur": "重置模糊效果",
+            "toggleCards": "顯示/隱藏視頻卡片列表",
+            "showHelp": "顯示此說明",
+            "bringToFront": "將視頻置於最上層",
+            "rotate": "旋轉視頻",
+            "backgroundColor": "調整背景顏色",
+            "toggleStats": "顯示/隱藏性能統計",
+            "openSettings": "打開設置窗口",
+            "saveLayout": "保存佈局",
+            "loadLayout": "加載佈局",
+            "cardList": "開啟卡片列表"
+        },
+        "cards": {
+            "title": "視頻卡片列表",
+            "saveLayout": "保存佈局",
+            "loadLayout": "加載佈局",
+            "refresh": "刷新列表",
+            "close": "關閉"
+        }
+    }
+} 

@@ -1,0 +1,147 @@
+{
+    "ultralow_max": {
+        "name": "無敵低畫質",
+        "options": [
+            "-pix_fmt yuv420p",
+            "-preset ultrafast",
+            "-crf 51",
+            "-profile:v baseline",
+            "-level 3.0",
+            "-maxrate 200k",
+            "-bufsize 400k",
+            "-vf scale='min(320,iw)':'-2'",
+            "-tune fastdecode",
+            "-x264opts ref=1:deblock=0,0",
+            "-sws_flags fast_bilinear",
+            "-c:a aac",
+            "-b:a 32k",
+            "-ar 22050",
+            "-ac 1"
+        ]
+    },
+    "ultralow": {
+        "name": "超低畫質",
+        "options": [
+            "-pix_fmt yuv420p",
+            "-preset ultrafast",
+            "-crf 35",
+            "-profile:v baseline",
+            "-level 3.0",
+            "-maxrate 500k",
+            "-bufsize 1000k",
+            "-vf scale='min(640,iw)':'-2'",
+            "-c:a aac",
+            "-b:a 64k",
+            "-ar 22050",
+            "-ac 1"
+        ]
+    },
+    "low": {
+        "name": "低畫質",
+        "options": [
+            "-pix_fmt yuv420p",
+            "-preset veryfast",
+            "-crf 28",
+            "-profile:v baseline",
+            "-level 3.0",
+            "-maxrate 1000k",
+            "-bufsize 2000k",
+            "-vf scale='min(1280,iw)':'-2'",
+            "-c:a aac",
+            "-b:a 128k",
+            "-ar 44100",
+            "-ac 2"
+        ]
+    },
+    "medium": {
+        "name": "中等畫質",
+        "options": [
+            "-pix_fmt yuv420p",
+            "-preset medium",
+            "-crf 23",
+            "-profile:v main",
+            "-level 4.0",
+            "-maxrate 4000k",
+            "-bufsize 8000k",
+            "-vf scale='min(1920,iw)':'-2'",
+            "-c:a aac",
+            "-b:a 192k",
+            "-ar 48000",
+            "-ac 2"
+        ]
+    },
+    "high": {
+        "name": "高畫質",
+        "options": [
+            "-pix_fmt yuv420p",
+            "-preset slow",
+            "-crf 18",
+            "-profile:v high",
+            "-level 5.1",
+            "-maxrate 8000k",
+            "-bufsize 16000k",
+            "-vf scale='min(2560,iw)':'-2'",
+            "-c:a aac",
+            "-b:a 256k",
+            "-ar 48000",
+            "-ac 2"
+        ]
+    },
+    "ultra": {
+        "name": "超高畫質",
+        "options": [
+            "-pix_fmt yuv420p",
+            "-preset veryslow",
+            "-crf 15",
+            "-profile:v high",
+            "-level 5.2",
+            "-maxrate 16000k",
+            "-bufsize 32000k",
+            "-vf scale='min(3840,iw)':'-2'",
+            "-c:a aac",
+            "-b:a 320k",
+            "-ar 48000",
+            "-ac 2"
+        ]
+    },
+    "NoLoss": {
+        "name": "無損畫質",
+        "options": [
+            "-pix_fmt yuv420p",
+            "-c:v libx264",
+            "-preset slower",
+            "-crf 1",
+            "-profile:v high",
+            "-level 5.1",
+            "-x264opts ref=8:deblock=1,1:me=umh:subme=9:trellis=2",
+            "-maxrate 50000k",
+            "-bufsize 50000k",
+            "-vf scale=iw:ih",
+            "-sws_flags lanczos",
+            "-map 0:v:0",
+            "-map 0:a?",
+            "-c:a aac",
+            "-b:a 320k",
+            "-ar 48000",
+            "-ac 2"
+        ]
+    },
+    "original": {
+        "name": "原始畫質",
+        "options": [
+            "-pix_fmt yuv420p",
+            "-preset veryslow",
+            "-crf 17",
+            "-profile:v high",
+            "-level 5.1",
+            "-x264opts ref=6:deblock=1,1:me=umh:subme=9:trellis=2",
+            "-maxrate 10000k",
+            "-bufsize 20000k",
+            "-c:a aac",
+            "-b:a 320k",
+            "-ar 48000",
+            "-ac 2",
+            "-vf scale='iw':'-2'"
+        ]
+    }
+} 

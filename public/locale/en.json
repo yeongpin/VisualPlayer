@@ -1,0 +1,194 @@
+{
+    "dropZone": "Drop video or image files here",
+    "warning": {
+        "title": "⚠️ Reminder:",
+        "formatNotSupported": "Video format not supported",
+        "suggestion": "Please convert the video to one of the following formats:",
+        "formats": {
+            "mp4": "MP4 (H.264 codec)",
+            "webm": "WebM (VP8/VP9 codec)",
+            "colorDepth": "Use 8-bit color depth"
+        },
+        "ffmpegTip": {
+            "title": "Tip: You can use FFmpeg for conversion",
+            "note": "FFmpeg doesn't support WebM to MP4 conversion, please use MP4 to WebM instead."
+        }
+    },
+    "controls": {
+        "play": "Play",
+        "pause": "Pause",
+        "mute": "Mute",
+        "unmute": "Unmute",
+        "loop": "Loop",
+        "resetSize": "Reset Size & Rotation",
+        "resize": "Resize",
+        "close": "Close",
+        "skipForward": "Skip Forward",
+        "skipBackward": "Skip Backward",
+        "resetTimeRange": "Reset Time Range"
+    },
+    "performance": {
+        "fps": "FPS",
+        "memory": "Memory",
+        "videos": "Videos",
+        "images": "Images",
+        "resolution": "Resolution",
+        "gpu": "GPU"
+    },
+    "notifications": {
+        "layoutSaved": "Layout saved",
+        "layoutLoaded": "Layout loaded",
+        "layoutSaveError": "Failed to save layout",
+        "layoutLoadError": "Failed to load layout",
+        "autoPlayPrevented": "Auto-play prevented",
+        "loading": "Loading..."
+    },
+    "filter": {
+        "title": "Filter Controls",
+        "resetAll": "Reset All",
+        "basic": "Basic Adjustment",
+        "color": "Color Adjustment",
+        "light": "Light Adjustment",
+        "curves": "Curves Adjustment",
+        "effects": "Effects Adjustment",
+        "parameters": {
+            "red": "Red",
+            "green": "Green",
+            "blue": "Blue",
+            "brightness": "Brightness",
+            "contrast": "Contrast",
+            "saturation": "Saturation",
+            "hue": "Hue",
+            "temperature": "Temperature",
+            "gamma": "Gamma",
+            "blur": "Blur",
+            "sharpness": "Sharpness",
+            "highlights": "Highlights",
+            "shadows": "Shadows",
+            "clarity": "Clarity",
+            "grain": "Grain",
+            "exposure": "Exposure",
+            "blacks": "Blacks",
+            "whites": "Whites",
+            "rgbCurve": "RGB Curve"
+        }
+    },
+    "settings": {
+        "title": "Settings",
+        "tabs": {
+            "general": "General",
+            "video": "Video",
+            "keybinding": "Key Bindings",
+            "about": "About",
+            "changelog": "Changelog"
+        },
+        "general": {
+            "autoPlay": "Auto-play videos",
+            "rememberPosition": "Remember last position",
+            "darkMode": "Dark mode"
+        },
+        "video": {
+            "hardwareAcceleration": "Enable hardware acceleration",
+            "autoQuality": "Auto adjust quality",
+            "defaultVolume": "Default volume"
+        },
+        "about": {
+            "version": "Version",
+            "author": "Author",
+            "description": "In development... it's hard to develop alone"
+        },
+        "changelog": {
+            "version": "Version",
+            "date": "Date",
+            "newFeature": "✨ Add New Feature",
+            "improveFilter": "🔧 Improve filter control interface",
+            "addLanguageSupport": "🌐 Add multi-language support",
+            "improveUI": "🎨 Improve user interface",
+            "fixIssues": "🐛 Fix known issues",
+            "firstRelease": "🎉 First release",
+            "basicVideoPlayback": "✨ Basic video playback feature",
+            "imageDisplaySupport": "🖼️ Image display support",
+            "basicControl": "🎮 Basic control feature",
+            "responsiveDesign": "📱 Responsive design",
+            "addFilterSystem": "✨ Add filter system",
+            "addCardList": "✨ Add card list feature",
+            "addLayoutSaveLoad": "✨ Add layout save/load feature",
+            "addBackgroundColorControl": "🎨 Add background color control",
+            "addPerformanceMonitoring": "📊 Add performance monitoring feature",
+            "addShortcutSupport": "⌨️ Add shortcut support",
+            "optimizeUI": "🎨 Optimize user interface",
+            "improveAudioControl": "🎧 Improve audio control",
+            "optimizePerformance": "🚀 Optimize performance",
+            "fixDragDrop": "🐛 Fix drag and drop issue",
+            "fixCopyFilter": "✨ Fix the issue of copying the same video filter settings",
+            "addPreset": "✨ Add preset parameters",
+            "addFilter": "✨ Add filter function",
+            "addNewFeature": "✨ Add new feature",
+            "filterPageRefactor": "✨ Filter page refactor",
+            "BigUpdate": "🚀 Big update",
+            "DecoderUpdate": "🚀 Decoder update",
+            "Tired": "💤 Tired"
+        },
+        "keybinding": {
+            "playPause": "Play/Pause",
+            "fullScreen": "Fullscreen",
+            "speedUp": "Speed Up (1-10)",
+            "speedDown": "0.25x Speed",
+            "halfSpeed": "0.5x Speed",
+            "slowDown": "Slow Down - 0.1",
+            "speedUp01": "Speed Up + 0.1",
+            "restoreSpeed": "Restore Speed",
+            "blurUp": "Blur + 1",
+            "blurDown": "Blur - 1",
+            "restoreBlur": "Reset Blur",
+            "showKeybinding": "Show Shortcuts",
+            "infiniteLoop": "Infinite Loop",
+            "unmute": "Unmute",
+            "openSettings": "Open Settings",
+            "setBackgroundColor": "Set Background Color",
+            "viewPerformance": "View Performance Stats",
+            "setFilter": "Set Filter Parameters",
+            "drag": "Drag",
+            "rotate": "Rotate",
+            "zoom": "Zoom",
+            "moveToTop": "Bring to Front",
+            "saveLayout": "Save Layout",
+            "loadLayout": "Load Layout",
+            "seekBackward": "Seek Back 5s",
+            "seekForward": "Seek Forward 5s",
+            "cardList": "Open Card List"
+        }
+    },
+    "keyInfo": {
+        "title": "Keyboard Shortcuts",
+        "shortcuts": {
+            "playPause": "Play/Pause all videos",
+            "reset": "Reset all videos to start",
+            "delete": "Delete hovered video",
+            "speed": "Set playback speed (0=10x, 1-9=1-9x)",
+            "seekBackward": "Seek backward 5s",
+            "seekForward": "Seek forward 5s",
+            "toggleMute": "Toggle mute",
+            "decreaseBlur": "Decrease blur",
+            "increaseBlur": "Increase blur",
+            "resetBlur": "Reset blur",
+            "toggleCards": "Show/hide video cards",
+            "showHelp": "Show this help",
+            "bringToFront": "Bring video to front",
+            "rotate": "Rotate video",
+            "backgroundColor": "Adjust background color",
+            "toggleStats": "Show/hide performance stats",
+            "openSettings": "Open settings",
+            "saveLayout": "Save layout",
+            "loadLayout": "Load layout",
+            "cardList": "Open Card List"
+        },
+        "cards": {
+            "title": "Video Card List",
+            "saveLayout": "Save Layout",
+            "loadLayout": "Load Layout",
+            "refresh": "Refresh List",
+            "close": "Close"
+        }
+    }
+} 

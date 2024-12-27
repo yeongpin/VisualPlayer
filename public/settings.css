@@ -1,0 +1,406 @@
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #1a1a1a;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.titlebar {
+    height: 30px;
+    background: #2d2d2d;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    -webkit-app-region: drag;
+    flex-shrink: 0;
+    border-bottom: 1px solid #3d3d3d;
+}
+
+.logo {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.title {
+    flex: 1;
+    font-size: 14px;
+}
+
+.close-button {
+    -webkit-app-region: no-drag;
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 20px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.close-button:hover {
+    background: #ff4444;
+    color: #fff;
+}
+
+.settings-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.nav-sidebar {
+    width: 200px;
+    background: #2d2d2d;
+    padding: 20px 0;
+    border-right: 1px solid #3d3d3d;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #999;
+}
+
+.nav-item:hover {
+    background: #3d3d3d;
+    color: #fff;
+}
+
+.nav-item.active {
+    background: #4d4d4d;
+    color: #fff;
+}
+
+.nav-item svg {
+    fill: currentColor;
+}
+
+.content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: normal;
+}
+
+.settings-group {
+    background: #2d2d2d;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+label {
+    display: block;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #666;
+    border-radius: 3px;
+    margin-right: 10px;
+    position: relative;
+    cursor: not-allowed;
+    background: #444;
+}
+
+input[type="checkbox"]::before {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #0f0;
+    font-size: 12px;
+    opacity: 1;
+}
+
+input[type="checkbox"] {
+    pointer-events: none;
+}
+
+label {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.language-select {
+    cursor: pointer;
+    opacity: 1;
+}
+
+.setting-item label {
+    cursor: pointer;
+    opacity: 1;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.setting-item span {
+    min-width: 100px;
+}
+
+.setting-item input[type="range"] {
+    flex: 1;
+    margin: 0 15px;
+}
+
+.value-display {
+    min-width: 50px;
+    text-align: right;
+}
+
+.key-binding {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.key-binding span {
+    flex: 1;
+}
+
+.key-binding input {
+    width: 100px;
+    padding: 5px 10px;
+    background: #3d3d3d;
+    border: 1px solid #4d4d4d;
+    color: #fff;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.about-info {
+    text-align: center;
+}
+
+.about-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+}
+
+.about-info p {
+    margin: 5px 0;
+    color: #999;
+}
+
+/* 自定義滾動條 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.language-select {
+    background: #333;
+    color: white;
+    border: 1px solid #444;
+    padding: 8px;
+    border-radius: 4px;
+    width: 200px;
+    margin-top: 5px;
+}
+
+.language-select:focus {
+    outline: none;
+    border-color: #666;
+}
+
+.setting-item {
+    margin-bottom: 15px;
+}
+
+.setting-item label {
+    display: block;
+    margin-bottom: 5px;
+    color: #ccc;
+}
+
+/* Changelog 樣式 */
+.changelog-container {
+    padding: 20px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.version-group {
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.version-group:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+}
+
+.version-header {
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.version {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.date {
+    color: #888;
+    font-size: 0.9em;
+}
+
+.changes {
+    padding: 0;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.version-group.expanded .changes {
+    height: auto;
+    opacity: 1;
+    padding: 20px;
+}
+
+.changes ul {
+    margin: 0;
+    transform-origin: top;
+    transition: transform 0.3s ease;
+}
+
+.version-group:not(.expanded) .changes ul {
+    transform: scaleY(0);
+}
+
+.version-group.expanded .changes ul {
+    transform: scaleY(1);
+}
+
+.changes li {
+    margin: 10px 0;
+    position: relative;
+}
+
+.changes li::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    background: #4CAF50;
+    border-radius: 50%;
+}
+
+/* 自定義滾動條 */
+.changelog-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.changelog-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.changelog-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.changelog-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.version-header::after {
+    content: '▼';
+    font-size: 12px;
+    margin-left: 10px;
+    transition: transform 0.3s ease;
+}
+
+.version-group.expanded .version-header::after {
+    transform: rotate(180deg);
+}
+
+.version-group.expanded {
+    margin-bottom: 30px;
+}
+
+/* 導航圖標樣式 */
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.nav-icon svg {
+    width: 20px;
+    height: 20px;
+}

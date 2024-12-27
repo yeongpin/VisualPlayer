@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title data-i18n="filter.title" data-i18n-key="filter.title">濾鏡控制</title>
+    <link rel="stylesheet" href="filter.css">
+</head>
+<body>
+    <div class="titlebar">
+        <div class="title"></div>
+        <div class="titlebar-buttons">
+            <button class="preset-button" title="預設參數"></button>
+            <button class="close-button" title="關閉"></button>
+        </div>
+    </div>
+
+    <button class="reset-button" title="重置"></button>
+    
+    <!-- 添加標籤欄 -->
+    <div class="tabs">
+        <button class="tab active" data-tab="basic" data-i18n="filter.basic">基礎調整</button>
+        <button class="tab" data-tab="color" data-i18n="filter.color">顏色調整</button>
+        <button class="tab" data-tab="light" data-i18n="filter.light">明暗對比</button>
+        <button class="tab" data-tab="curves" data-i18n="filter.curves">曲線調整</button>
+        <button class="tab" data-tab="effects" data-i18n="filter.effects">特效處理</button>
+        <button class="tab" data-tab="resolution" data-i18n="filter.resolution">解析度</button>
+    </div>
+
+    <!-- 標籤內容區域 -->
+    <div class="tab-content active" data-tab="basic">
+        <div class="filter-controls basic-controls"></div>
+    </div>
+
+    <div class="tab-content" data-tab="color">
+        <div class="filter-controls color-controls">
+            <!-- 顏色調整相關控制項會在 JS 中動態添加 -->
+        </div>
+    </div>
+
+    <div class="tab-content" data-tab="light">
+        <div class="filter-controls light-controls">
+            <!-- 明暗對比相關控制項會在 JS 中動態添加 -->
+        </div>
+    </div>
+
+    <div class="tab-content" data-tab="curves">
+        <div class="filter-controls curves-controls">
+            <!-- 曲線調整相關控制項會在 JS 中動態添加 -->
+        </div>
+    </div>
+
+    <div class="tab-content" data-tab="effects">
+        <div class="filter-controls effects-controls">
+            <!-- 特效處理相關控制項會在 JS 中動態添加 -->
+        </div>
+    </div>
+
+    
+
+    <div class="preset-menu">
+        <!-- 預設選項會在這裡動態添加 -->
+    </div>
+    
+    <!-- 先加載語言管理器 -->
+    <script src="languageManager.js"></script>
+    <!-- 然後加載主腳本 -->
+    <script src="filter.js"></script>
+</body>
+</html>

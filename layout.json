@@ -1,0 +1,19 @@
+{
+  "videos": [
+    {
+      "filename": "2023-07-20 13-47-34.mp4",
+      "position": {
+        "left": "436px",
+        "top": "95px",
+        "width": "411px",
+        "height": "507px",
+        "zIndex": ""
+      },
+      "transform": {
+        "scale": 0.5904900000000002,
+        "rotation": 0
+      },
+      "filterValues": {}
+    }
+  ]
+}
