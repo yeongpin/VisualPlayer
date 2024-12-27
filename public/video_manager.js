@@ -62,7 +62,7 @@ class VideoManager {
         const wrapper = document.createElement('div');
         wrapper.className = 'video-wrapper';
         
-        // 創建時視頻元素來獲取原始尺寸
+        // 創建��視頻元素來獲取原始尺寸
         const tempVideo = document.createElement('video');
         tempVideo.src = source;
         
@@ -379,7 +379,7 @@ class VideoManager {
                 updateLoopButton(loopBtn, video.loop);
             };
             
-            // 添加重置大小和��轉的按鈕
+            // 添加重置大小和轉的按鈕
             const resetSizeBtn = document.createElement('button');
             resetSizeBtn.className = 'control-button reset-size-button';
             resetSizeBtn.title = '重置大小和轉';
@@ -520,8 +520,43 @@ class VideoManager {
             wrapper.addEventListener('wheel', (e) => this.mainManager.eventHandlers.handleWheel(e));
             
             document.body.appendChild(wrapper);
-            this.mainManager.videos.push({ wrapper, video, container: videoContainer, scale: 1, rotation: 0 });
+            this.mainManager.videos.push({ 
+                wrapper, 
+                video, 
+                container: videoContainer, 
+                scale: 1,  // 先設置為 1
+                rotation: 0,
+                flipX: false,
+                flipY: false
+            });
             
+            // 計算適合窗口的縮放比例
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const availableWidth = windowWidth * 0.9;  // 留出 10% 邊距
+            const availableHeight = windowHeight * 0.9;
+
+            // 使用 wrapper 的實際尺寸來計算縮放比例
+            const wrapperWidth = wrapper.offsetWidth;
+            const wrapperHeight = wrapper.offsetHeight;
+            const fitScaleX = availableWidth / wrapperWidth;
+            const fitScaleY = availableHeight / wrapperHeight;
+            const fitScale = Math.min(fitScaleX, fitScaleY);
+
+            // 更新 videoData 的 scale
+            const videoData = this.mainManager.videos[this.mainManager.videos.length - 1];
+            videoData.scale = fitScale;
+
+            // 應用變換
+            this.mainManager.transformManager.updateVideoTransform(videoData);
+
+            // 設置 wrapper 的中心位置（保持原始尺寸）
+            const centerX = (windowWidth - wrapperWidth) / 2;
+            const centerY = (windowHeight - wrapperHeight) / 2;
+            wrapper.style.position = 'fixed';
+            wrapper.style.left = `${centerX}px`;
+            wrapper.style.top = `${centerY}px`;
+
             video.play().catch(() => {
                 console.log('Auto-play prevented');
             });
