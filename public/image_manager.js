@@ -234,12 +234,40 @@ class ImageManager {
                 container: imageContainer, 
                 scale: 1, 
                 rotation: 0,
-                isImage: true
+                isImage: true,
+                flipX: false,
+                flipY: false
             };
             
             this.mainManager.videos.push(imageData);
             this.mainManager.dropZone.style.display = 'none';
             
+            // 計算適合窗口的縮放比例
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const availableWidth = windowWidth * 0.9;  // 留出 10% 邊距
+            const availableHeight = windowHeight * 0.9;
+
+            // 使用 wrapper 的實際尺寸來計算縮放比例
+            const wrapperWidth = wrapper.offsetWidth;
+            const wrapperHeight = wrapper.offsetHeight;
+            const fitScaleX = availableWidth / wrapperWidth;
+            const fitScaleY = availableHeight / wrapperHeight;
+            const fitScale = Math.min(fitScaleX, fitScaleY);
+
+            // 更新 imageData 的 scale
+            imageData.scale = fitScale;
+
+            // 應用變換
+            this.mainManager.transformManager.updateVideoTransform(imageData);
+
+            // 設置 wrapper 的中心位置（保持原始尺寸）
+            const centerX = (windowWidth - wrapperWidth) / 2;
+            const centerY = (windowHeight - wrapperHeight) / 2;
+            wrapper.style.position = 'fixed';
+            wrapper.style.left = `${centerX}px`;
+            wrapper.style.top = `${centerY}px`;
+
             // 如果卡片列表正在顯示，則更新它
             if (this.mainManager.cardListVisible) {
                 this.mainManager.showCardList();
