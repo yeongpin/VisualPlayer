@@ -93,7 +93,8 @@ class LayoutManager {
                                     shadows: 100,
                                     clarity: 0,
                                     grain: 0,
-                                    exposure: 100
+                                    exposure: 100,
+                                    rgbCurve: { x: 0.5, y: 0.5 }
                                 };
                             }
                             Object.assign(targetElement.filterValues, videoLayout.filterValues);

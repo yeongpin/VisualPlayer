@@ -184,7 +184,8 @@ function setupFilterIPC(videoData) {
             grain: 0,
             exposure: 100,
             blacks: 0,
-            whites: 0
+            whites: 0,
+            rgbCurve: { x: 0.5, y: 0.5 }
         }
     });
 }
