@@ -1,0 +1,457 @@
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+}
+
+input, textarea {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+#dropZone {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #666;
+    font-size: 24px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.video-wrapper {
+    position: fixed;
+    cursor: move;
+    background: transparent;
+    z-index: 2;
+    transform-style: preserve-3d;
+}
+
+.video-container {
+    width: 100%;
+    height: 100%;
+    transform-origin: center;
+    transform-style: preserve-3d;
+    will-change: transform;
+    position: relative;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+}
+
+.video-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    max-width: min(700px, 100vw);
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    padding: 20px 15px 10px;
+    display: none;
+    text-align: center;
+    transition: opacity 0.3s;
+    border-radius: 8px;
+    z-index: 1;
+    flex-shrink: 0;
+    
+}
+
+.video-wrapper:hover .video-controls {
+    display: block;
+}
+
+button {
+    background: #333;
+    border: none;
+    color: #fff;
+    padding: 5px 10px;
+    margin: 0 5px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+button:hover {
+    background: #444;
+}
+
+.progress-bar {
+    position: relative;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.time-handle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    cursor: ew-resize;
+    z-index: 2;
+}
+
+.start-handle {
+    left: 0%;
+}
+
+.end-handle {
+    left: 100%;
+}
+
+.time-range {
+    position: absolute;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+}
+
+.progress {
+    position: absolute;
+    height: 100%;
+    background: #fff;
+    border-radius: 2px;
+}
+
+.controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.left-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.right-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s, background 0.2s;
+    border: none;
+    padding: 0;
+}
+
+.control-button:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.time-display {
+    color: #fff;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    opacity: 0.9;
+}
+
+.skip-button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
+}
+
+.skip-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.play-pause {
+    width: 40px;
+    height: 40px;
+}
+
+.close-button {
+    position: static;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.close-button:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+}
+
+input[type="range"] {
+    -webkit-appearance: none; /* Chrome, Safari, newer Edge */
+    -moz-appearance: none;    /* Firefox */
+    -ms-appearance: none;     /* Old Edge */
+    appearance: none;         /* Standard */
+    height: 5px;
+    background: #444;
+    border-radius: 3px;
+    outline: none;
+}
+
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.adjustment-menu {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.loop-button {
+    transition: opacity 0.2s;
+}
+
+.loop-button:hover {
+    opacity: 1 !important;
+}
+
+/* 修改縮放控制點的樣式 */
+.resize-handle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
+    z-index: 3;
+    opacity: 0; /* 默認隱藏 */
+    transition: opacity 0.2s;
+    pointer-events: none; /* 默認不響應鼠標事件 */
+}
+
+/* 當控制點可見時才響應鼠標事件 */
+.resize-handle[style*="opacity: 0.3"] {
+    pointer-events: auto;
+}
+
+/* 移除懸停時自動顯示行為 */
+.video-wrapper:hover .resize-handle {
+    opacity: 0;
+}
+
+/* 只在點擊按鈕後顯示 */
+.resize-handle.visible {
+    opacity: 0.3;
+    pointer-events: auto;
+}
+
+/* 角落的控制點 */
+.resize-handle.corner {
+    width: 10px;
+    height: 10px;
+}
+
+/* 邊緣的控制點 */
+.resize-handle.edge {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* 水平邊緣 */
+.resize-handle.edge.horizontal {
+    height: 6px;
+    width: calc(100% - 20px);
+    left: 10px;
+    cursor: ns-resize;
+}
+
+/* 垂直邊緣 */
+.resize-handle.edge.vertical {
+    width: 6px;
+    height: calc(100% - 20px);
+    top: 10px;
+    cursor: ew-resize;
+}
+
+/* 各個控制點的位置和游標樣式 */
+.resize-handle.top { top: -3px; }
+.resize-handle.bottom { bottom: -3px; }
+.resize-handle.left { left: -3px; }
+.resize-handle.right { right: -3px; }
+
+.resize-handle.corner.top.left { cursor: nw-resize; }
+.resize-handle.corner.top.right { cursor: ne-resize; }
+.resize-handle.corner.bottom.left { cursor: sw-resize; }
+.resize-handle.corner.bottom.right { cursor: se-resize; }
+
+/* 懸停時顯示控制點 */
+.video-wrapper:hover .resize-handle {
+    opacity: 0.3;
+}
+
+.resize-handle:hover {
+    opacity: 0.8 !important;
+}
+
+/* 添加遮罩樣式 */
+.time-mask {
+    position: absolute;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.start-mask {
+    left: 0;
+}
+
+.end-mask {
+    right: 0;
+}
+
+.warning-message {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.video-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 3;
+}
+
+.warning-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 9999;
+    max-width: 80%;
+    text-align: center;
+}
+
+.warning-message ul {
+    text-align: left;
+    margin: 10px 0 0 0;
+    padding-left: 20px;
+}
+
+.warning-message li {
+    margin: 5px 0;
+}
+
+/* 添加圖片相關樣式 */
+.video-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+}
+
+.video-wrapper .close-button {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.video-wrapper:hover .close-button {
+    opacity: 1;
+}
+
+/* 修改 videoCardList 的滾動條樣式 */
+#videoCardList::-webkit-scrollbar {
+    height: 8px;  /* 橫向滾動條的高度 */
+    background: transparent;
+}
+
+#videoCardList::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    margin: 0 10px;  /* 左右留出一些間距 */
+}
+
+#videoCardList::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+#videoCardList::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#videoCardList::-webkit-scrollbar-button {
+    display: none;  /* 隱藏滾動條的按鈕 */
+}
+
+#videoCardList {
+    scrollbar-width: thin;  /* Firefox 的滾動條樣式 */
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);  /* Firefox 的滾動條顏色 */
+    padding-bottom: 10px;  /* 為滾動條留出空間 */
+}
+
