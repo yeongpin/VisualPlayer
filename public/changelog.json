@@ -1,6 +1,24 @@
 {
     "versions": [
         {
+            "version": "v1.3.3-alpha",
+            "date": "2024-12-29",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.addNewFeature",
+                    "description": "新增新功能"
+                },
+                {
+                    "key": "settings.changelog.addRawImageSupport",
+                    "description": "新增RAW圖片支持"
+                }
+            ]
+        },
+        {
             "version": "v1.3.1-alpha",
             "date": "2024-12-27",
             "changes": [

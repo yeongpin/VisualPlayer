@@ -5,6 +5,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const os = require('os');
 const CodecManager = require('./public/codec_manager');
+const DcrawCodecManager = require('./public/dcraw_codec_manager.js');
 
 let transcodeWindow = null;
 let mainWindow = null;
@@ -1045,5 +1046,24 @@ ipcMain.on('video-state-changed', (event, { index, isPlaying }) => {
     if (cardsWindow) {
         // 發送狀態更新到卡片窗口
         cardsWindow.webContents.send('video-play-state', { index, isPlaying });
+    }
+});
+
+ipcMain.handle('process-raw-image', async (event, rawFilePath) => {
+    console.log('Received RAW file for processing:', rawFilePath); // 添加日誌
+    try {
+        const dcrawManager = new DcrawCodecManager();
+        const jpegData = await dcrawManager.convertRawToJpeg(rawFilePath);
+        console.log('RAW processing successful'); // 添加日誌
+        return {
+            success: true,
+            data: jpegData
+        };
+    } catch (error) {
+        console.error('RAW processing failed:', error); // 添加詳細錯誤日誌
+        return {
+            success: false,
+            error: error.message
+        };
     }
 });

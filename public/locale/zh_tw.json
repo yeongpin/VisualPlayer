@@ -127,7 +127,8 @@
             "filterPageRefactor": "✨ 濾鏡頁面全新改版",
             "BigUpdate": "🚀 大更新",
             "DecoderUpdate": "🚀 解碼器更新",
-            "Tired": "💤 累死了"
+            "Tired": "💤 累死了",
+            "addRawImageSupport": "✨ 新增RAW圖片支持"
         },
         "keybinding": {
             "playPause": "播放/暫停",

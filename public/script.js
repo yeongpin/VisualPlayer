@@ -371,11 +371,31 @@ class MainManager {
             const files = Array.from(e.dataTransfer.files);
             for (const file of files) {
                 if (file.type.startsWith('video/')) {
-                    // 直接傳遞文件對象
                     await this.videoManager.addVideo(file, file.name);
-                } else if (file.type.startsWith('image/')) {
-                    const blobUrl = URL.createObjectURL(file);
-                    this.imageManager.addImage(blobUrl, file.name);
+                } else if (file.type.startsWith('image/') || this.isRawImage(file.name)) {
+                    if (this.isRawImage(file.name)) {
+                        // 處理 RAW 圖片
+                        try {
+                            console.log('Processing RAW file:', file.name); // 添加日誌
+                            const { ipcRenderer } = require('electron');
+                            const result = await ipcRenderer.invoke('process-raw-image', file.path);
+                            console.log('RAW processing result:', result); // 添加日誌
+                            if (result.success) {
+                                // 將處理後的 JPEG 數據傳遞給 ImageManager
+                                const blob = new Blob([result.data], { type: 'image/jpeg' });
+                                const blobUrl = URL.createObjectURL(blob);
+                                this.imageManager.addImage(blobUrl, file.name);
+                            } else {
+                                console.error('RAW image processing failed:', result.error);
+                            }
+                        } catch (error) {
+                            console.error('Error processing RAW image:', error);
+                        }
+                    } else {
+                        // 處理普通圖片
+                        const blobUrl = URL.createObjectURL(file);
+                        this.imageManager.addImage(blobUrl, file.name);
+                    }
                 }
             }
             
@@ -459,6 +479,24 @@ class MainManager {
         }
     }
     
+    isRawImage(filename) {
+        const rawExtensions = [
+            '.arw',  // Sony
+            '.cr2',  // Canon
+            '.cr3',  // Canon
+            '.dng',  // Adobe, Google, etc
+            '.nef',  // Nikon
+            '.orf',  // Olympus
+            '.raf',  // Fujifilm
+            '.rw2',  // Panasonic
+            '.pef',  // Pentax
+            '.srw'   // Samsung
+            //'.braw'  // Blackmagic
+        ];
+        
+        const ext = filename.toLowerCase().match(/\.[^.]*$/)?.[0];
+        return ext && rawExtensions.includes(ext);
+    }
 }
 
 const videoManager = new MainManager();

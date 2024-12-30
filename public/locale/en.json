@@ -127,7 +127,8 @@
             "filterPageRefactor": "✨ Filter page refactor",
             "BigUpdate": "🚀 Big update",
             "DecoderUpdate": "🚀 Decoder update",
-            "Tired": "💤 Tired"
+            "Tired": "💤 Tired",
+            "addRawImageSupport": "✨ Add RAW image support"
         },
         "keybinding": {
             "playPause": "Play/Pause",
