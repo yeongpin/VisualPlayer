@@ -5,4 +5,4 @@ dist
 
 # 忽略单个文件
 package-lock.json
-public/script copy.js
+public/script_copy.js
