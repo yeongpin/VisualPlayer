@@ -1,5 +1,5 @@
 // 在 VideoManager 類的開頭添加
-const EventHandlers = require('./event_handlers.js');
+const EventHandlers = require('./script/manager/event_handlers.js');
 
 class VideoManager {
     constructor() {

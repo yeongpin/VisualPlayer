@@ -1,4 +1,4 @@
-const EventHandlers = require('./event_handlers.js');
+const EventHandlers = require('./script/manager/event_handlers.js');
 const LayoutManager = require('./layout_manager.js');
 const UIManager = require('./ui_manager.js');
 const UtilsManager = require('./utils_manager.js');
