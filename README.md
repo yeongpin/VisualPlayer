@@ -51,7 +51,7 @@ A versatile media player that supports multiple videos and images in a single wi
 
 ---
 
-## 中文
+## chinese
 
 一個支持在單一窗口中播放多個視頻和圖像的多功能媒體播放器。
 
