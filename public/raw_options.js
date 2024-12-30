@@ -68,9 +68,19 @@ resetBtn.addEventListener('click', resetToDefaults);
 
 confirmBtn.addEventListener('click', () => {
     const options = collectInputValues();
+    // 確保所有值都是基本類型
+    const serializableOptions = {};
+    for (const [key, value] of Object.entries(options)) {
+        if (typeof value === 'boolean' || 
+            typeof value === 'number' || 
+            typeof value === 'string') {
+            serializableOptions[key] = value;
+        }
+    }
+    
     ipcRenderer.send('raw-option-selected', {
         cancelled: false,
-        options: options
+        options: serializableOptions
     });
     window.close();
 });

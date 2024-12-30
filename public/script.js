@@ -380,29 +380,32 @@ class MainManager {
                             
                             // 等待用戶選擇 RAW 處理選項
                             const optionResult = await new Promise(resolve => {
-                                ipcRenderer.send('create-raw-options-window', { filename: file.name });
-                                console.log('Waiting for raw-option-selected response');
+                                // 確保發送的數據是可序列化的
+                                const cleanPath = file.path.toString();
+                                ipcRenderer.send('create-raw-options-window', { 
+                                    filename: file.name,
+                                    path: cleanPath
+                                });
                                 
                                 ipcRenderer.once('raw-option-selected', (event, result) => {
-                                    console.log('Received raw-option-selected response:', result);
                                     resolve(result);
                                 });
                             });
 
-                            // 如果用戶取消，則終止處理
                             if (optionResult.cancelled) {
                                 return;
                             }
 
-                            // 使用選擇的選項處理 RAW 文件
+                            // 確保發送的數據是可序列化的
                             const result = await ipcRenderer.invoke('process-raw-image', {
-                                path: file.path,
-                                options: optionResult.options
+                                path: file.path.toString(),
+                                options: JSON.parse(JSON.stringify(optionResult.options))
                             });
 
-                            console.log('RAW processing result:', result);
                             if (result.success) {
-                                const blob = new Blob([result.data], { type: 'image/jpeg' });
+                                // 確保數據是正確的格式
+                                const buffer = Buffer.from(result.data);
+                                const blob = new Blob([buffer], { type: 'image/jpeg' });
                                 const blobUrl = URL.createObjectURL(blob);
                                 this.imageManager.addImage(blobUrl, file.name);
                             } else {

@@ -28,11 +28,13 @@ class CodecManager {
             'm2ts', 'qt', 'mjpeg', 'mjpg'
         ];
 
-        // 添加編解碼器檢查
-        this.checkSystemCodecs();
+        this.decoders = ['ffmpeg', 'lav'];
+        this.currentDecoder = 'ffmpeg';
 
-        this.decoders = ['ffmpeg', 'lav']; // 添加 LAV 解碼器選項
-        this.currentDecoder = 'ffmpeg';     // 默認使用 ffmpeg
+        // 只在渲染進程中檢查編解碼器
+        if (process.type === 'renderer') {
+            this.checkSystemCodecs();
+        }
 
         // 設置 LAV Filters 路徑
         this.lavFiltersPath = this.getLAVFiltersPath();
@@ -51,19 +53,24 @@ class CodecManager {
         }
     }
 
-    checkSystemCodecs() {
-        const supportedCodecs = {
-            'video/mp4; codecs="avc1.42E01E"': 'H.264',
-            'video/mp4; codecs="avc1.64001F"': 'H.264 High Profile',
-            'video/webm; codecs="vp8"': 'VP8',
-            'video/webm; codecs="vp9"': 'VP9',
-            'video/mp4; codecs="av01"': 'AV1'
-        };
-        
-        console.log('System Codec Support Status:');
-        for (let codec in supportedCodecs) {
-            const isSupported = MediaSource.isTypeSupported(codec);
-            console.log(`${supportedCodecs[codec]}: ${isSupported ? 'Supported' : 'Not Supported'}`);
+    async checkSystemCodecs() {
+        try {
+            if (typeof window === 'undefined' || typeof MediaSource === 'undefined') {
+                console.log('MediaSource API not available in this context');
+                return;
+            }
+
+            console.log('System Codec Support Status:');
+            for (let codec in this.supportedCodecs) {
+                try {
+                    const isSupported = MediaSource.isTypeSupported(codec);
+                    console.log(`${this.supportedCodecs[codec]}: ${isSupported ? 'Supported' : 'Not Supported'}`);
+                } catch (err) {
+                    console.log(`${this.supportedCodecs[codec]}: Check failed`);
+                }
+            }
+        } catch (error) {
+            console.error('Error checking system codecs:', error);
         }
     }
 

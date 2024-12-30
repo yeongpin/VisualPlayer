@@ -1057,15 +1057,17 @@ ipcMain.handle('process-raw-image', async (event, { path, options }) => {
         const dcrawManager = new DcrawCodecManager();
         const jpegData = await dcrawManager.convertRawToJpeg(path, options);
         console.log('RAW processing successful');
+
+        // 確保返回的數據是可序列化的
         return {
             success: true,
-            data: jpegData
+            data: Buffer.from(jpegData) // 確保數據是 Buffer
         };
     } catch (error) {
         console.error('RAW processing failed:', error);
         return {
             success: false,
-            error: error.message
+            error: error.toString() // 確保錯誤是字符串
         };
     }
 });
