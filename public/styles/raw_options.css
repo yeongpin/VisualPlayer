@@ -166,8 +166,74 @@ button.primary:hover {
 
 /* 自定義 checkbox 樣式 */
 input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #3a3a3a;
+    border-radius: 4px;
+    background-color: #2a2a2a;
     margin-right: 8px;
-    accent-color: #0077ee;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:hover {
+    border-color: #0077ee;
+    background-color: #2d2d2d;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #0077ee;
+    border-color: #0077ee;
+}
+
+/* 打勾符號 */
+input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -50%) rotate(45deg);
+    animation: checkmark 0.2s ease-in-out;
+}
+
+/* 禁用狀態 */
+input[type="checkbox"]:disabled {
+    background-color: #1a1a1a;
+    border-color: #2a2a2a;
+    cursor: not-allowed;
+}
+
+input[type="checkbox"]:disabled + label {
+    color: #666;
+    cursor: not-allowed;
+}
+
+/* 打勾動畫 */
+@keyframes checkmark {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(45deg) scale(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(45deg) scale(1);
+    }
+}
+
+/* 聚焦狀態 */
+input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 119, 238, 0.3);
+}
+
+/* 按下狀態 */
+input[type="checkbox"]:active {
+    transform: scale(0.95);
 }
