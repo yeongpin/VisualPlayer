@@ -1,12 +1,12 @@
 const EventHandlers = require('./script/manager/event_handlers.js');
 const LayoutManager = require('./layout_manager.js');
-const UIManager = require('./ui_manager.js');
-const UtilsManager = require('./utils_manager.js');
+const UIManager = require('./script/manager/ui_manager.js');
+const UtilsManager = require('./script/manager/utils_manager.js');
 const VideoManager = require('./video_manager.js');
 const ImageManager = require('./image_manager.js');
-const PlaybackManager = require('./playback_manager.js');
-const TransformManager = require('./transform_manager.js');
-const EffectManager = require('./effect_manager.js');
+const PlaybackManager = require('./script/manager/playback_manager.js');
+const TransformManager = require('./script/manager/transform_manager.js');
+const EffectManager = require('./script/manager/effect_manager.js');
 const CardListManager = require('./cardlist_manager.js');
 
 class MainManager {
