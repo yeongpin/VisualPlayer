@@ -2,9 +2,9 @@
 
 <div align="center">
 
-[![Release](https://img.shields.io/github/v/release/dacrab/go-cursor-help?style=flat-square&logo=github&color=blue)](https://github.com/yeongpin/VisualPlayer/releases/latest)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&logo=bookstack)](https://github.com/yeongpin/VisualPlayer/blob/master/LICENSE)
-[![Stars](https://img.shields.io/github/stars/dacrab/go-cursor-help?style=flat-square&logo=github)](https://github.com/yeongpin/VisualPlayer/stargazers)
+[![Release](https://img.shields.io/github/v/release/yeongpin/VisualPlayer?style=flat-square&logo=github&color=blue)](https://github.com/yeongpin/VisualPlayer/releases/latest)
+[![License](https://img.shields.io/badge/license-AGPL-3.0-blue.svg?style=flat-square&logo=bookstack)](https://github.com/yeongpin/VisualPlayer/blob/master/LICENSE)
+[![Stars](https://img.shields.io/github/stars/yeongpin/VisualPlayer?style=flat-square&logo=github)](https://github.com/yeongpin/VisualPlayer/stargazers)
 
 [🌟 English](#english) | [🌏 中文](#chinese)
 
