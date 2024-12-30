@@ -1049,21 +1049,64 @@ ipcMain.on('video-state-changed', (event, { index, isPlaying }) => {
     }
 });
 
-ipcMain.handle('process-raw-image', async (event, rawFilePath) => {
-    console.log('Received RAW file for processing:', rawFilePath); // 添加日誌
+ipcMain.handle('process-raw-image', async (event, { path, options }) => {
+    console.log('Received RAW file for processing:', path);
+    console.log('Processing options:', options);
+    
     try {
         const dcrawManager = new DcrawCodecManager();
-        const jpegData = await dcrawManager.convertRawToJpeg(rawFilePath);
-        console.log('RAW processing successful'); // 添加日誌
+        const jpegData = await dcrawManager.convertRawToJpeg(path, options);
+        console.log('RAW processing successful');
         return {
             success: true,
             data: jpegData
         };
     } catch (error) {
-        console.error('RAW processing failed:', error); // 添加詳細錯誤日誌
+        console.error('RAW processing failed:', error);
         return {
             success: false,
             error: error.message
         };
     }
+});
+
+// 添加到適當的位置（在其他 ipcMain 處理器附近）
+let rawOptionsWindow = null;
+
+ipcMain.on('create-raw-options-window', (event, { filename }) => {
+    if (rawOptionsWindow) {
+        rawOptionsWindow.focus();
+        return;
+    }
+
+    rawOptionsWindow = new BrowserWindow({
+        width: 500,
+        height: 600,
+        modal: true,
+        parent: mainWindow,
+        frame: false,
+        resizable: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
+    });
+
+    rawOptionsWindow.loadFile('public/raw_options.html');
+
+    // 設置窗口在屏幕中央
+    rawOptionsWindow.once('ready-to-show', () => {
+        rawOptionsWindow.center();
+        rawOptionsWindow.show();
+    });
+
+    rawOptionsWindow.on('closed', () => {
+        rawOptionsWindow = null;
+    });
+});
+
+// 處理選項選擇結果
+ipcMain.on('raw-option-selected', (event, result) => {
+    // 將結果轉發給主窗口
+    mainWindow.webContents.send('raw-option-selected', result);
 });

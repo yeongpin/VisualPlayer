@@ -374,14 +374,34 @@ class MainManager {
                     await this.videoManager.addVideo(file, file.name);
                 } else if (file.type.startsWith('image/') || this.isRawImage(file.name)) {
                     if (this.isRawImage(file.name)) {
-                        // 處理 RAW 圖片
                         try {
-                            console.log('Processing RAW file:', file.name); // 添加日誌
+                            console.log('Processing RAW file:', file.name);
                             const { ipcRenderer } = require('electron');
-                            const result = await ipcRenderer.invoke('process-raw-image', file.path);
-                            console.log('RAW processing result:', result); // 添加日誌
+                            
+                            // 等待用戶選擇 RAW 處理選項
+                            const optionResult = await new Promise(resolve => {
+                                ipcRenderer.send('create-raw-options-window', { filename: file.name });
+                                console.log('Waiting for raw-option-selected response');
+                                
+                                ipcRenderer.once('raw-option-selected', (event, result) => {
+                                    console.log('Received raw-option-selected response:', result);
+                                    resolve(result);
+                                });
+                            });
+
+                            // 如果用戶取消，則終止處理
+                            if (optionResult.cancelled) {
+                                return;
+                            }
+
+                            // 使用選擇的選項處理 RAW 文件
+                            const result = await ipcRenderer.invoke('process-raw-image', {
+                                path: file.path,
+                                options: optionResult.options
+                            });
+
+                            console.log('RAW processing result:', result);
                             if (result.success) {
-                                // 將處理後的 JPEG 數據傳遞給 ImageManager
                                 const blob = new Blob([result.data], { type: 'image/jpeg' });
                                 const blobUrl = URL.createObjectURL(blob);
                                 this.imageManager.addImage(blobUrl, file.name);

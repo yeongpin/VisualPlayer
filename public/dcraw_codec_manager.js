@@ -6,21 +6,19 @@ class DcrawCodecManager {
         this.dcraw = dcraw;
     }
 
-    async convertRawToJpeg(rawFilePath) {
+    async convertRawToJpeg(rawFilePath, options = {}) {
         return new Promise((resolve, reject) => {
             try {
-                // 讀取 RAW 文件
                 const rawData = fs.readFileSync(rawFilePath);
-                
-                // 使用 dcraw 處理 RAW 數據
                 const buf = new Uint8Array(rawData);
                 
-                // 提取和處理圖像
+                // 使用用戶選擇的選項
                 const processedData = this.dcraw(buf, {
                     verbose: true,
-                    extractThumbnail: false,  // 設置為 false 以獲取完整圖像
-                    outputPixels: true,  // 輸出處理後的像素數據
-                    wb: 'camera'  // 使用相機白平衡
+                    extractThumbnail: false,
+                    outputPixels: true,
+                    wb: 'camera',
+                    ...options  // 合併用戶選擇的選項
                 });
 
                 resolve(processedData);

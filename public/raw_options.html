@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>RAW 處理選項</title>
+    <style>
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+        }
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title-bar {
+            -webkit-app-region: drag;
+            background-color: #2a2a2a;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .title-bar .title {
+            margin: 0;
+            font-size: 14px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .title-bar .close-btn {
+            -webkit-app-region: no-drag;
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .title-bar .close-btn:hover {
+            color: #fff;
+        }
+
+        .content {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .options {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 4px;
+        }
+
+        .options::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .options::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .options::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .options::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .options::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        .option-group {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .option-group-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #0077ee;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 4px;
+        }
+
+        .option-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .option-item label {
+            margin-left: 8px;
+            font-size: 13px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 10px;
+            flex-shrink: 0;
+        }
+
+        button {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            color: #ffffff;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #3a3a3a;
+        }
+
+        button.primary {
+            background-color: #0066cc;
+            border-color: #0077ee;
+        }
+
+        button.primary:hover {
+            background-color: #0077ee;
+        }
+
+        /* 自定義 checkbox 樣式 */
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            accent-color: #0077ee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title-bar">
+            <div class="title">RAW 處理選項</div>
+            <button class="close-btn" id="closeBtn">✕</button>
+        </div>
+        <div class="content">
+            <div class="options" id="options">
+                <div class="option-group">
+                    <div class="option-group-title">基本設置</div>
+                    <div class="option-item">
+                        <input type="checkbox" id="useCameraWhiteBalance" checked>
+                        <label for="useCameraWhiteBalance">使用相機白平衡</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="useAverageWhiteBalance" checked>
+                        <label for="useAverageWhiteBalance">使用平均白平衡</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="useEmbeddedColorMatrix" checked>
+                        <label for="useEmbeddedColorMatrix">使用內嵌色彩矩陣</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="use16BitMode" checked>
+                        <label for="use16BitMode">16位元模式</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="use16BitLinearMode" checked>
+                        <label for="use16BitLinearMode">16位元線性模式</label>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-group-title">進階設置</div>
+                    <div class="option-item">
+                        <input type="checkbox" id="setHalfSizeMode">
+                        <label for="setHalfSizeMode">半尺寸模式</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="setFourColorMode">
+                        <label for="setFourColorMode">四色模式</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="useDocumentMode">
+                        <label for="useDocumentMode">文檔模式</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="useRawMode">
+                        <label for="useRawMode">RAW 模式</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="useExportMode">
+                        <label for="useExportMode">導出模式</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="setNoStretchMode">
+                        <label for="setNoStretchMode">無拉伸模式</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="setNoAutoBrightnessMode">
+                        <label for="setNoAutoBrightnessMode">禁用自動亮度</label>
+                    </div>
+                </div>
+            </div>
+            <div class="buttons">
+                <button id="resetBtn">重置</button>
+                <button id="cancelBtn">取消</button>
+                <button id="confirmBtn" class="primary">確定</button>
+            </div>
+        </div>
+    </div>
+    <script src="raw_options.js"></script>
+</body>
+</html> 
