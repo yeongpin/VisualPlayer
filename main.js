@@ -4,8 +4,8 @@ require('@electron/remote/main').initialize()
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const os = require('os');
-const CodecManager = require('./public/codec_manager.js');
-const DcrawCodecManager = require('./public/dcraw_codec_manager.js');
+const CodecManager = require('./public/script/codec/codec_manager.js');
+const DcrawCodecManager = require('./public/script/codec/dcraw_codec_manager.js');
 
 let transcodeWindow = null;
 let mainWindow = null;

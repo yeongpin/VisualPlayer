@@ -1,4 +1,4 @@
-const CodecManager = require('./codec_manager.js');
+const CodecManager = require('./script/codec/codec_manager.js');
 
 class VideoManager {
     constructor(mainManager) {
