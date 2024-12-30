@@ -98,7 +98,7 @@ class LayoutManager {
                                 };
                             }
                             Object.assign(targetElement.filterValues, videoLayout.filterValues);
-                            const { updateVideoFilter } = require('./filter_utils.js');
+                            const { updateVideoFilter } = require('../../filter_utils.js');
                             updateVideoFilter(targetElement);
                         }
                     }
