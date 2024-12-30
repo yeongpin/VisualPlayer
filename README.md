@@ -80,6 +80,6 @@ A versatile media player that supports multiple videos and images in a single wi
 
 ## License
 
-MIT License
+AGPL-3.0
 
 Copyright (c) 2024 YeongPin
