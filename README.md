@@ -1,6 +1,17 @@
-# Visual Player
+# 🚀 Visual Player
 
-[English](#english) | [中文](#中文)
+<div align="center">
+
+[![Release](https://img.shields.io/github/v/release/dacrab/go-cursor-help?style=flat-square&logo=github&color=blue)](https://github.com/yeongpin/VisualPlayer/releases/latest)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&logo=bookstack)](https://github.com/yeongpin/VisualPlayer/blob/master/LICENSE)
+[![Stars](https://img.shields.io/github/stars/dacrab/go-cursor-help?style=flat-square&logo=github)](https://github.com/yeongpin/VisualPlayer/stargazers)
+
+[🌟 English](#english) | [🌏 中文](#chinese)
+
+<img src="Logo.png" alt="Visual Player Logo" width="120"/>
+
+</div>
+
 
 ## English
 
