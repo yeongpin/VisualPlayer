@@ -1,5 +1,8 @@
+# 忽略文件夹
 node_modules
 external
 dist
+
+# 忽略单个文件
 package-lock.json
-'public/script copy.js'
+public/script copy.js
