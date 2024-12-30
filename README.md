@@ -6,7 +6,7 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://github.com/yeongpin/VisualPlayer/blob/master/LICENSE)
 [![Stars](https://img.shields.io/github/stars/yeongpin/VisualPlayer?style=flat-square&logo=github)](https://github.com/yeongpin/VisualPlayer/stargazers)
 
-[🌟 English](#english) | [🌏 中文](#chinese)
+[🌟 English](#english) | [🌏 中文](#中文)
 
 <img src="Logo.png" alt="Visual Player Logo" width="120"/>
 
@@ -51,7 +51,7 @@ A versatile media player that supports multiple videos and images in a single wi
 
 ---
 
-## chinese
+## 中文
 
 一個支持在單一窗口中播放多個視頻和圖像的多功能媒體播放器。
 
