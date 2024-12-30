@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron');
 const remote = require('@electron/remote');
-const { createSvgIcon } = require('../../icons.js');
+const { createSvgIcon } = require('./icons.js');
 
 const cardsContainer = document.querySelector('.cards-container');
 const closeButton = document.querySelector('.close-button');

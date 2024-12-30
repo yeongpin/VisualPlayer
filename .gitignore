@@ -2,4 +2,3 @@ node_modules
 external
 dist
 package-lock.json
-public/script copy.js

@@ -7,7 +7,7 @@ const ImageManager = require('./image_manager.js');
 const PlaybackManager = require('./playback_manager.js');
 const TransformManager = require('./transform_manager.js');
 const EffectManager = require('./effect_manager.js');
-const CardListManager = require('./script/cards/cardlist_manager.js');
+const CardListManager = require('./cardlist_manager.js');
 
 class MainManager {
     constructor() {

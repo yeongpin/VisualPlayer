@@ -136,7 +136,7 @@ class CardListManager {
     }
 
     showAdjustmentMenu(card, videoData) {
-        const { updateVideoFilter, setupFilterIPC } = require('../../filter_utils.js');
+        const { updateVideoFilter, setupFilterIPC } = require('./filter_utils.js');
         setupFilterIPC(videoData);
     }
 }
