@@ -4,7 +4,7 @@ require('@electron/remote/main').initialize()
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const os = require('os');
-const CodecManager = require('./public/codec_manager');
+const CodecManager = require('./public/codec_manager.js');
 const DcrawCodecManager = require('./public/dcraw_codec_manager.js');
 
 let transcodeWindow = null;
@@ -38,25 +38,25 @@ function getFFmpegPath() {
 // 設置 FFmpeg 路徑
 const ffmpegPathResolved = getFFmpegPath();
 
-console.log('FFmpeg 路徑:', ffmpegPathResolved);
-console.log('FFmpeg 路徑是否存在:', require('fs').existsSync(ffmpegPathResolved));
+console.log('FFmpeg Path:', ffmpegPathResolved);
+console.log('FFmpeg Path exists:', require('fs').existsSync(ffmpegPathResolved));
 ffmpeg.setFfmpegPath(ffmpegPathResolved);
 
 // 檢查 FFmpeg 是否可用
 function checkFFmpeg() {
     try {
         const testCommand = ffmpeg();
-        console.log('FFmpeg 初始化成功');
+        console.log('FFmpeg initialization successful');
         return true;
     } catch (error) {
-        console.error('FFmpeg 初始化失敗:', error);
+        console.error('FFmpeg initialization failed:', error);
         return false;
     }
 }
 
 // 檢查 FFmpeg 是否可用
 if (!checkFFmpeg()) {
-    console.error('FFmpeg 不可用，轉碼功能可能無法正常工作');
+    console.error('FFmpeg is not available, transcoding may not work');
 }
 
 function createWindow() {
