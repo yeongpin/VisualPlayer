@@ -35,9 +35,8 @@ function getFFmpegPath() {
     return ffmpegBinaryPath;
 }
 
-// 設置 FFmpeg 路徑
+// 只設置 FFmpeg 路徑就足夠了
 const ffmpegPathResolved = getFFmpegPath();
-
 console.log('FFmpeg Path:', ffmpegPathResolved);
 console.log('FFmpeg Path exists:', require('fs').existsSync(ffmpegPathResolved));
 ffmpeg.setFfmpegPath(ffmpegPathResolved);
@@ -732,182 +731,195 @@ function createTranscodeOptionsWindow() {
 
 // 修改轉碼處理部分
 ipcMain.on('transcode-video', async (event, { path: videoPath, name }) => {
-    // 創建轉碼選項窗口
-    createTranscodeOptionsWindow();
-
-    // 等待用戶選擇
-    const optionResult = await new Promise(resolve => {
-        ipcMain.once('transcode-option-selected', (event, result) => {
-            if (transcodeOptionsWindow) {
-                transcodeOptionsWindow.close();
-                transcodeOptionsWindow = null;
-            }
-            resolve(result);
-        });
-    });
-
-    // 如果用戶取消，則終止轉碼
-    if (optionResult.cancelled) {
-        event.reply('transcode-complete', {
-            success: false,
-            cancelled: true
-        });
-        return;
-    }
-
-    // 讀取預設配置
-    const presets = require('./public/transcode_presets.json');
-    const selectedPreset = presets[optionResult.quality];
-
-    // 繼續原有的轉碼流程...
-    console.log('Received transcoding request:', { videoPath, name });
-    const outputPath = path.join(os.tmpdir(), `transcoded-${Date.now()}.mp4`);
-    
-    isTranscoding = true;
-    const window = createTranscodeWindow();
-    
     try {
-        // 先獲取視頻信息
-        const probeResult = await new Promise((resolve, reject) => {
-            ffmpeg.ffprobe(videoPath, (err, metadata) => {
-                if (err) {
-                    console.error('Error probing file:', err);
-                    reject(err);
-                    return;
+        // 創建轉碼選項窗口
+        createTranscodeOptionsWindow();
+
+        // 等待用戶選擇
+        const optionResult = await new Promise(resolve => {
+            ipcMain.once('transcode-option-selected', (event, result) => {
+                if (transcodeOptionsWindow) {
+                    transcodeOptionsWindow.close();
+                    transcodeOptionsWindow = null;
                 }
-                resolve(metadata);
+                resolve(result);
             });
         });
 
-        // 輸出調試信息
-        console.log('Video metadata:', probeResult);
-        console.log('Video streams:', probeResult.streams);
+        // 如果用戶取消，則終止轉碼
+        if (optionResult.cancelled) {
+            event.reply('transcode-complete', {
+                success: false,
+                cancelled: true
+            });
+            return;
+        }
+
+        // 讀取預設配置
+        const presets = require('./public/transcode_presets.json');
+        const selectedPreset = presets[optionResult.quality];
+
+        // 繼續原有的轉碼流程...
+        console.log('Received transcoding request:', { videoPath, name });
+        const outputPath = path.join(os.tmpdir(), `transcoded-${Date.now()}.mp4`);
         
-        // 檢查音頻流
-        const audioStreams = probeResult.streams.filter(stream => stream.codec_type === 'audio');
-        console.log('Available audio streams:', audioStreams);
-
-        // 獲取時長
-        const duration = probeResult.format.duration || 0;
-        console.log('Video duration:', duration);
-
-        // 創建 FFmpeg 命令
-        currentFfmpegCommand = ffmpeg(videoPath)
-            .toFormat('mp4')
-            .videoCodec('libx264')
-            .addOptions(selectedPreset.options)
-            .addOptions([
-                '-threads 0',
-                '-movflags +faststart',
-                '-y',
-                '-stats',
-                '-progress pipe:1'
-            ])
-            .on('start', (commandLine) => {
-                if (!isTranscoding) return;
-                console.log('FFmpeg Start Transcoding:', commandLine);
-                if (window && !window.isDestroyed()) {
-                    window.webContents.send('transcode-start', { 
-                        name: name,
-                        path: videoPath
-                    });
-                }
-            })
-            .on('progress', (progress) => {
-                if (!isTranscoding) return;
-                try {
-                    // 檢查窗口是否還存在
-                    if (!window || window.isDestroyed()) {
-                        currentFfmpegCommand.kill('SIGKILL');
-                        isTranscoding = false;
+        isTranscoding = true;
+        const window = createTranscodeWindow();
+        
+        try {
+            // 先獲取視頻信息
+            const probeResult = await new Promise((resolve, reject) => {
+                ffmpeg.ffprobe(videoPath, (err, metadata) => {
+                    if (err) {
+                        console.error('Error probing file:', err);
+                        // 如果探測失敗，返回一個基本的元數據對象
+                        resolve({
+                            format: {
+                                duration: 0
+                            },
+                            streams: []
+                        });
                         return;
                     }
-
-                    // 確保時間標記格式正確
-                    const currentTime = progress.timemark && /^\d{2}:\d{2}:\d{2}/.test(progress.timemark) 
-                        ? timemarkToSeconds(progress.timemark) 
-                        : 0;
-                        
-                    // 計算更精確的進度，不要四捨五入
-                    let percentage = duration ? (currentTime / duration) * 100 : 0;
-                    // 不限制小數位數讓進度更平滑
-                    percentage = Math.max(0, Math.min(percentage, 100));
-
-                    window.webContents.send('transcode-progress', { 
-                        progress: percentage,
-                        frame: progress.frames || 0,
-                        fps: progress.currentFps || 0,
-                        speed: progress.currentKbps || 0,
-                        stage: '轉碼中',
-                        currentTime: Math.max(currentTime, 0),
-                        duration: Math.max(duration, 0)
-                    });
-                } catch (error) {
-                    console.error('Progress calculation error:', error);
-                }
-            })
-            .on('end', () => {
-                isTranscoding = false;
-                currentFfmpegCommand = null;
-                console.log('Transcoding Complete:', outputPath);
-                
-                if (window && !window.isDestroyed()) {
-                    // 先發送 100% 進度
-                    window.webContents.send('transcode-progress', { 
-                        progress: 100,
-                        frame: 0,
-                        fps: 0,
-                        speed: 0,
-                        stage: '完成轉碼',
-                        currentTime: duration,
-                        duration: duration
-                    });
-
-                    // 延遲一秒後再發送完成信號並關閉窗口
-                    setTimeout(() => {
-                        if (window && !window.isDestroyed()) {
-                            window.webContents.send('transcode-complete', { success: true });
-                            // 再延遲一秒關閉窗口
-                            setTimeout(() => {
-                                if (window && !window.isDestroyed()) {
-                                    window.close();
-                                }
-                            }, 1000);
-                        }
-                    }, 1000);
-                }
-                
-                event.reply('transcode-complete', {
-                    success: true,
-                    url: `file://${outputPath}`
-                });
-            })
-            .on('error', (err) => {
-                isTranscoding = false;
-                currentFfmpegCommand = null;
-                console.error('Transcoding Error:', err);
-                
-                if (window && !window.isDestroyed()) {
-                    window.webContents.send('transcode-error', { error: err.message });
-                }
-                
-                event.reply('transcode-complete', {
-                    success: false,
-                    error: err.message
+                    resolve(metadata);
                 });
             });
 
-        // 開始轉碼
-        console.log('Starting transcoding to:', outputPath);
-        currentFfmpegCommand.save(outputPath);
+            // 輸出調試信息
+            console.log('Video metadata:', probeResult);
+            console.log('Video streams:', probeResult.streams);
+            
+            // 檢查音頻流
+            const audioStreams = probeResult.streams.filter(stream => stream.codec_type === 'audio');
+            console.log('Available audio streams:', audioStreams);
 
+            // 獲取時長
+            const duration = probeResult.format.duration || 0;
+            console.log('Video duration:', duration);
+
+            // 創建 FFmpeg 命令
+            currentFfmpegCommand = ffmpeg(videoPath)
+                .toFormat('mp4')
+                .videoCodec('libx264')
+                .addOptions(selectedPreset.options)
+                .addOptions([
+                    '-threads 0',
+                    '-movflags +faststart',
+                    '-y',
+                    '-stats',
+                    '-progress pipe:1'
+                ])
+                .on('start', (commandLine) => {
+                    if (!isTranscoding) return;
+                    console.log('FFmpeg Start Transcoding:', commandLine);
+                    if (window && !window.isDestroyed()) {
+                        window.webContents.send('transcode-start', { 
+                            name: name,
+                            path: videoPath
+                        });
+                    }
+                })
+                .on('progress', (progress) => {
+                    if (!isTranscoding) return;
+                    try {
+                        // 檢查窗口是否還存在
+                        if (!window || window.isDestroyed()) {
+                            currentFfmpegCommand.kill('SIGKILL');
+                            isTranscoding = false;
+                            return;
+                        }
+
+                        // 確保時間標記格式正確
+                        const currentTime = progress.timemark && /^\d{2}:\d{2}:\d{2}/.test(progress.timemark) 
+                            ? timemarkToSeconds(progress.timemark) 
+                            : 0;
+                            
+                        // 計算更精確的進度，不要四捨五入
+                        let percentage = duration ? (currentTime / duration) * 100 : 0;
+                        // 不限制小數位數讓進度更平滑
+                        percentage = Math.max(0, Math.min(percentage, 100));
+
+                        window.webContents.send('transcode-progress', { 
+                            progress: percentage,
+                            frame: progress.frames || 0,
+                            fps: progress.currentFps || 0,
+                            speed: progress.currentKbps || 0,
+                            stage: '轉碼中',
+                            currentTime: Math.max(currentTime, 0),
+                            duration: Math.max(duration, 0)
+                        });
+                    } catch (error) {
+                        console.error('Progress calculation error:', error);
+                    }
+                })
+                .on('end', () => {
+                    isTranscoding = false;
+                    currentFfmpegCommand = null;
+                    console.log('Transcoding Complete:', outputPath);
+                    
+                    if (window && !window.isDestroyed()) {
+                        // 先發送 100% 進度
+                        window.webContents.send('transcode-progress', { 
+                            progress: 100,
+                            frame: 0,
+                            fps: 0,
+                            speed: 0,
+                            stage: '完成轉碼',
+                            currentTime: duration,
+                            duration: duration
+                        });
+
+                        // 延遲一秒後再發送完成信號並關閉窗口
+                        setTimeout(() => {
+                            if (window && !window.isDestroyed()) {
+                                window.webContents.send('transcode-complete', { success: true });
+                                // 再延遲一秒關閉窗口
+                                setTimeout(() => {
+                                    if (window && !window.isDestroyed()) {
+                                        window.close();
+                                    }
+                                }, 1000);
+                            }
+                        }, 1000);
+                    }
+                    
+                    event.reply('transcode-complete', {
+                        success: true,
+                        url: `file://${outputPath}`
+                    });
+                })
+                .on('error', (err) => {
+                    isTranscoding = false;
+                    currentFfmpegCommand = null;
+                    console.error('Transcoding Error:', err);
+                    
+                    if (window && !window.isDestroyed()) {
+                        window.webContents.send('transcode-error', { error: err.message });
+                    }
+                    
+                    event.reply('transcode-complete', {
+                        success: false,
+                        error: err.message
+                    });
+                });
+
+            // 開始轉碼
+            console.log('Starting transcoding to:', outputPath);
+            currentFfmpegCommand.save(outputPath);
+
+        } catch (error) {
+            console.error('Transcoding error:', error);
+            event.reply('transcode-complete', {
+                success: false,
+                error: error.message
+            });
+        }
     } catch (error) {
         console.error('Transcoding error:', error);
-        isTranscoding = false;
-        currentFfmpegCommand = null;
-        if (window && !window.isDestroyed()) {
-            window.webContents.send('transcode-error', { error: error.message });
-        }
+        event.reply('transcode-complete', {
+            success: false,
+            error: error.message
+        });
     }
 });
 

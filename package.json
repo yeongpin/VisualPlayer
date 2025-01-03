@@ -1,6 +1,6 @@
 {
   "name": "visual-player",
-  "version": "1.3.3-alpha",
+  "version": "1.3.4-alpha",
   "description": "Visual Player",
   "main": "main.js",
   "scripts": {
@@ -20,6 +20,7 @@
     "files": [
       "**/*",
       "!node_modules/ffmpeg-static/ffmpeg",
+      "!node_modules/ffprobe-static/ffprobe",
       "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
       "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
       "!**/node_modules/*.d.ts",
@@ -65,9 +66,7 @@
       "node_modules/@electron/remote/**/*",
       "node_modules/ffmpeg-static/**",
       "node_modules/fluent-ffmpeg/**/*",
-      "node_modules/dcraw/**/*",
-      "node_modules/dcraw/build/**/*",
-      "node_modules/dcraw/lib/**/*"
+      "node_modules/dcraw/**/*"
     ]
   },
   "dependencies": {
