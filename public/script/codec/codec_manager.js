@@ -348,6 +348,7 @@ class CodecManager {
     }
 
     async decodeWithFFmpeg(filePath) {
+        const ffmpegPath = require('ffmpeg-static').path;
         return new Promise((resolve, reject) => {
             const ffmpegProcess = spawn(ffmpegPath, [
                 '-i', filePath,

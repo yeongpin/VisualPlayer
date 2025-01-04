@@ -58,6 +58,7 @@ ipcRenderer.on('transcode-error', (event, { error }) => {
     stageText.textContent = '處理失敗';
     progressBar.style.background = '#f44336';
 });
+
 function formatTime(seconds) {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);

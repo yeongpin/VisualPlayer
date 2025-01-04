@@ -2,7 +2,6 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 require('@electron/remote/main').initialize()
 const ffmpeg = require('fluent-ffmpeg');
-const ffmpegPath = require('ffmpeg-static');
 const os = require('os');
 const CodecManager = require('./public/script/codec/codec_manager.js');
 const DcrawCodecManager = require('./public/script/codec/dcraw_codec_manager.js');
@@ -10,36 +9,34 @@ const DcrawCodecManager = require('./public/script/codec/dcraw_codec_manager.js'
 let transcodeWindow = null;
 let mainWindow = null;
 
-// 獲取正確的 FFmpeg 路徑
+// 獲取 FFmpeg 路徑
 function getFFmpegPath() {
+    if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
+        return path.join(__dirname, 'external', 'ffmpeg', 'bin', 'ffmpeg.exe');
+    }
+    return path.join(process.resourcesPath, 'external', 'ffmpeg', 'bin', 'ffmpeg.exe');
+}
+
+// 獲取 FFprobe 路徑
+function getFFprobePath() {
     // 檢查是否在開發環境
     if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
-        return ffmpegPath;
+        return path.join(__dirname, 'external', 'ffmpeg', 'bin', 'ffprobe.exe');
     }
 
     // 生產環境中的路徑
-    const resourcesPath = process.resourcesPath;
-    const platform = process.platform;
-    const ffmpegBinaryName = platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
-    
-    // 構建完整路徑
-    const ffmpegBinaryPath = path.join(
-        resourcesPath,
-        'app.asar.unpacked',
-        'node_modules',
-        'ffmpeg-static',
-        ffmpegBinaryName
-    );
-
-    console.log('FFmpeg 二進制路徑:', ffmpegBinaryPath);
-    return ffmpegBinaryPath;
+    return path.join(process.resourcesPath, 'external', 'ffmpeg', 'bin', 'ffprobe.exe');
 }
 
-// 只設置 FFmpeg 路徑就足夠了
+// 設置路徑
 const ffmpegPathResolved = getFFmpegPath();
-console.log('FFmpeg Path:', ffmpegPathResolved);
-console.log('FFmpeg Path exists:', require('fs').existsSync(ffmpegPathResolved));
+const ffprobePathResolved = getFFprobePath();
+
+console.log('FFmpeg 路徑:', ffmpegPathResolved);
+console.log('FFprobe 路徑:', ffprobePathResolved);
+
 ffmpeg.setFfmpegPath(ffmpegPathResolved);
+ffmpeg.setFfprobePath(ffprobePathResolved);
 
 // 檢查 FFmpeg 是否可用
 function checkFFmpeg() {
