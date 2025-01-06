@@ -303,6 +303,13 @@ class MainManager {
         // 添加視頻狀態變化監聽
         this.videos.forEach((videoData, index) => {
             if (!videoData.isImage) {
+                // 設置初始狀態
+                videoData.video.muted = true;  
+                videoData.video.loop = true;   
+                // 初始化時間範圍
+                videoData.video.startTime = 0;
+                videoData.video.endTime = undefined;
+                
                 videoData.video.addEventListener('play', () => {
                     ipcRenderer.send('video-state-changed', { 
                         index, 
@@ -315,6 +322,144 @@ class MainManager {
                         index, 
                         isPlaying: false 
                     });
+                });
+                
+                // 監聽時間更新
+                videoData.video.addEventListener('timeupdate', () => {
+                    // 檢查是否到達結束時間
+                    if (videoData.video.endTime && videoData.video.currentTime >= videoData.video.endTime) {
+                        if (videoData.video.loop) {
+                            videoData.video.currentTime = videoData.video.startTime || 0;
+                        } else {
+                            videoData.video.pause();
+                        }
+                    }
+                });
+                
+                // 監聽時間範圍更新
+                ipcRenderer.on('time-range-update', (event, { index: videoIndex, startTime, endTime }) => {
+                    if (videoIndex === index) {
+                        // 更新视频的时间范围
+                        videoData.video.startTime = startTime;
+                        videoData.video.endTime = endTime;
+                        
+                        // 如果当前时间在范围外，调整到范围内
+                        if (videoData.video.currentTime < startTime) {
+                            videoData.video.currentTime = startTime;
+                        } else if (endTime && videoData.video.currentTime > endTime) {
+                            videoData.video.currentTime = endTime;
+                        }
+                        
+                        // 发送时间更新事件
+                        ipcRenderer.send('video-time-update', {
+                            index,
+                            currentTime: videoData.video.currentTime,
+                            duration: videoData.video.duration
+                        });
+                    }
+                });
+                
+                // 監聽重置時間範圍
+                ipcRenderer.on('reset-time-range', (event, { index: videoIndex }) => {
+                    if (videoIndex === index) {
+                        videoData.video.startTime = 0;
+                        videoData.video.endTime = undefined;
+                    }
+                });
+                
+                // 發送初始狀態
+                ipcRenderer.send('video-mute-changed', {
+                    index,
+                    isMuted: true
+                });
+                
+                ipcRenderer.send('video-loop-changed', {
+                    index,
+                    isLooping: true
+                });
+
+                // 監聽跳轉請求
+                ipcRenderer.on('video-seek-to', (event, { index: videoIndex, currentTime }) => {
+                    if (videoIndex === index) {
+                        const time = currentTime;
+                        if (time >= videoData.video.startTime && 
+                            (!videoData.video.endTime || time <= videoData.video.endTime)) {
+                            videoData.video.currentTime = time;
+                            // 发送时间更新事件
+                            ipcRenderer.send('video-time-update', {
+                                index: videoIndex,
+                                currentTime: time,
+                                duration: videoData.video.duration
+                            });
+                        }
+                    }
+                });
+
+                // 监听前进和后退事件
+                ipcRenderer.on('video-skipnext', (event, videoIndex) => {
+                    if (videoIndex === index) {
+                        const newTime = Math.min(
+                            videoData.video.currentTime + 5,
+                            videoData.video.endTime || videoData.video.duration
+                        );
+                        videoData.video.currentTime = newTime;
+                        // 发送时间更新事件
+                        ipcRenderer.send('video-time-update', {
+                            index,
+                            currentTime: newTime,
+                            duration: videoData.video.duration
+                        });
+                    }
+                });
+                
+                ipcRenderer.on('video-skipprev', (event, videoIndex) => {
+                    if (videoIndex === index) {
+                        const newTime = Math.max(
+                            videoData.video.currentTime - 5,
+                            videoData.video.startTime || 0
+                        );
+                        videoData.video.currentTime = newTime;
+                        // 发送时间更新事件
+                        ipcRenderer.send('video-time-update', {
+                            index,
+                            currentTime: newTime,
+                            duration: videoData.video.duration
+                        });
+                    }
+                });
+            }
+        });
+
+        ipcRenderer.on('video-skipnext', (event, index) => {
+            const videoData = this.videos[index];
+            if (videoData) {
+                const newTime = Math.min(
+                    videoData.video.currentTime + 5,
+                    videoData.video.endTime || videoData.video.duration
+                );
+                videoData.video.currentTime = newTime;
+                // 发送时间更新事件
+                ipcRenderer.send('video-time-update', {
+                    index,
+                    currentTime: newTime,
+                    duration: videoData.video.duration
+                });
+            }
+        });
+
+        ipcRenderer.on('video-skipprev', (event, index) => {
+            const videoData = this.videos[index];
+            if (videoData) {
+                const newTime = Math.max(
+                    videoData.video.currentTime - 5,
+                    videoData.video.startTime || 0
+                );
+                videoData.video.currentTime = newTime;
+                // 发送时间更新事件
+                ipcRenderer.send('video-time-update', {
+                    index,
+                    currentTime: newTime,
+                    duration: videoData.video.duration
                 });
             }
         });

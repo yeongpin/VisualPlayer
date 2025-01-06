@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>視頻編輯器</title>
+    <link rel="stylesheet" href="styles/video_editor.css">
+</head>
+<body class="video-editor" id="video-editor">
+    <div class="titlebar">
+        <span class="titlebar-title">視頻編輯器</span>
+        <button class="close-button" id="closeBtn">✕</button>
+    </div>
+    <div class="editor-container">
+        <div class="main-content">
+            <div class="video-section">
+                <div class="video-container">
+                    <!-- 內容層 - 進行旋轉等操作 -->
+                    <div class="video-wrapper">
+                        <video class="preview" preload="metadata"></video>
+                    </div>
+                    <!-- 自定義控制項 -->
+                    <div class="custom-controls">
+                        <div class="progress-bar">
+                            <div class="progress-track"></div>
+                            <div class="progress-loaded"></div>
+                            <div class="progress-played"></div>
+                        </div>
+                        <div class="controls-bottom">
+                            <div class="left-controls">
+                                <button class="play-pause">
+                                    <span class="play-icon">▶</span>
+                                    <span class="pause-icon" style="display:none">❚❚</span>
+                                </button>
+                                <div class="time-display">
+                                    <span class="current-time">00:00</span>
+                                    <span class="time-separator">/</span>
+                                    <span class="total-time">00:00</span>
+                                </div>
+                            </div>
+                            <div class="right-controls">
+                                <div class="volume-control">
+                                    <button class="volume-btn">🔊</button>
+                                    <div class="volume-slider">
+                                        <div class="volume-track"></div>
+                                        <div class="volume-level"></div>
+                                    </div>
+                                </div>
+                                <button class="loop-btn" title="循環播放">🔁</button>
+                                <button class="fullscreen-btn">⛶</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overlay-container">
+                        <!-- 文字、字幕等疊加層 -->
+                        <div class="text-overlays"></div>
+                        <div class="subtitle-overlays"></div>
+                        <div class="watermark-overlay"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls-section">
+                <div class="controls">
+                    <div class="control-group">
+                        <h3>基本編輯</h3>
+                        <button id="trimBtn">裁剪</button>
+                        <button id="cropBtn">剪裁</button>
+                        <button id="rotateBtn">旋轉</button>
+                        <button id="speedBtn">速度</button>
+                        <button id="positionBtn">位置</button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>文字與字幕</h3>
+                        <button id="textBtn">添加文字</button>
+                        <button id="subtitleBtn">添加字幕</button>
+                        <button id="watermarkBtn">添加浮水印</button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>效果</h3>
+                        <button id="filterBtn">濾鏡效果</button>
+                        <button id="transitionBtn">轉場效果</button>
+                        <button id="audioBtn">音頻調整</button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>輸出</h3>
+                        <button id="exportBtn" class="export-button">輸出</button>
+                        <select id="formatSelect">
+                            <option value="mp4">MP4</option>
+                            <option value="webm">WebM</option>
+                            <option value="gif">GIF</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 編輯面板容器 -->
+                <div class="edit-panels" style="display: none;">
+                    <!-- 文字編輯面板 -->
+                    <div id="textPanel" class="edit-panel">
+                        <div class="text-editor-container">
+                            <div class="text-input-group">
+                                <h3>文字內容</h3>
+                                <textarea id="textInput" placeholder="輸入文字..."></textarea>
+                            </div>
+                            
+                            <div class="text-style-group">
+                                <h3>文字樣式</h3>
+                                <div class="style-controls">
+                                    <div class="control-item">
+                                        <label>顏色</label>
+                                        <input type="color" id="textColor" value="#ffffff">
+                                    </div>
+                                    <div class="control-item">
+                                        <label>大小</label>
+                                        <div class="size-control">
+                                            <input type="number" id="fontSize" value="24" min="8" max="72">
+                                            <span class="unit">px</span>
+                                        </div>
+                                    </div>
+                                    <div class="control-item">
+                                        <label>透明度</label>
+                                        <input type="range" id="textOpacity" min="0" max="100" value="100">
+                                        <span class="value-display">100%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-position-group">
+                                <h3>位置調整</h3>
+                                <div class="position-controls">
+                                    <button class="position-preset" data-position="top">上</button>
+                                    <button class="position-preset" data-position="center">中</button>
+                                    <button class="position-preset" data-position="bottom">下</button>
+                                </div>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button id="previewText" class="secondary-button">預覽</button>
+                                <button id="applyText" class="primary-button">應用</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 濾鏡面板 -->
+                    <div id="filterPanel" class="edit-panel">
+                        <div class="filter-controls">
+                            <label>亮度
+                                <input type="range" id="brightness" min="0" max="200" value="100">
+                            </label>
+                            <label>對比度
+                                <input type="range" id="contrast" min="0" max="200" value="100">
+                            </label>
+                            <label>飽和度
+                                <input type="range" id="saturation" min="0" max="200" value="100">
+                            </label>
+                            <label>色調
+                                <input type="range" id="hue" min="0" max="360" value="0">
+                            </label>
+                        </div>
+                        <div class="preset-filters">
+                            <button data-filter="none">原始</button>
+                            <button data-filter="warm">暖色</button>
+                            <button data-filter="cool">冷色</button>
+                            <button data-filter="vintage">復古</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 裁剪面板 -->
+                    <div id="trimPanel" class="edit-panel">
+                        <div class="trim-editor-container">
+                            <div class="time-range">
+                                <div class="time-control">
+                                    <label>開始時間</label>
+                                    <input type="text" id="startTime" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" placeholder="00:00:00">
+                                </div>
+                                <div class="time-control">
+                                    <label>結束時間</label>
+                                    <input type="text" id="endTime" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" placeholder="00:00:00">
+                                </div>
+                            </div>
+                            <div class="timeline">
+                                <div class="timeline-slider">
+                                    <div class="slider-handle start"></div>
+                                    <div class="slider-range"></div>
+                                    <div class="slider-handle end"></div>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button id="previewTrim" class="secondary-button">預覽</button>
+                                <button id="applyTrim" class="primary-button">應用</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 速度調整面板 -->
+                    <div id="speedPanel" class="edit-panel">
+                        <div class="speed-editor-container">
+                            <div class="speed-control">
+                                <label>播放速度</label>
+                                <input type="range" id="speedRange" min="0.25" max="2" step="0.25" value="1">
+                                <span class="speed-value">1.0x</span>
+                            </div>
+                            <div class="speed-presets">
+                                <button data-speed="0.5">0.5x</button>
+                                <button data-speed="1.0" class="active">1.0x</button>
+                                <button data-speed="1.5">1.5x</button>
+                                <button data-speed="2.0">2.0x</button>
+                            </div>
+                            <div class="action-buttons">
+                                <button id="previewSpeed" class="secondary-button">預覽</button>
+                                <button id="applySpeed" class="primary-button">應用</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 旋轉和翻轉面板 -->
+                    <div id="rotatePanel" class="edit-panel">
+                        <div class="rotate-editor-container">
+                            <div class="rotate-controls">
+                                <div class="rotate-buttons">
+                                    <button id="rotateLeft">向左旋轉90°</button>
+                                    <button id="rotateRight">向右旋轉90°</button>
+                                </div>
+                                <div class="flip-buttons">
+                                    <button id="flipHorizontal">水平翻轉</button>
+                                    <button id="flipVertical">垂直翻轉</button>
+                                </div>
+                            </div>
+                            <div class="angle-control">
+                                <label>自定義角度</label>
+                                <input type="range" id="angleRange" min="-180" max="180" value="0">
+                                <span class="angle-value">0°</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 字幕編輯面板 -->
+                    <div id="subtitlePanel" class="edit-panel">
+                        <div class="subtitle-editor-container">
+                            <div class="subtitle-input-group">
+                                <h3>字幕內容</h3>
+                                <textarea id="subtitleInput" placeholder="輸入字幕..."></textarea>
+                            </div>
+                            
+                            <div class="subtitle-time-group">
+                                <div class="time-input">
+                                    <label>開始時間</label>
+                                    <input type="text" id="subtitleStart" placeholder="00:00">
+                                </div>
+                                <div class="time-input">
+                                    <label>結束時間</label>
+                                    <input type="text" id="subtitleEnd" placeholder="00:00">
+                                </div>
+                            </div>
+                            
+                            <div class="subtitle-style-group">
+                                <h3>字幕樣式</h3>
+                                <div class="style-controls">
+                                    <div class="control-item">
+                                        <label>顏色</label>
+                                        <input type="color" id="subtitleColor" value="#ffffff">
+                                    </div>
+                                    <div class="control-item">
+                                        <label>大小</label>
+                                        <input type="number" id="subtitleSize" value="24" min="8" max="72">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="subtitle-position-group">
+                                <h3>位置調整</h3>
+                                <div class="position-controls">
+                                    <div class="position-input">
+                                        <label>X 位置</label>
+                                        <input type="number" id="subtitleX" value="50" min="0" max="100">
+                                    </div>
+                                    <div class="position-input">
+                                        <label>Y 位置</label>
+                                        <input type="number" id="subtitleY" value="90" min="0" max="100">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button id="previewSubtitle" class="secondary-button">預覽</button>
+                                <button id="applySubtitle" class="primary-button">添加</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 位置調整面板 -->
+                    <div id="positionPanel" class="edit-panel">
+                        <div class="position-editor-container">
+                            <div class="position-controls">
+                                <div class="position-group">
+                                    <h3>位置調整</h3>
+                                    <div class="axis-controls">
+                                        <div class="axis-input">
+                                            <label>X 軸位置</label>
+                                            <div class="input-with-range">
+                                                <input type="range" id="positionXRange" value="50" min="0" max="100">
+                                                <input type="number" id="positionX" value="50" min="0" max="100">
+                                                </div>
+                                        </div>
+                                        <div class="axis-input">
+                                            <label>Y 軸位置</label>
+                                            <div class="input-with-range">
+                                                <input type="range" id="positionYRange" value="50" min="0" max="100">
+                                                <input type="number" id="positionY" value="50" min="0" max="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="scale-group">
+                                    <h3>縮放比例</h3>
+                                    <div class="scale-input">
+                                        <label>縮放</label>
+                                        <div class="input-with-range">
+                                            <input type="range" id="scaleRange" value="100" min="10" max="200">
+                                            <input type="number" id="scale" value="100" min="10" max="200">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="preset-positions">
+                                <button data-position="center">置中</button>
+                                <button data-position="reset">重置</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 先引入 store -->
+    <script>
+        // 設置全局變量以避免 require 問題
+        window.electron = require('electron');
+        window.path = require('path');
+    </script>
+    <script src="script/editor/video_editor_store.js"></script>
+    <script src="script/editor/video_editor.js"></script>
+</body>
+</html> 

@@ -1,0 +1,938 @@
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+}
+
+/* 自定義滾動條樣式 */
+.edit-panels::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.edit-panels::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.edit-panels::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.edit-panels::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.edit-panels::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+body {
+    margin: 0;
+    background: #1e1e1e;
+    color: white;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.titlebar {
+    -webkit-app-region: drag;
+    height: 32px;
+    background: #2d2d2d;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    flex-shrink: 0;
+}
+.titlebar-title {
+    font-size: 14px;
+    margin-left: 10px;
+}
+.close-button {
+    -webkit-app-region: no-drag;
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 20px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.close-button:hover {
+    background: #ff4444;
+    color: #fff;
+}
+.editor-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    flex: 1;
+    min-height: 0;
+}
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: calc(100vh - 72px); /* 減去標題欄和padding */
+}
+.video-section {
+    flex: 0 0 400px; /* 固定高度，不縮放 */
+}
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    background: #000;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.custom-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    padding: 10px;
+    z-index: 4;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.video-container:hover .custom-controls {
+    opacity: 1;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.progress-track {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.progress-loaded {
+    position: absolute;
+    height: 100%;
+    background: rgba(255,255,255,0.3);
+}
+
+.progress-played {
+    position: absolute;
+    height: 100%;
+    background: #0066cc;
+}
+
+.controls-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left-controls, .right-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.play-pause, .volume-btn, .fullscreen-btn, .loop-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.loop-btn {
+    transition: color 0.2s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: grayscale(100%);
+}
+
+.loop-btn.active {
+    color: #0066cc;
+    filter: grayscale(0%);
+}
+
+/* 可選：添加一個小點來表示啟用狀態 */
+.loop-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #0066cc;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.loop-btn.active::after {
+    opacity: 1;
+}
+
+.time-display {
+    color: white;
+    font-size: 14px;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.volume-slider {
+    width: 60px;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    position: relative;
+    cursor: pointer;
+}
+
+.volume-track {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.volume-level {
+    position: absolute;
+    height: 100%;
+    background: white;
+    width: 100%;
+}
+
+.video-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+.controls-section {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        transition: background 0.2s;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+}
+.preview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background: #2d2d2d;
+    color: white;
+    cursor: pointer;
+}
+button:hover {
+    background: #3d3d3d;
+}
+.export-button {
+    background: #0066cc;
+}
+.export-button:hover {
+    background: #0052a3;
+}
+.control-group {
+    border: 1px solid #3d3d3d;
+    padding: 15px;
+    border-radius: 4px;
+    background: #2d2d2d;
+}
+.control-group h3 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #888;
+}
+.edit-panels {
+    background: #2d2d2d;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 10px;
+    height: auto;
+    overflow: visible;
+}
+.edit-panel {
+    display: none;
+}
+.edit-panel.active {
+    display: block;
+}
+.filter-controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.filter-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.preset-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+input[type="range"] {
+    width: 100%;
+    background: #444;
+    height: 6px;
+    border-radius: 3px;
+    -webkit-appearance: none;
+    appearance: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #0066cc;
+    border-radius: 50%;
+    cursor: pointer;
+}
+select {
+    padding: 8px;
+    background: #2d2d2d;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+textarea {
+    width: 90%;
+    height: 80px;
+    background: #2d2d2d;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 10px;
+    resize: none
+}
+.editor-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.editor-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+.editor-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.editor-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+.editor-container::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* 文字編輯面板樣式 */
+.text-editor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.text-input-group,
+.text-style-group,
+.text-position-group {
+    background: #363636;
+    border-radius: 6px;
+    padding: 15px;
+    width: calc(100% - 30px);
+}
+
+.text-input-group h3,
+.text-style-group h3,
+.text-position-group h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 500;
+}
+
+.text-input-group textarea {
+    width: calc(100% - 20px);
+    height: 80px;
+    background: #2d2d2d;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 14px;
+    resize: none;
+    transition: border-color 0.2s;
+}
+
+.text-input-group textarea:focus {
+    border-color: #0066cc;
+    outline: none;
+}
+
+.style-controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.control-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-item label {
+    font-size: 12px;
+    color: #bbb;
+}
+
+.size-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.size-control input[type="number"] {
+    width: 60px;
+    padding: 6px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: white;
+}
+
+.size-control .unit {
+    color: #888;
+    font-size: 12px;
+}
+
+input[type="color"] {
+    -webkit-appearance: none;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    padding: 0;
+    cursor: pointer;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px;
+}
+
+.value-display {
+    font-size: 12px;
+    color: #888;
+    text-align: right;
+}
+
+.position-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.position-preset {
+    padding: 8px 16px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.position-preset:hover {
+    background: #3d3d3d;
+    border-color: #555;
+}
+
+.position-preset.active {
+    background: #0066cc;
+    border-color: #0066cc;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.primary-button,
+.secondary-button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.primary-button {
+    background: #0066cc;
+    color: white;
+}
+
+.primary-button:hover {
+    background: #0052a3;
+}
+
+.secondary-button {
+    background: #2d2d2d;
+    color: white;
+}
+
+.secondary-button:hover {
+    background: #3d3d3d;
+}
+
+/* 裁剪面板樣式 */
+.trim-editor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.time-range {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.time-control {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.time-control label {
+    font-size: 12px;
+    color: #bbb;
+}
+
+.time-control input {
+    padding: 8px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: white;
+}
+
+.timeline {
+    position: relative;
+    height: 40px;
+    background: #2d2d2d;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.timeline-slider {
+    position: relative;
+    height: 4px;
+    background: #444;
+    margin-top: 18px;
+}
+
+.time-preview {
+    position: absolute;
+    top: -25px;
+    transform: translateX(-50%);
+    background: #0066cc;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    display: none;
+    pointer-events: none;
+}
+
+.slider-handle {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #0066cc;
+    border-radius: 50%;
+    top: -6px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.slider-handle.start {
+    left: 0;
+}
+
+.slider-handle.end {
+    right: 0;
+}
+
+.slider-range {
+    position: absolute;
+    height: 100%;
+    background: #0066cc;
+    left: 8px;
+    right: 8px;
+}
+
+/* 速度調整面板樣式 */
+.speed-editor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.speed-control {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.speed-control label {
+    font-size: 12px;
+    color: #bbb;
+}
+
+.speed-value {
+    font-size: 14px;
+    color: #fff;
+    text-align: center;
+}
+
+.speed-presets {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.speed-presets button {
+    flex: 1;
+    padding: 8px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.speed-presets button:hover {
+    background: #3d3d3d;
+}
+
+.speed-presets button.active {
+    background: #0066cc;
+    border-color: #0066cc;
+}
+
+/* 旋轉和翻轉面板樣式 */
+.rotate-editor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.rotate-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.rotate-buttons,
+.flip-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.rotate-buttons button,
+.flip-buttons button {
+    flex: 1;
+    padding: 10px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.angle-control {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.angle-control label {
+    font-size: 12px;
+    color: #bbb;
+}
+
+.angle-value {
+    font-size: 14px;
+    color: #fff;
+    text-align: center;
+}
+
+.control-group button.active {
+    background: #0066cc;
+    border-color: #0066cc;
+}
+
+.overlay-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.text-overlays, .subtitle-overlays, .watermark-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.text-overlay {
+    position: absolute;
+    padding: 5px;
+    pointer-events: auto;
+    cursor: move;
+    user-select: none;
+}
+
+/* 字幕編輯面板樣式 */
+.subtitle-editor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.subtitle-input-group textarea {
+    width: calc(100% - 20px);
+    height: 80px;
+    background: #2d2d2d;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 14px;
+    resize: none;
+    transition: border-color 0.2s;
+
+}
+
+.subtitle-time-group {
+    display: flex;
+    gap: 20px;
+}
+
+.time-input {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.time-input input {
+    padding: 8px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: white;
+}
+
+.subtitle-position-group .position-controls {
+    display: flex;
+    gap: 20px;
+}
+
+.subtitle-style-group {
+    background: #363636;
+    border-radius: 6px;
+    padding: 15px;
+    width: calc(100% - 30px);
+}
+
+.position-input {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.position-input input {
+    padding: 8px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: white;
+}
+
+.subtitle-overlay {
+    position: absolute;
+    padding: 5px;
+    color: white;
+    text-align: center;
+    width: 100%;
+    transform: translate(-50%, -50%);
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* 位置調整面板樣式 */
+.position-editor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.position-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #363636;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.axis-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.axis-input {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-with-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-with-range input[type="number"] {
+    width: 60px;
+    padding: 6px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: white;
+}
+
+.input-with-range input[type="range"] {
+    flex: 1;
+}
+
+.preset-positions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.preset-positions button {
+    padding: 8px 16px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.preset-positions button:hover {
+    background: #3d3d3d;
+    border-color: #555;
+}
+
+.control-group button {
+    padding: 8px 16px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.control-group button.active {
+    background: #0066cc;
+    border-color: #0066cc;
+}
+
+.control-group button:hover {
+    background: #3d3d3d;
+    border-color: #555;
+}

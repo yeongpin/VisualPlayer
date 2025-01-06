@@ -128,7 +128,10 @@
             "BigUpdate": "🚀 大更新",
             "DecoderUpdate": "🚀 解碼器更新",
             "Tired": "💤 累死了",
-            "addRawImageSupport": "✨ 新增RAW圖片支持"
+            "addRawImageSupport": "✨ 新增RAW圖片支持",
+            "addVideoEditor": "✨ 新增影片剪輯功能",
+            "addSubtitle": "✨ 新增字幕功能",
+            "fixFFMPEG": "🐛 修復FFMPEG解碼器問題"
         },
         "keybinding": {
             "playPause": "播放/暫停",

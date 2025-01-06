@@ -77,7 +77,7 @@ body {
     gap: 15px;
     transition: background-color 0.2s;
     position: relative;
-    height: 60px;
+    height: 120px;
 }
 
 .video-card:hover {
@@ -85,8 +85,8 @@ body {
 }
 
 .thumbnail {
-    width: 120px;
-    height: 67.5px;
+    width: 188px;
+    height: 110px;
     object-fit: cover;
     border-radius: 4px;
     flex-shrink: 0;
@@ -116,8 +116,8 @@ body {
 
 .card-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
-    margin-left: auto;
     padding-left: 10px;
     align-items: center;
 }
@@ -417,5 +417,129 @@ body {
 
 .video-card.active .toggle-playback .line:nth-child(2) {
     transform: rotate(180deg);
+}
+
+/* 視頻控制面板 */
+.video-controls-panel {
+    display: flex;
+    flex-direction: column;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 10px;
+    gap: 10px;
+}
+
+.video-controls-time-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.video-controls-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.video-progress {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.8);
+    position: relative;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.video-progress-played {
+    position: absolute;
+    height: 100%;
+    background: #0066cc;
+    border-radius: 2px;
+}
+
+.video-time {
+    color: #fff;
+    font-size: 12px;
+    margin: 0 8px;
+}
+
+.video-control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    padding: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+.video-control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.video-control-btn.active {
+    background: rgba(0, 102, 204, 0.5);
+}
+
+/* 網格布局容器 */
+.grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: auto;
+}
+
+/* 時間範圍控制相關樣式 */
+.time-range {
+    position: absolute;
+    height: 100%;
+    background: rgba(0, 102, 204, 0.3);
+    pointer-events: none;
+}
+
+.time-mask {
+    position: absolute;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.start-mask {
+    left: 0;
+}
+
+.end-mask {
+    right: 0;
+}
+
+.time-handle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #0066cc;
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    cursor: ew-resize;
+    z-index: 2;
+}
+
+.start-handle {
+    left: 0;
+    display: none;
+}
+
+.end-handle {
+    right: 0;
+    display: none;
 }
  

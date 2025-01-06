@@ -4,6 +4,68 @@ class VideoManager {
     constructor(mainManager) {
         this.mainManager = mainManager;
         this.codecManager = new CodecManager();
+        
+        // 添加 IPC 事件监听
+        const { ipcRenderer } = require('electron');
+        
+        // 监听视频跳转请求
+        ipcRenderer.on('video-seek-to', (event, { index, currentTime }) => {
+            const videoData = this.mainManager.videos[index];
+            if (videoData && !videoData.isImage) {
+                // 强制设置视频时间
+                videoData.video.currentTime = currentTime;
+                
+                // 发送时间更新事件
+                ipcRenderer.send('video-time-update', {
+                    index,
+                    currentTime: currentTime,
+                    duration: videoData.video.duration
+                });
+            }
+        });
+        
+        // 监听时间范围更新请求
+        ipcRenderer.on('time-range-update', (event, { index, startTime, endTime }) => {
+            const videoData = this.mainManager.videos[index];
+            if (videoData && !videoData.isImage) {
+                // 强制设置开始和结束时间
+                videoData.video.startTime = startTime;
+                videoData.video.endTime = endTime;
+                
+                // 如果当前时间小于开始时间，强制跳转到开始时间
+                if (videoData.video.currentTime < startTime) {
+                    videoData.video.currentTime = startTime;
+                }
+                // 如果当前时间大于结束时间，强制跳转到结束时间
+                else if (endTime && videoData.video.currentTime > endTime) {
+                    videoData.video.currentTime = endTime;
+                }
+                
+                // 发送时间更新事件
+                ipcRenderer.send('video-time-update', {
+                    index,
+                    currentTime: videoData.video.currentTime,
+                    duration: videoData.video.duration
+                });
+            }
+        });
+        
+        // 监听重置时间范围请求
+        ipcRenderer.on('reset-time-range', (event, { index }) => {
+            const videoData = this.mainManager.videos[index];
+            if (videoData && !videoData.isImage) {
+                // 重置时间范围
+                videoData.video.startTime = 0;
+                videoData.video.endTime = undefined;
+                
+                // 发送时间范围更新事件
+                ipcRenderer.send('time-range-update', {
+                    index,
+                    startTime: 0,
+                    endTime: undefined
+                });
+            }
+        });
     }
 
     async addVideo(source, originalFileName) {
@@ -62,7 +124,7 @@ class VideoManager {
         const wrapper = document.createElement('div');
         wrapper.className = 'video-wrapper';
         
-        // 創建��視頻元素來獲取原始尺寸
+        // 創建視頻元素來獲取原始尺寸
         const tempVideo = document.createElement('video');
         tempVideo.src = source;
         
@@ -202,14 +264,25 @@ class VideoManager {
                 progress.style.width = `${(current / total) * 100}%`;
                 timeDisplay.textContent = `${formatTime(current)} / ${formatTime(total)}`;
                 
-                // 檢查是否到達結束間
-                if (video.endTime && current >= video.endTime) {
+                // 严格检查时间范围
+                if (current < video.startTime) {
+                    video.currentTime = video.startTime;
+                } else if (video.endTime && current >= video.endTime) {
                     if (video.loop) {
-                        video.currentTime = video.startTime;
+                        video.currentTime = video.startTime || 0;
                     } else {
                         video.pause();
+                        video.currentTime = video.endTime;
                     }
                 }
+                
+                // 發送時間更新事件
+                const index = this.mainManager.videos.findIndex(v => v.video === video);
+                ipcRenderer.send('video-time-update', {
+                    index,
+                    currentTime: current,
+                    duration: total
+                });
             });
 
             // 添加拖動事件監聽
@@ -241,6 +314,10 @@ class VideoManager {
                     // 確保在設定的時間範圍內
                     if (time >= video.startTime && (!video.endTime || time <= video.endTime)) {
                         video.currentTime = time;
+                        ipcRenderer.send('video-seek-to', {
+                            index: index,
+                            position: time / video.duration
+                        });
                     }
                 }
             };
@@ -265,10 +342,21 @@ class VideoManager {
             
             playBtn.onclick = (e) => {
                 e.stopPropagation();
+                // 获取当前视频的索引
+                const index = this.mainManager.videos.findIndex(v => v.video === video);
+                
                 if (video.paused) {
                     video.play();
+                    ipcRenderer.send('video-state-changed', { 
+                        index, 
+                        isPlaying: true 
+                    });
                 } else {
                     video.pause();
+                    ipcRenderer.send('video-state-changed', {
+                        index,
+                        isPlaying: false
+                    });
                 }
             };
             
@@ -355,10 +443,15 @@ class VideoManager {
             video.addEventListener('volumechange', () => {
                 updateMuteButton(muteBtn, video.muted);
             });
+            const index = this.mainManager.videos.findIndex(v => v.video === video);
             
             muteBtn.onclick = (e) => {
                 e.stopPropagation();
                 video.muted = !video.muted;
+                ipcRenderer.send('video-mute-changed', {
+                    index,
+                    isMuted: video.muted
+                });
             };
             
             const loopBtn = document.createElement('button');
@@ -376,6 +469,13 @@ class VideoManager {
             loopBtn.onclick = (e) => {
                 e.stopPropagation();
                 video.loop = !video.loop;
+                // 获取视频索引
+                const index = this.mainManager.videos.findIndex(v => v.video === video);
+                // 发送循环状态变化事件
+                ipcRenderer.send('video-loop-changed', {
+                    index,
+                    isLooping: video.loop
+                });
                 updateLoopButton(loopBtn, video.loop);
             };
             
@@ -781,6 +881,16 @@ class VideoManager {
                 const loadingDiv = videoContainer.querySelector('.video-loading');
                 if (loadingDiv) {
                     loadingDiv.remove();
+                }
+            });
+
+            // 添加 seeking 事件监听，防止拖动超出范围
+            video.addEventListener('seeking', () => {
+                const current = video.currentTime;
+                if (current < video.startTime) {
+                    video.currentTime = video.startTime;
+                } else if (video.endTime && current > video.endTime) {
+                    video.currentTime = video.endTime;
                 }
             });
         };

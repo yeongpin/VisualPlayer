@@ -1028,7 +1028,7 @@ ipcMain.on('toggle-loop', (event, index) => {
                 win.webContents.getURL().includes('cards.html')
             );
             if (cardsWindow) {
-                cardsWindow.webContents.send('video-loop-state', { index, isLooping });
+                cardsWindow.webContents.send('video-loop-changed', { index, isLooping });
             }
         });
     }
@@ -1057,6 +1057,89 @@ ipcMain.on('video-state-changed', (event, { index, isPlaying }) => {
         cardsWindow.webContents.send('video-play-state', { index, isPlaying });
     }
 });
+
+ipcMain.on('video-time-update', (event, { index, currentTime, duration }) => {
+    const cardsWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('cards.html')
+    );
+    if (cardsWindow) {
+        cardsWindow.webContents.send('video-time-update', { index, currentTime, duration });
+    }
+});
+
+ipcMain.on('video-mute-changed', (event, { index, isMuted }) => {
+    const cardsWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('cards.html')
+    );
+    if (cardsWindow) {
+        cardsWindow.webContents.send('video-mute-changed', { index, isMuted });
+    }
+});
+
+ipcMain.on('video-loop-changed', (event, { index, isLooping }) => {
+    const cardsWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('cards.html')
+    );
+    if (cardsWindow) {
+        cardsWindow.webContents.send('video-loop-changed', { index, isLooping });
+    }
+});
+
+ipcMain.on('video-seek-to', (event, { index, currentTime, duration }) => {
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        mainWindow.webContents.send('video-seek-to', { 
+            index, 
+            currentTime,
+            duration 
+        });
+    }
+});
+
+ipcMain.on('video-skipnext', (event, index) => {
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        mainWindow.webContents.send('video-skipnext', index);
+    }
+});
+
+ipcMain.on('video-skipprev', (event, index) => {
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        mainWindow.webContents.send('video-skipprev', index);
+    }
+});
+
+// 處理時間範圍更新
+ipcMain.on('time-range-update', (event, { index, startTime, endTime }) => {
+    const cardsWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('cards.html')
+    );
+    if (cardsWindow) {
+        cardsWindow.webContents.send('time-range-update', { 
+            index, 
+            startTime, 
+            endTime 
+        });
+    }
+});
+
+// 處理重置時間範圍
+ipcMain.on('reset-time-range', (event, { index }) => {
+    const cardsWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('cards.html')
+    );
+    if (cardsWindow) {
+        cardsWindow.webContents.send('reset-time-range', { index });
+    }
+});
+
 
 ipcMain.handle('process-raw-image', async (event, { path, options }) => {
     console.log('Received RAW file for processing:', path);
@@ -1120,4 +1203,59 @@ ipcMain.on('create-raw-options-window', (event, { filename }) => {
 ipcMain.on('raw-option-selected', (event, result) => {
     // 將結果轉發給主窗口
     mainWindow.webContents.send('raw-option-selected', result);
+});
+
+// 處理打開視頻編輯器的請求
+ipcMain.on('open-video-editor', (event, videoData) => {
+    const editorWindow = new BrowserWindow({
+        width: 800,
+        height: 800,
+        frame: false,
+        resizable: true,
+        alwaysOnTop: true,
+        movable: true,
+        parent: mainWindow,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        }
+    });
+
+    // 設置窗口在屏幕中央
+    editorWindow.center();
+
+    editorWindow.loadFile('public/video_editor.html');
+    
+    editorWindow.webContents.on('did-finish-load', () => {
+        editorWindow.webContents.send('init-editor', videoData);
+    });
+});
+
+// 處理視頻輸出請求
+ipcMain.on('export-edited-video', async (event, data) => {
+    try {
+        // 這裡處理視頻輸出邏輯
+        // 使用 FFmpeg 進行視頻處理
+        // ...
+
+        event.reply('export-complete', {
+            success: true,
+            outputPath: '輸出路徑'
+        });
+    } catch (error) {
+        event.reply('export-complete', {
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// 處理跳轉到指定時間
+ipcMain.on('seek-to', (event, { index, position }) => {
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        mainWindow.webContents.send('seek-to', { index, position });
+    }
 });

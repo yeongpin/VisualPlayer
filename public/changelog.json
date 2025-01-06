@@ -1,6 +1,48 @@
 {
     "versions": [
         {
+            "version": "v1.3.6-preview",
+            "date": "2025-01-04",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.addNewFeature",
+                    "description": "新增新功能"
+                },
+                {
+                    "key": "settings.changelog.addVideoEditor",
+                    "description": "新增影片剪輯功能"
+                }
+            ]
+        },
+        {
+            "version": "v1.3.5-alpha",
+            "date": "2025-01-03",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.fixFFMPEG",
+                    "description": "修復FFMPEG解碼器問題"
+                }
+            ]
+        },
+        {
+            "version": "v1.3.4-alpha",
+            "date": "2025-01-02",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                }
+            ]
+        },
+        {
             "version": "v1.3.3-alpha",
             "date": "2024-12-29",
             "changes": [

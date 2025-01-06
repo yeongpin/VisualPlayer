@@ -128,7 +128,10 @@
             "BigUpdate": "🚀 Big update",
             "DecoderUpdate": "🚀 Decoder update",
             "Tired": "💤 Tired",
-            "addRawImageSupport": "✨ Add RAW image support"
+            "addRawImageSupport": "✨ Add RAW image support",
+            "addVideoEditor": "✨ Add video editor",
+            "addSubtitle": "✨ Add subtitle function",
+            "fixFFMPEG": "🐛 Fix FFMPEG decoder issue"
         },
         "keybinding": {
             "playPause": "Play/Pause",
