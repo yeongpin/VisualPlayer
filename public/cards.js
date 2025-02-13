@@ -66,8 +66,8 @@ function updateCardIndex(card, index) {
     const title = card.querySelector('.card-title');
     if (title) {
         title.textContent = title.textContent.includes('圖片') 
-            ? `圖片 ${index + 1}` 
-            : `視頻 ${index + 1}`;
+            ? `Image ${index + 1}` 
+            : `Video ${index + 1}`;
     }
 }
 
