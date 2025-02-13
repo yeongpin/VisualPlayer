@@ -892,6 +892,12 @@ ipcMain.on('transcode-video', async (event, { path: videoPath, name }) => {
                     
                     if (window && !window.isDestroyed()) {
                         window.webContents.send('transcode-error', { error: err.message });
+                        // 等待一段时间后关闭窗口
+                        setTimeout(() => {
+                            if (!window.isDestroyed()) {
+                                window.close();
+                            }
+                        }, 1500);
                     }
                     
                     event.reply('transcode-complete', {
@@ -1257,5 +1263,31 @@ ipcMain.on('seek-to', (event, { index, position }) => {
     );
     if (mainWindow) {
         mainWindow.webContents.send('seek-to', { index, position });
+    }
+});
+
+// 處理取消轉碼請求
+ipcMain.on('cancel-transcode', (event) => {
+    if (isTranscoding && currentFfmpegCommand) {
+        try {
+            currentFfmpegCommand.kill('SIGKILL');
+            isTranscoding = false;
+            currentFfmpegCommand = null;
+            // 通知渲染进程取消成功
+            const transcodeWindow = BrowserWindow.getAllWindows().find(win => 
+                win.webContents.getURL().includes('transcode.html')
+            );
+            if (transcodeWindow) {
+                transcodeWindow.webContents.send('transcode-cancelled');
+                // 等待一段时间后关闭窗口
+                setTimeout(() => {
+                    if (!transcodeWindow.isDestroyed()) {
+                        transcodeWindow.close();
+                    }
+                }, 1500); // 1.5秒后关闭，给用户时间看到取消状态
+            }
+        } catch (error) {
+            console.error('Error killing ffmpeg process:', error);
+        }
     }
 });

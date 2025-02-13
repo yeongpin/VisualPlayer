@@ -145,3 +145,18 @@ body {
 .processing {
     animation: pulse 1.5s infinite;
 }
+
+.cancel-button {
+    margin-top: 15px;
+    padding: 8px 16px;
+    background: #d32f2f;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.cancel-button:hover {
+    background: #f44336;
+}

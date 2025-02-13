@@ -131,7 +131,10 @@
             "addRawImageSupport": "✨ Add RAW image support",
             "addVideoEditor": "✨ Add video editor",
             "addSubtitle": "✨ Add subtitle function",
-            "fixFFMPEG": "🐛 Fix FFMPEG decoder issue"
+            "fixFFMPEG": "🐛 Fix FFMPEG decoder issue",
+            "addListControl": "✨ Add list control function",
+            "fixSettings": "🐛 Fix settings issue",
+            "addCancelBtn": "✨ Add cancel button"
         },
         "keybinding": {
             "playPause": "Play/Pause",

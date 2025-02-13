@@ -1,6 +1,6 @@
 {
   "name": "visual-player",
-  "version": "1.3.6-preview",
+  "version": "1.3.8-preview",
   "description": "Visual Player",
   "main": "main.js",
   "scripts": {

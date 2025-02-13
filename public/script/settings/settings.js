@@ -3,7 +3,8 @@ const remote = require('@electron/remote');
 const { app } = require('@electron/remote');
 const fs = require('fs');
 const path = require('path');
-const { createSvgIcon } = require('../../icons.js');
+const { createSvgIcon } = require('./icons.js');
+const packageJson = require('../package.json');
 
 // 關閉按鈕功能
 document.querySelector('.close-button').addEventListener('click', () => {
@@ -108,8 +109,8 @@ function updateUIText() {
 // 在頁面加載時初始化
 document.addEventListener('DOMContentLoaded', () => {
     // 獲取並設置版本號
-    const version = require('../../../package.json').version;
-    const author = require('../../../package.json').author.name;
+    const version = packageJson.version;
+    const author = packageJson.author.name;
     document.getElementById('version').textContent = version;
     document.getElementById('author').textContent = author;
     initLanguageSelector();

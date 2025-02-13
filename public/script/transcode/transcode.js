@@ -8,6 +8,14 @@ const stageText = document.getElementById('stage-text');
 const timeProgress = document.getElementById('time-progress');
 const fpsSpan = document.getElementById('fps');
 const speedSpan = document.getElementById('speed');
+const cancelBtn = document.getElementById('cancelBtn');
+
+// 添加取消按钮事件
+cancelBtn.addEventListener('click', () => {
+    ipcRenderer.send('cancel-transcode');
+    cancelBtn.disabled = true;
+    cancelBtn.textContent = '正在取消...';
+});
 
 ipcRenderer.on('transcode-start', (event, { name, path }) => {
     fileName.textContent = name;
@@ -57,6 +65,17 @@ ipcRenderer.on('transcode-error', (event, { error }) => {
     stageText.classList.remove('processing');
     stageText.textContent = '處理失敗';
     progressBar.style.background = '#f44336';
+    cancelBtn.disabled = false;
+    cancelBtn.textContent = '取消轉碼';
+});
+
+ipcRenderer.on('transcode-cancelled', () => {
+    fileName.textContent = '已取消轉碼';
+    stageText.classList.remove('processing');
+    stageText.textContent = '已取消';
+    progressBar.style.background = '#f44336';
+    cancelBtn.disabled = true;
+    cancelBtn.textContent = '已取消';
 });
 
 function formatTime(seconds) {

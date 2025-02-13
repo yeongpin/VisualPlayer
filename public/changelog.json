@@ -1,6 +1,46 @@
 {
     "versions": [
         {
+            "version": "v1.3.8-preview",
+            "date": "2025-01-05",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.fixSettings",
+                    "description": "修復settings問題"
+                },
+                {
+                    "key": "settings.changelog.addNewFeature",
+                    "description": "新增新功能"
+                },
+                {
+                    "key": "settings.changelog.addCancelBtn",
+                    "description": "新增取消轉碼按鈕"
+                }
+            ]
+        },
+        {
+            "version": "v1.3.7-preview",
+            "date": "2025-01-05",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.addNewFeature",
+                    "description": "新增新功能"
+                },
+                {
+                    "key": "settings.changelog.addListControl",
+                    "description": "新增列表控制功能"
+                }
+            ]
+        },
+        {
             "version": "v1.3.6-preview",
             "date": "2025-01-04",
             "changes": [
