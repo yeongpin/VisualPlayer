@@ -164,7 +164,7 @@ function createCard(videoData, index) {
     
     const title = document.createElement('div');
     title.className = 'card-title';
-    title.textContent = videoData.isImage ? `圖片 ${index + 1}` : `視頻 ${index + 1}`;
+    title.textContent = videoData.isImage ? `Image ${index + 1}` : `Video ${index + 1}`;
     
     const details = document.createElement('div');
     details.className = 'card-details';
