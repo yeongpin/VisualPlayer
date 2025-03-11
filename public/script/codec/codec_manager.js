@@ -77,15 +77,34 @@ class CodecManager {
     async handleVideoFile(file) {
         console.log('Processing file:', file.name, 'Type:', file.type);
 
-        // 檢查文件格式和編碼
+        // 检查文件格式和编码
+        // 优先使用直接播放的方式
+        const directBlobUrl = URL.createObjectURL(file);
+        
+        try {
+            // 先尝试直接播放
+            const canPlayDirectly = await this.tryPlayVideo(directBlobUrl);
+            if (canPlayDirectly) {
+                console.log('File can be played directly without transcoding');
+                return directBlobUrl;
+            }
+            
+            // 如果无法直接播放，释放blob URL
+            URL.revokeObjectURL(directBlobUrl);
+        } catch (error) {
+            console.error('Direct playback test failed:', error);
+            URL.revokeObjectURL(directBlobUrl);
+        }
+        
+        // 如果直接播放失败，判断是否需要转码
         const needsTranscoding = await this.checkIfNeedsTranscoding(file);
         console.log('Needs transcoding:', needsTranscoding);
 
         if (!needsTranscoding) {
-            // 如果不需要轉碼，創建 blob URL
+            // 如果不需要转码，创建 blob URL
             const blobUrl = URL.createObjectURL(file);
             try {
-                // 進行更嚴格的播放測試
+                // 进行更严格的播放测试
                 const canPlay = await this.tryPlayVideo(blobUrl);
                 if (canPlay) {
                     console.log('File can be played directly');
@@ -97,7 +116,7 @@ class CodecManager {
             }
         }
 
-        // 需要轉碼的情況
+        // 需要转码的情况
         console.log('Starting transcoding process');
         try {
             const result = await this.transcodeVideo(file);
@@ -121,7 +140,11 @@ class CodecManager {
             };
 
             const onLoadedData = () => {
-                if (video.readyState >= 3) { // HAVE_FUTURE_DATA
+                if (video.readyState >= 3 && !video.videoWidth) {
+                    // 如果视频加载了但没有宽度，可能是音频文件或损坏的视频
+                    cleanup();
+                    resolve(false);
+                } else if (video.readyState >= 3) { // HAVE_FUTURE_DATA
                     cleanup();
                     resolve(true);
                 }
@@ -132,16 +155,17 @@ class CodecManager {
                 reject(error);
             };
 
+            // 增加超时时间，给大文件更多时间检查
             timeoutId = setTimeout(() => {
                 cleanup();
                 resolve(false);
-            }, 3000); // 增加超時時間到 3 秒
+            }, 5000); // 增加超时时间到 5 秒
 
             video.addEventListener('loadeddata', onLoadedData);
             video.addEventListener('error', onError);
             video.preload = 'auto';
             video.src = url;
-            video.load(); // 強制開始加載
+            video.load(); // 强制开始加载
         });
     }
 
@@ -153,44 +177,58 @@ class CodecManager {
     }
 
     async checkIfNeedsTranscoding(file) {
-        // 獲取文件擴展名
+        // 获取文件扩展名
         const extension = file.name.split('.').pop().toLowerCase();
+        const metadata = await this.getVideoMetadata(file);
         
-        // 總是需要轉碼的格式
-        const alwaysTranscode = ['mkv', 'avi', 'wmv', 'flv', 'mov', 'm4v'];
-        if (alwaysTranscode.includes(extension)) {
-            console.log('Format requires transcoding:', extension);
-            return true;
-        }
-
-        // 檢查文件類型
-        const problematicTypes = [
-            'video/quicktime',
-            'video/x-matroska',
-            'video/x-msvideo',
-            'video/x-ms-wmv',
-            'video/x-flv'
-        ];
-        if (problematicTypes.includes(file.type)) {
-            console.log('File type requires transcoding:', file.type);
-            return true;
-        }
-
-        // 檢查編解碼器支持
-        try {
-            const metadata = await this.getDetailedMetadata(file);
-            console.log('Video metadata:', metadata);
-            
-            // 如果檢測到不支持的編解碼器，返回 true
-            if (metadata.codec && !this.isCodecSupported(metadata.codec)) {
-                console.log('Codec not supported:', metadata.codec);
-                return true;
+        // 特殊处理MOV文件
+        if (extension === 'mov' || file.type === 'video/quicktime') {
+            // 对于MOV文件，我们先假设它可以直接播放
+            // 除非metadata中发现不兼容的编解码器
+            if (metadata && !metadata.error) {
+                // 如果MOV使用常见编解码器如H.264，可以直接播放
+                const compatibleCodecs = [
+                    'avc1', 'h264', 'mp4v', 'mp4a', 'aac'
+                ];
+                
+                // 检查metadata中的编解码器信息
+                if (metadata.codec && 
+                    compatibleCodecs.some(codec => metadata.codec.toLowerCase().includes(codec))) {
+                    console.log('MOV file uses compatible codec, trying direct playback');
+                    return false; // 不需要转码
+                }
+                
+                console.log('MOV file uses incompatible codec, needs transcoding');
             }
-        } catch (error) {
-            console.error('Metadata check failed:', error);
-            return true; // 如果無法檢查，為安全起見進行轉碼
         }
-
+        
+        // 如果不是支持的格式，则需要转码
+        if (!this.supportedFormats.includes(extension)) {
+            console.log('Unsupported format:', extension);
+            return true;
+        }
+        
+        // 检查视频元数据
+        if (metadata.error) {
+            console.log('Metadata error, needs transcoding:', metadata.error);
+            return true;
+        }
+        
+        // 检查编解码器
+        const { format, codec } = metadata;
+        console.log('Video format:', format, 'Codec:', codec);
+        
+        // 某些类型的编解码器需要转码
+        const needsTranscodingCodecs = [
+            'hevc', 'h265', 'vp9', 'av1',
+            'prores', 'dnxhd', 'jpeg2000'
+        ];
+        
+        if (codec && needsTranscodingCodecs.some(c => codec.toLowerCase().includes(c))) {
+            console.log('Codec needs transcoding:', codec);
+            return true;
+        }
+        
         return false;
     }
 
