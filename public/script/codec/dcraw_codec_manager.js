@@ -29,7 +29,6 @@ class DcrawCodecManager {
         });
     }
 
-    // 保留你原來的其他方法...
 }
 
 module.exports = DcrawCodecManager;
