@@ -15,11 +15,51 @@ const refreshButton = document.querySelector('.refresh-button');
 
 let videos = []; // 保存視頻數據的引用
 let videoStates = new Map(); // 用於保存每個視頻的狀態
+let isDragging = false;
+let activeHandle = null;
+let thumbnailCache = new Map(); // 缩略图缓存
 
 // 添加刷新按鈕事件
 refreshButton.onclick = () => {
     ipcRenderer.send('request-videos-data');
 };
+
+// 请求加载缓存的缩略图
+ipcRenderer.send('load-thumbnails');
+
+// 接收缓存的缩略图
+ipcRenderer.on('thumbnails-loaded', (event, cachedThumbnails) => {
+    if (cachedThumbnails && typeof cachedThumbnails === 'object') {
+        Object.keys(cachedThumbnails).forEach(key => {
+            thumbnailCache.set(key, cachedThumbnails[key]);
+        });
+        console.log('Loaded thumbnails from cache:', thumbnailCache.size);
+    }
+});
+
+// 接收单个缩略图
+ipcRenderer.on('thumbnail-loaded', (event, { key, url }) => {
+    if (key && url) {
+        thumbnailCache.set(key, url);
+        
+        // 更新已显示的缩略图
+        const cards = document.querySelectorAll('.video-card');
+        cards.forEach(card => {
+            const thumbnail = card.querySelector('.thumbnail');
+            if (thumbnail && thumbnail.tagName === 'VIDEO') {
+                const src = thumbnail.src;
+                if (src === key) {
+                    // 替换为缓存的图片
+                    const cachedImg = document.createElement('img');
+                    cachedImg.src = url;
+                    cachedImg.className = 'thumbnail';
+                    cachedImg.style.objectFit = 'cover';
+                    thumbnail.parentNode.replaceChild(cachedImg, thumbnail);
+                }
+            }
+        });
+    }
+});
 
 // 添加全局事件監聽器
 ipcRenderer.on('receive-filter-values', (event, { index, filterValues }) => {
@@ -37,29 +77,239 @@ ipcRenderer.on('receive-filter-values', (event, { index, filterValues }) => {
 ipcRenderer.on('cards-data', (event, { videos: videoData }) => {
     console.log('Received cards data:', videoData); // 調試用
     
-    // 清空所有卡片
-    cardsContainer.innerHTML = '';
-    videos = videoData;
-    
-    // 為每個視頻創建卡片
-    videoData.forEach((data, index) => {
-        createCard(data, index);
-    });
+    // 检查是否是首次加载
+    if (cardsContainer.children.length === 0) {
+        // 首次加载，创建所有卡片
+        preloadThumbnails(videoData);
+        videos = videoData;
+        videoData.forEach((data, index) => {
+            createCard(data, index);
+        });
+    } else {
+        // 非首次加载，使用智能更新
+        updateCardsList(videoData);
+    }
 });
 
 // 更新卡片列表
 ipcRenderer.on('update-cards', (event, { videos: videoData }) => {
     console.log('Updating cards:', videoData); // 調試用
     
-    // 清空現有卡片
-    cardsContainer.innerHTML = '';
+    // 智能更新卡片列表，而不是完全重建
+    updateCardsList(videoData);
+});
+
+// 智能更新卡片列表
+function updateCardsList(videoData) {
+    // 保存原始视频数据的引用
+    const oldVideos = [...videos];
+    
+    // 更新视频数据引用
     videos = videoData;
     
-    // 為每個視頻創建卡片
-    videoData.forEach((data, index) => {
-        createCard(data, index);
+    // 预加载缩略图
+    preloadThumbnails(videoData);
+    
+    // 获取当前卡片数量
+    const currentCards = cardsContainer.querySelectorAll('.video-card');
+    const currentCount = currentCards.length;
+    const newCount = videoData.length;
+    
+    // 检查是否只是添加了新视频
+    const isJustAddingNewVideos = newCount > currentCount && 
+        oldVideos.every((oldVideo, index) => {
+            // 检查旧视频是否仍然存在于相同位置
+            return index < videoData.length && 
+                   oldVideo.video.src === videoData[index].video.src;
+        });
+    
+    if (isJustAddingNewVideos) {
+        console.log('只添加新视频，保持现有顺序');
+        // 只添加新视频，保持现有顺序
+        for (let i = currentCount; i < newCount; i++) {
+            createCard(videoData[i], i);
+        }
+        return;
+    }
+    
+    if (newCount > currentCount) {
+        // 有新卡片添加，只添加新卡片
+        for (let i = currentCount; i < newCount; i++) {
+            createCard(videoData[i], i);
+        }
+        
+        // 更新现有卡片的索引和标题
+        currentCards.forEach((card, index) => {
+            card.dataset.index = index;
+            updateCardTitle(card, index, videoData[index].isImage);
+        });
+    } else if (newCount < currentCount) {
+        // 有卡片被删除，移除多余的卡片
+        for (let i = currentCount - 1; i >= newCount; i--) {
+            if (cardsContainer.children[i]) {
+                cardsContainer.removeChild(cardsContainer.children[i]);
+            }
+        }
+        
+        // 更新剩余卡片
+        for (let i = 0; i < newCount; i++) {
+            const card = cardsContainer.children[i];
+            if (card) {
+                card.dataset.index = i;
+                updateCardTitle(card, i, videoData[i].isImage);
+                updateCardThumbnail(card, videoData[i]);
+            }
+        }
+    } else {
+        // 检查是否有顺序变化
+        const hasOrderChanged = videoData.some((video, index) => {
+            return index < oldVideos.length && 
+                   video.video.src !== oldVideos[index].video.src;
+        });
+        
+        if (!hasOrderChanged) {
+            console.log('视频顺序未变化，跳过更新');
+            return;
+        }
+        
+        // 卡片数量相同，可能只是顺序或内容变化
+        for (let i = 0; i < newCount; i++) {
+            const card = cardsContainer.children[i];
+            if (card) {
+                card.dataset.index = i;
+                updateCardTitle(card, i, videoData[i].isImage);
+                updateCardThumbnail(card, videoData[i]);
+            }
+        }
+    }
+}
+
+// 更新卡片标题
+function updateCardTitle(card, index, isImage) {
+    const title = card.querySelector('.card-title');
+    if (title) {
+        title.textContent = isImage ? `Image ${index + 1}` : `Video ${index + 1}`;
+    }
+}
+
+// 更新卡片缩略图
+function updateCardThumbnail(card, videoData) {
+    const thumbnail = card.querySelector('.thumbnail');
+    if (thumbnail) {
+        // 检查是否需要更新缩略图
+        const currentSrc = thumbnail.src;
+        const newSrc = videoData.video.src;
+        
+        // 如果源相同，不需要更新
+        if (currentSrc === newSrc) {
+            return;
+        }
+        
+        // 源已更改，需要更新缩略图
+        console.log('更新缩略图:', currentSrc, '->', newSrc);
+        
+        // 保存当前缩略图的位置和尺寸，以便平滑过渡
+        const rect = thumbnail.getBoundingClientRect();
+        
+        if (videoData.isImage) {
+            // 图片直接更新源
+            thumbnail.src = newSrc;
+        } else {
+            // 视频检查缓存
+            const cacheKey = newSrc;
+            if (thumbnailCache.has(cacheKey)) {
+                // 使用缓存的缩略图
+                if (thumbnail.tagName !== 'IMG') {
+                    // 替换为图片元素
+                    const cachedImg = document.createElement('img');
+                    cachedImg.src = thumbnailCache.get(cacheKey);
+                    cachedImg.className = 'thumbnail';
+                    cachedImg.style.objectFit = 'cover';
+                    
+                    // 应用平滑过渡
+                    cachedImg.style.transition = 'opacity 0.3s';
+                    cachedImg.style.opacity = '0';
+                    
+                    thumbnail.parentNode.replaceChild(cachedImg, thumbnail);
+                    
+                    // 延迟显示，创建平滑过渡
+                    setTimeout(() => {
+                        cachedImg.style.opacity = '1';
+                    }, 50);
+                } else {
+                    // 已经是图片元素，只更新源
+                    // 应用平滑过渡
+                    thumbnail.style.transition = 'opacity 0.3s';
+                    thumbnail.style.opacity = '0';
+                    
+                    thumbnail.src = thumbnailCache.get(cacheKey);
+                    
+                    // 图片加载完成后显示
+                    thumbnail.onload = () => {
+                        thumbnail.style.opacity = '1';
+                    };
+                }
+            } else {
+                // 没有缓存，使用视频元素
+                if (thumbnail.tagName !== 'VIDEO') {
+                    // 替换为视频元素
+                    const videoEl = document.createElement('video');
+                    videoEl.src = newSrc;
+                    videoEl.className = 'thumbnail';
+                    videoEl.muted = true;
+                    videoEl.loop = false;
+                    videoEl.controls = false;
+                    
+                    // 应用平滑过渡
+                    videoEl.style.transition = 'opacity 0.3s';
+                    videoEl.style.opacity = '0';
+                    
+                    thumbnail.parentNode.replaceChild(videoEl, thumbnail);
+                    
+                    // 生成缩略图
+                    videoEl.addEventListener('loadeddata', () => {
+                        if (videoEl.readyState >= 2) {
+                            generateAndCacheThumbnail(videoEl, cacheKey);
+                            videoEl.style.opacity = '1';
+                        }
+                    });
+                } else {
+                    // 已经是视频元素，只更新源
+                    // 应用平滑过渡
+                    thumbnail.style.transition = 'opacity 0.3s';
+                    thumbnail.style.opacity = '0';
+                    
+                    thumbnail.src = newSrc;
+                    
+                    // 视频加载后显示
+                    thumbnail.addEventListener('loadeddata', () => {
+                        thumbnail.style.opacity = '1';
+                    }, { once: true });
+                }
+            }
+        }
+        
+        // 更新文件名
+        const details = card.querySelector('.card-details');
+        if (details) {
+            details.textContent = videoData.video.dataset.originalFileName;
+        }
+    }
+}
+
+// 预加载缩略图
+function preloadThumbnails(videoData) {
+    // 对于每个视频，检查是否有缓存的缩略图
+    videoData.forEach(data => {
+        if (!data.isImage) {
+            const cacheKey = data.video.src || data.video.currentSrc;
+            if (!thumbnailCache.has(cacheKey)) {
+                // 如果没有缓存，请求加载
+                ipcRenderer.send('request-thumbnail', { key: cacheKey });
+            }
+        }
     });
-});
+}
 
 // 更新卡片索引的輔助函數
 function updateCardIndex(card, index) {
@@ -75,85 +325,131 @@ function updateCardIndex(card, index) {
 function createCard(videoData, index) {
     const card = document.createElement('div');
     card.className = 'video-card';
+    card.setAttribute('draggable', 'true');
+    card.dataset.index = index;
+    
+    // 添加拖拽事件
+    card.addEventListener('dragstart', (e) => {
+        console.log('Dragstart event on card', index);
+        // 确保拖拽事件能正常触发
+        e.stopPropagation();
+        e.dataTransfer.setData('text/plain', index.toString());
+        // 设置拖拽效果
+        e.dataTransfer.effectAllowed = 'move';
+        
+        // 添加延时，确保拖拽样式能被应用
+        setTimeout(() => {
+            card.classList.add('dragging');
+            console.log('Added dragging class');
+        }, 0);
+    });
+    
+    card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+        console.log('Removed dragging class');
+    });
     
     // 創建縮略圖
     const thumbnail = document.createElement(videoData.isImage ? 'img' : 'video');
     thumbnail.className = 'thumbnail';
     if (!videoData.isImage) {
-        // 创建所有控制元素
-        const progress = document.createElement('div');
-        progress.className = 'video-progress';
+        // 生成缓存键
+        const cacheKey = videoData.video.src || videoData.video.currentSrc;
         
-        // 创建时间显示元素
-        const timeDisplay = document.createElement('div');
-        timeDisplay.className = 'video-time';
-        timeDisplay.textContent = '00:00 / 00:00';
-        
-        const timeRange = document.createElement('div');
-        timeRange.className = 'time-range';
-        
-        const startMask = document.createElement('div');
-        startMask.className = 'time-mask start-mask';
-        
-        const endMask = document.createElement('div');
-        endMask.className = 'time-mask end-mask';
-        
-        const startHandle = document.createElement('div');
-        startHandle.className = 'time-handle start-handle';
-        startHandle.title = '設置起始時間';
-        
-        const endHandle = document.createElement('div');
-        endHandle.className = 'time-handle end-handle';
-        endHandle.title = '設置結束時間';
-        
-        // 定义更新时间范围显示的函数
-        const updateTimeRange = () => {
-            const duration = thumbnail.duration || 0;
-            const startPos = Math.max(0, Math.min(100, (videoData.video.startTime / duration) * 100));
-            const endPos = videoData.video.endTime ? Math.min(100, (videoData.video.endTime / duration) * 100) : 100;
+        // 检查缓存中是否有缩略图
+        if (thumbnailCache.has(cacheKey)) {
+            console.log('Using cached thumbnail for:', cacheKey);
+            // 创建图片元素代替视频元素作为缩略图
+            const cachedImg = document.createElement('img');
+            cachedImg.src = thumbnailCache.get(cacheKey);
+            cachedImg.className = 'thumbnail';
+            cachedImg.style.objectFit = 'cover';
             
-            startHandle.style.left = `${startPos}%`;
-            endHandle.style.left = `${endPos}%`;
-            timeRange.style.left = `${startPos}%`;
-            timeRange.style.width = `${endPos - startPos}%`;
+            // 替换缩略图元素
+            thumbnail = cachedImg;
+        } else {
+            // 创建所有控制元素
+            const progress = document.createElement('div');
+            progress.className = 'video-progress';
             
-            startMask.style.width = `${startPos}%`;
-            endMask.style.width = `${100 - endPos}%`;
-        };
-        
-        // 直接使用視頻作為縮略圖
-        thumbnail.src = videoData.video.src;
-        thumbnail.muted = true;
-        thumbnail.loop = false;
-        thumbnail.controls = false;
-        
-        // 等待視頻加載完成
-        thumbnail.addEventListener('loadedmetadata', () => {
-            // 初始化視頻屬性
-            videoData.video = {
-                ...videoData.video,
-                startTime: 0,
-                endTime: undefined,
-                duration: thumbnail.duration,
-                currentTime: 0
+            // 创建时间显示元素
+            const timeDisplay = document.createElement('div');
+            timeDisplay.className = 'video-time';
+            timeDisplay.textContent = '00:00 / 00:00';
+            
+            const timeRange = document.createElement('div');
+            timeRange.className = 'time-range';
+            
+            const startMask = document.createElement('div');
+            startMask.className = 'time-mask start-mask';
+            
+            const endMask = document.createElement('div');
+            endMask.className = 'time-mask end-mask';
+            
+            const startHandle = document.createElement('div');
+            startHandle.className = 'time-handle start-handle';
+            startHandle.title = '設置起始時間';
+            
+            const endHandle = document.createElement('div');
+            endHandle.className = 'time-handle end-handle';
+            endHandle.title = '設置結束時間';
+            
+            // 定义更新时间范围显示的函数
+            const updateTimeRange = () => {
+                const duration = thumbnail.duration || 0;
+                const startPos = Math.max(0, Math.min(100, (videoData.video.startTime / duration) * 100));
+                const endPos = videoData.video.endTime ? Math.min(100, (videoData.video.endTime / duration) * 100) : 100;
+                
+                startHandle.style.left = `${startPos}%`;
+                endHandle.style.left = `${endPos}%`;
+                timeRange.style.left = `${startPos}%`;
+                timeRange.style.width = `${endPos - startPos}%`;
+                
+                startMask.style.width = `${startPos}%`;
+                endMask.style.width = `${100 - endPos}%`;
             };
             
-            // 初始化時間範圍顯示
-            updateTimeRange();
+            // 直接使用視頻作為縮略圖
+            thumbnail.src = videoData.video.src;
+            thumbnail.muted = true;
+            thumbnail.loop = false;
+            thumbnail.controls = false;
             
-            // 更新時間顯示
-            timeDisplay.textContent = `00:00 / ${formatTime(thumbnail.duration)}`;
-        });
-        
-        // 設置視頻時間到中間位置
-        thumbnail.addEventListener('loadedmetadata', () => {
-            thumbnail.currentTime = thumbnail.duration / 2;
-        });
-        
-        // 暫停在指定幀
-        thumbnail.addEventListener('seeked', () => {
-            thumbnail.pause();
-        });
+            // 等待視頻加載完成
+            thumbnail.addEventListener('loadedmetadata', () => {
+                // 初始化視頻屬性
+                videoData.video = {
+                    ...videoData.video,
+                    startTime: 0,
+                    endTime: undefined,
+                    duration: thumbnail.duration,
+                    currentTime: 0
+                };
+                
+                // 初始化時間範圍顯示
+                updateTimeRange();
+                
+                // 更新時間顯示
+                timeDisplay.textContent = `00:00 / ${formatTime(thumbnail.duration)}`;
+            });
+            
+            // 設置視頻時間到中間位置
+            thumbnail.addEventListener('loadedmetadata', () => {
+                thumbnail.currentTime = thumbnail.duration / 2;
+            });
+            
+            // 暫停在指定幀
+            thumbnail.addEventListener('seeked', () => {
+                thumbnail.pause();
+            });
+            
+            // 生成并缓存缩略图
+            thumbnail.addEventListener('loadeddata', () => {
+                if (thumbnail.readyState >= 2) {
+                    generateAndCacheThumbnail(thumbnail, cacheKey);
+                }
+            });
+        }
     } else {
         thumbnail.src = videoData.video.src;
     }
@@ -707,7 +1003,6 @@ document.addEventListener('keydown', (e) => {
 });
 
 // 初始化按鈕圖標
-
 document.querySelector('.saveLayout-button').innerHTML = createSvgIcon('save');
 document.querySelector('.loadLayout-button').innerHTML = createSvgIcon('load');
 document.querySelector('.refresh-button').innerHTML = createSvgIcon('refresh');
@@ -725,4 +1020,102 @@ ipcRenderer.on('video-play-state', (event, { index, isPlaying }) => {
             playBtn.innerHTML = isPlaying ? createSvgIcon('pause') : createSvgIcon('play');
         }
     }
-}); 
+});
+
+// 添加容器的拖拽事件
+cardsContainer.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    console.log('Dragover event');
+    const afterElement = getDragAfterElement(cardsContainer, e.clientY);
+    const draggable = document.querySelector('.dragging');
+    if (!draggable) {
+        console.log('No dragging element found');
+    }
+    if (draggable) {
+        if (afterElement == null) {
+            cardsContainer.appendChild(draggable);
+        } else {
+            cardsContainer.insertBefore(draggable, afterElement);
+        }
+    }
+});
+
+cardsContainer.addEventListener('drop', (e) => {
+    e.preventDefault();
+    console.log('Drop event');
+    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    console.log('From index:', fromIndex);
+    const cards = Array.from(cardsContainer.querySelectorAll('.video-card'));
+    const toIndex = cards.indexOf(document.querySelector('.dragging'));
+    console.log('To index:', toIndex);
+    
+    if (fromIndex !== toIndex && toIndex !== -1) {
+        // 更新数据模型中的顺序
+        const movedItem = videos.splice(fromIndex, 1)[0];
+        videos.splice(toIndex, 0, movedItem);
+        
+        // 更新卡片标题
+        cards.forEach((card, index) => {
+            card.dataset.index = index;
+            const title = card.querySelector('.card-title');
+            if (title) {
+                title.textContent = title.textContent.includes('圖片') 
+                    ? `Image ${index + 1}` 
+                    : `Video ${index + 1}`;
+            }
+        });
+        
+        // 通知主进程更新顺序
+        ipcRenderer.send('update-video-order', { fromIndex, toIndex });
+    }
+});
+
+// 辅助函数：获取拖拽后的位置
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.video-card:not(.dragging)')];
+    
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+// 生成并缓存缩略图
+function generateAndCacheThumbnail(videoElement, cacheKey) {
+    try {
+        // 创建canvas
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置canvas尺寸
+        canvas.width = videoElement.videoWidth || 320;
+        canvas.height = videoElement.videoHeight || 180;
+        
+        // 绘制视频帧到canvas
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        
+        // 转换为数据URL
+        const thumbnailUrl = canvas.toDataURL('image/jpeg', 0.7);
+        
+        // 缓存缩略图
+        thumbnailCache.set(cacheKey, thumbnailUrl);
+        
+        // 保存到临时目录
+        ipcRenderer.send('save-thumbnail', {
+            key: cacheKey,
+            url: thumbnailUrl
+        });
+        
+        console.log('Generated and cached thumbnail for:', cacheKey);
+        return thumbnailUrl;
+    } catch (error) {
+        console.error('Error generating thumbnail:', error);
+        return null;
+    }
+} 

@@ -5,9 +5,59 @@ const ffmpeg = require('fluent-ffmpeg');
 const os = require('os');
 const CodecManager = require('./public/script/codec/codec_manager.js');
 const DcrawCodecManager = require('./public/script/codec/dcraw_codec_manager.js');
+const fs = require('fs');
 
 let transcodeWindow = null;
 let mainWindow = null;
+
+// 缩略图缓存路径
+const thumbnailCacheDir = path.join(os.tmpdir(), 'visualplayer-thumbnails');
+const thumbnailCacheFile = path.join(thumbnailCacheDir, 'cache.json');
+
+// 确保缩略图目录存在
+if (!fs.existsSync(thumbnailCacheDir)) {
+    fs.mkdirSync(thumbnailCacheDir, { recursive: true });
+}
+
+// 缩略图缓存对象
+let thumbnailCache = {};
+
+// 加载缩略图缓存
+try {
+    if (fs.existsSync(thumbnailCacheFile)) {
+        thumbnailCache = JSON.parse(fs.readFileSync(thumbnailCacheFile, 'utf8'));
+        console.log('Loaded thumbnail cache:', Object.keys(thumbnailCache).length, 'items');
+    }
+} catch (error) {
+    console.error('Error loading thumbnail cache:', error);
+    thumbnailCache = {};
+}
+
+// 处理缩略图保存请求
+ipcMain.on('save-thumbnail', (event, { key, url }) => {
+    try {
+        // 保存到缓存对象
+        thumbnailCache[key] = url;
+        
+        // 写入缓存文件
+        fs.writeFileSync(thumbnailCacheFile, JSON.stringify(thumbnailCache));
+        console.log('Saved thumbnail to cache:', key);
+    } catch (error) {
+        console.error('Error saving thumbnail:', error);
+    }
+});
+
+// 处理加载缩略图请求
+ipcMain.on('load-thumbnails', (event) => {
+    event.reply('thumbnails-loaded', thumbnailCache);
+});
+
+// 处理单个缩略图请求
+ipcMain.on('request-thumbnail', (event, { key }) => {
+    if (thumbnailCache[key]) {
+        event.reply('thumbnail-loaded', { key, url: thumbnailCache[key] });
+    }
+});
 
 // 獲取 FFmpeg 路徑
 function getFFmpegPath() {
@@ -428,7 +478,7 @@ ipcMain.on('create-cards-window', (event, { videos }) => {
         height: 600,
         minWidth: 600,
         minHeight: 400,
-        frame: false,
+        frame: true,
         backgroundColor: '#1a1a1a',
         webPreferences: {
             nodeIntegration: true,
@@ -1290,4 +1340,14 @@ ipcMain.on('cancel-transcode', (event) => {
             console.error('Error killing ffmpeg process:', error);
         }
     }
+});
+
+// 處理視頻順序更新
+ipcMain.on('update-video-order', (event, { fromIndex, toIndex }) => {
+    // 通知所有窗口更新視頻順序
+    BrowserWindow.getAllWindows().forEach(win => {
+        if (!win.isDestroyed()) {
+            win.webContents.send('video-order-updated', { fromIndex, toIndex });
+        }
+    });
 });

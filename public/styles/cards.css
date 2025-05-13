@@ -3,10 +3,6 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    -webkit-user-drag: none;
-    -khtml-user-drag: none;
-    -moz-user-drag: none;
-    -o-user-drag: none;
 }
 
 body {
@@ -78,10 +74,25 @@ body {
     transition: background-color 0.2s;
     position: relative;
     height: 120px;
+    cursor: grab;
+    -webkit-user-drag: element;
+    user-drag: element;
 }
 
 .video-card:hover {
     background: #3d3d3d;
+}
+
+/* 拖拽相关样式 */
+.video-card.dragging {
+    opacity: 0.7;
+    border: 2px dashed #0066cc;
+    box-shadow: 0 0 10px rgba(0, 102, 204, 0.5);
+    z-index: 1000;
+}
+
+.video-card:active {
+    cursor: grabbing;
 }
 
 .thumbnail {
