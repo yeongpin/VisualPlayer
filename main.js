@@ -478,7 +478,7 @@ ipcMain.on('create-cards-window', (event, { videos }) => {
         height: 600,
         minWidth: 600,
         minHeight: 400,
-        frame: true,
+        frame: false,
         backgroundColor: '#1a1a1a',
         webPreferences: {
             nodeIntegration: true,

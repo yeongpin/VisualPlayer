@@ -1,6 +1,42 @@
 {
     "versions": [
         {
+            "version": "v1.4.0-Beta",
+            "date": "2025-05-13",
+            "changes": [
+                {
+                    "key": "settings.changelog.addCardListDrag",
+                    "description": "新增卡片列表拖拽功能"
+                },
+                {
+                    "key": "settings.changelog.fixCardThumbnailReload",
+                    "description": "修復卡片縮略圖重新讀取問題"
+                },
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.addNewFeature",
+                    "description": "新增新功能"
+                }
+            ]
+        },
+        {
+            "version": "v1.3.9-preview",
+            "date": "2025-03-13",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                },
+                {
+                    "key": "settings.changelog.addNewFeature",
+                    "description": "新增新功能"
+                }
+            ]
+        },  
+        {
             "version": "v1.3.8-preview",
             "date": "2025-01-05",
             "changes": [
