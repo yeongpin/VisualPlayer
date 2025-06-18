@@ -579,7 +579,7 @@ body {
 .select-all-checkbox {
     width: 16px;
     height: 16px;
-    accent-color: #0066cc;
+    accent-color: rgba(79, 175, 244, 1);
     cursor: pointer;
 }
 
@@ -622,8 +622,95 @@ body {
     right: 8px;
     width: 18px;
     height: 18px;
-    accent-color: #0066cc;
+    accent-color: rgba(79, 175, 244, 1);
     cursor: pointer;
     z-index: 2;
+}
+
+/* Scale控制樣式 */
+.scale-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 0px;
+    padding: 4px 6px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    width: auto;
+    justify-content: center;
+}
+
+.scale-label {
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    min-width: 35px;
+}
+
+.scale-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: #fff;
+    padding: 2px 4px;
+    font-size: 11px;
+    height: 22px;
+    width: 45px;
+    text-align: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.scale-input:focus {
+    outline: none;
+    border-color: rgba(79, 175, 244, 0.5);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(79, 175, 244, 0.2);
+}
+
+.scale-input::-webkit-outer-spin-button,
+.scale-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.scale-input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* Scale按鈕樣式 */
+.scale-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.scale-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    width: 16px;
+    height: 10px;
+    padding: 0;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 8px;
+    line-height: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.scale-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(79, 175, 244, 0.5);
+    color: #fff;
+}
+
+.scale-btn:active {
+    background: rgba(79, 175, 244, 0.3);
+    border-color: rgba(79, 175, 244, 0.7);
 } 
  

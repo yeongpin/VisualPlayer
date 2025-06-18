@@ -149,7 +149,11 @@
             "addBatchSelection": "☑️ 新增卡片批量選擇功能",
             "addBatchDelete": "🗑️ 新增批量刪除功能",
             "addSelectAllCheckbox": "📋 新增全選/取消全選功能",
-            "improveBatchUI": "🎨 優化批量操作界面和視覺反饋"
+            "improveBatchUI": "🎨 優化批量操作界面和視覺反饋",
+            "addScaleInputControl": "🎚️ 新增scale縮放數值輸入控制",
+            "addScaleButtons": "🔺 新增scale上下調節按鈕（±0.1）",
+            "fixScaleSync": "🔄 修復滾輪縮放與輸入框同步問題",
+            "optimizeScaleUI": "✨ 優化scale控制界面設計"
         },
         "keybinding": {
             "playPause": "播放/暫停",

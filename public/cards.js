@@ -606,23 +606,90 @@ function createCard(videoData, index) {
     const actions = document.createElement('div');
     actions.className = 'card-actions';
 
-    // 只在非圖片文件時創建播放按鈕和編輯按鈕
+    // 創建縮放控制區域 (所有媒體都有)
+    const scaleControl = document.createElement('div');
+    scaleControl.className = 'scale-control';
+    
+    const scaleLabel = document.createElement('label');
+    scaleLabel.textContent = 'Scale:';
+    scaleLabel.className = 'scale-label';
+    
+    const scaleInput = document.createElement('input');
+    scaleInput.type = 'number';
+    scaleInput.className = 'scale-input';
+    scaleInput.min = '0.1';
+    scaleInput.max = '10';
+    scaleInput.step = '0.1';
+    // 獲取當前實際的scale值，如果沒有則默認為1.0
+    const currentScale = videoData.scale || 1.0;
+    scaleInput.value = currentScale.toFixed(1);
+    scaleInput.dataset.currentScale = currentScale.toFixed(1);
+    scaleInput.title = '縮放比例 (0.1-10.0)';
+    
+    // Scale輸入框事件處理
+    scaleInput.addEventListener('change', (e) => {
+        e.stopPropagation();
+        const newScale = parseFloat(e.target.value);
+        if (newScale >= 0.1 && newScale <= 10) {
+            ipcRenderer.send('set-media-scale', { index, scale: newScale });
+        } else {
+            // 如果輸入無效，恢復到當前值
+            e.target.value = scaleInput.dataset.currentScale || '1.0';
+        }
+    });
+    
+    scaleInput.addEventListener('keydown', (e) => {
+        e.stopPropagation(); // 防止觸發其他快捷鍵
+        if (e.key === 'Enter') {
+            scaleInput.blur(); // 觸發change事件
+        }
+    });
+    
+    // 保存scale input的引用到卡片上，方便後續更新
+    card.scaleInput = scaleInput;
+    
+    // 創建上下調節按鈕容器
+    const scaleButtons = document.createElement('div');
+    scaleButtons.className = 'scale-buttons';
+    
+    // 向上按鈕 (+0.1)
+    const scaleUpBtn = document.createElement('button');
+    scaleUpBtn.className = 'scale-btn scale-btn-up';
+    scaleUpBtn.innerHTML = '▲';
+    scaleUpBtn.title = '增加 0.1';
+    scaleUpBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const currentValue = parseFloat(scaleInput.value) || 1.0;
+        const newValue = Math.min(10, currentValue + 0.1);
+        scaleInput.value = newValue.toFixed(1);
+        ipcRenderer.send('set-media-scale', { index, scale: newValue });
+    });
+    
+    // 向下按鈕 (-0.1)
+    const scaleDownBtn = document.createElement('button');
+    scaleDownBtn.className = 'scale-btn scale-btn-down';
+    scaleDownBtn.innerHTML = '▼';
+    scaleDownBtn.title = '減少 0.1';
+    scaleDownBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const currentValue = parseFloat(scaleInput.value) || 1.0;
+        const newValue = Math.max(0.1, currentValue - 0.1);
+        scaleInput.value = newValue.toFixed(1);
+        ipcRenderer.send('set-media-scale', { index, scale: newValue });
+    });
+    
+    scaleButtons.appendChild(scaleUpBtn);
+    scaleButtons.appendChild(scaleDownBtn);
+    
+    scaleControl.appendChild(scaleLabel);
+    scaleControl.appendChild(scaleInput);
+    scaleControl.appendChild(scaleButtons);
+    
+    // 將scale控制添加到actions的第一個位置
+    actions.insertBefore(scaleControl, actions.firstChild);
+
+    // 只在非圖片文件時創建編輯按鈕
     if (!videoData.isImage) {
-        const playBtn = document.createElement('button');
-        playBtn.className = 'action-button play-button';
-        playBtn.title = '播放/暫停';
-        playBtn.innerHTML = createSvgIcon(videoData.video.paused ? 'play' : 'pause');
-
-        playBtn.onclick = (e) => {
-            e.stopPropagation();
-            ipcRenderer.send('toggle-play', index);
-            ipcRenderer.once('video-play-state', (event, { index: videoIndex, isPlaying }) => {
-                if (videoIndex === index) {
-                    playBtn.innerHTML = isPlaying ? createSvgIcon('pause') : createSvgIcon('play');
-                }
-            });
-        };
-
         // 添加視頻編輯按鈕
         const editBtn = document.createElement('button');
         editBtn.className = 'action-button edit-button';
@@ -639,8 +706,7 @@ function createCard(videoData, index) {
             });
         };
 
-        // 添加按鈕到操作區
-        actions.appendChild(playBtn);
+        // 添加編輯按鈕到操作區
         actions.appendChild(editBtn);
     }
 
@@ -1138,19 +1204,7 @@ document.querySelector('.loadLayout-button').innerHTML = createSvgIcon('load');
 document.querySelector('.refresh-button').innerHTML = createSvgIcon('refresh');
 document.querySelector('.close-button').innerHTML = createSvgIcon('close');
 
-// 監聽視頻播放狀態變化
-ipcRenderer.on('video-play-state', (event, { index, isPlaying }) => {
-    // 找到對應的卡片
-    const card = cardsContainer.children[index];
-    if (card) {
-        // 找到播放按鈕
-        const playBtn = card.querySelector('.play-button');
-        if (playBtn) {
-            // 更新按鈕圖標
-            playBtn.innerHTML = isPlaying ? createSvgIcon('pause') : createSvgIcon('play');
-        }
-    }
-});
+// 播放狀態變化已由下方視頻控制面板處理，這裡不再需要
 
 // 監聽刪除操作確認
 ipcRenderer.on('media-deleted', (event, { index, success }) => {
@@ -1238,6 +1292,21 @@ ipcRenderer.on('batch-delete-completed', (event, { successCount, failCount, erro
         if (errors && errors.length > 0) {
             console.error('Batch delete errors:', errors);
         }
+    }
+});
+
+// 監聽scale更新事件
+ipcRenderer.on('media-scale-updated', (event, { index, scale }) => {
+    console.log('Scale updated for index:', index, 'scale:', scale);
+    
+    const card = Array.from(cardsContainer.children).find(c => 
+        parseInt(c.dataset.index) === index
+    );
+    
+    if (card && card.scaleInput) {
+        // 更新輸入框顯示
+        card.scaleInput.value = scale.toFixed(1);
+        card.scaleInput.dataset.currentScale = scale.toFixed(1);
     }
 });
 

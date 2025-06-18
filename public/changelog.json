@@ -43,6 +43,22 @@
                 {
                     "key": "settings.changelog.improveBatchUI",
                     "description": "優化批量操作界面和視覺反饋"
+                },
+                {
+                    "key": "settings.changelog.addScaleInputControl",
+                    "description": "新增scale縮放數值輸入控制"
+                },
+                {
+                    "key": "settings.changelog.addScaleButtons",
+                    "description": "新增scale上下調節按鈕（±0.1）"
+                },
+                {
+                    "key": "settings.changelog.fixScaleSync",
+                    "description": "修復滾輪縮放與輸入框同步問題"
+                },
+                {
+                    "key": "settings.changelog.optimizeScaleUI",
+                    "description": "優化scale控制界面設計"
                 }
             ]
         },

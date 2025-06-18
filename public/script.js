@@ -105,6 +105,10 @@ class MainManager {
                 ipcRenderer.send('update-cards', {
                     videos: this.videos.map(v => ({
                         isImage: v.isImage,
+                        scale: v.scale || 1.0,
+                        rotation: v.rotation || 0,
+                        flipX: v.flipX || false,
+                        flipY: v.flipY || false,
                         video: {
                             src: v.video.src,
                             dataset: {
@@ -162,6 +166,10 @@ class MainManager {
             ipcRenderer.send('update-cards', {
                 videos: this.videos.map(v => ({
                     isImage: v.isImage,
+                    scale: v.scale || 1.0,
+                    rotation: v.rotation || 0,
+                    flipX: v.flipX || false,
+                    flipY: v.flipY || false,
                     video: {
                         src: v.video.src,
                         dataset: {
@@ -243,6 +251,10 @@ class MainManager {
             ipcRenderer.send('update-cards', {
                 videos: this.videos.map(v => ({
                     isImage: v.isImage,
+                    scale: v.scale || 1.0,
+                    rotation: v.rotation || 0,
+                    flipX: v.flipX || false,
+                    flipY: v.flipY || false,
                     video: {
                         src: v.video.src,
                         dataset: {
@@ -318,6 +330,33 @@ class MainManager {
                 } else {
                     videoData.wrapper.style.display = 'none';
                 }
+            }
+        });
+
+        // 處理設置媒體縮放事件
+        ipcRenderer.on('set-media-scale', (event, { index, scale }) => {
+            console.log('Setting scale for video at index:', index, 'to:', scale);
+            
+            const videoData = this.videos[index];
+            if (videoData) {
+                // 更新scale值
+                videoData.scale = scale;
+                
+                // 應用變換
+                this.transformManager.updateVideoTransform(videoData);
+                
+                // 通知所有卡片窗口更新scale顯示
+                const cardsWindows = require('@electron/remote').BrowserWindow.getAllWindows().filter(win => 
+                    win.webContents.getURL().includes('cards.html')
+                );
+                
+                cardsWindows.forEach(win => {
+                    if (!win.isDestroyed()) {
+                        win.webContents.send('media-scale-updated', { index, scale });
+                    }
+                });
+                
+                console.log('Scale updated successfully for index:', index);
             }
         });
 

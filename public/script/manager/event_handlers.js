@@ -124,7 +124,31 @@ class EventHandlers {
             if (videoData) {
                 const scaleChange = e.deltaY > 0 ? 0.9 : 1.1;
                 videoData.scale *= scaleChange;
+                
+                // 限制縮放範圍
+                videoData.scale = Math.max(0.1, Math.min(10, videoData.scale));
+                
                 this.mainManager.transformManager.updateVideoTransform(videoData);
+                
+                // 找到對應的視頻索引
+                const videoIndex = this.mainManager.videos.findIndex(v => v === videoData);
+                
+                // 通知卡片窗口更新scale顯示
+                if (videoIndex !== -1) {
+                    const { ipcRenderer } = require('electron');
+                    const cardsWindows = require('@electron/remote').BrowserWindow.getAllWindows().filter(win => 
+                        win.webContents.getURL().includes('cards.html')
+                    );
+                    
+                    cardsWindows.forEach(win => {
+                        if (!win.isDestroyed()) {
+                            win.webContents.send('media-scale-updated', { 
+                                index: videoIndex, 
+                                scale: videoData.scale 
+                            });
+                        }
+                    });
+                }
             }
         }
     }
@@ -146,6 +170,10 @@ class EventHandlers {
                 ipcRenderer.send('update-cards', {
                     videos: this.mainManager.videos.map(v => ({
                         isImage: v.isImage,
+                        scale: v.scale || 1.0,
+                        rotation: v.rotation || 0,
+                        flipX: v.flipX || false,
+                        flipY: v.flipY || false,
                         video: {
                             src: v.video.src,
                             dataset: {
@@ -223,6 +251,10 @@ class EventHandlers {
             ipcRenderer.send('create-cards-window', {
                 videos: this.mainManager.videos.map(v => ({
                     isImage: v.isImage,
+                    scale: v.scale || 1.0,
+                    rotation: v.rotation || 0,
+                    flipX: v.flipX || false,
+                    flipY: v.flipY || false,
                     video: {
                         src: v.video.src,
                         dataset: {

@@ -474,7 +474,7 @@ ipcMain.on('create-cards-window', (event, { videos }) => {
     }
 
     cardsWindow = new BrowserWindow({
-        width: 800,
+        width: 900,
         height: 600,
         minWidth: 600,
         minHeight: 400,
@@ -694,6 +694,18 @@ ipcMain.on('toggle-visible', (event, index) => {
     );
     if (mainWindow) {
         mainWindow.webContents.send('toggle-visible', index);
+    }
+});
+
+// 處理設置媒體縮放的事件
+ipcMain.on('set-media-scale', (event, { index, scale }) => {
+    console.log('Setting media scale:', { index, scale });
+    
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        mainWindow.webContents.send('set-media-scale', { index, scale });
     }
 });
 
