@@ -91,6 +91,8 @@ body {
     z-index: 1000;
 }
 
+
+
 .video-card:active {
     cursor: grabbing;
 }

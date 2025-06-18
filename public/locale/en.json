@@ -134,7 +134,12 @@
             "fixFFMPEG": "🐛 Fix FFMPEG decoder issue",
             "addListControl": "✨ Add list control function",
             "fixSettings": "🐛 Fix settings issue",
-            "addCancelBtn": "✨ Add cancel button"
+            "addCancelBtn": "✨ Add cancel button",
+            "fixCardDeleteSync": "🐛 Fix card deletion synchronization issue",
+            "removeDeleteVisualFeedback": "🔧 Remove delete visual feedback to avoid state confusion",
+            "improveDeleteLogic": "🔧 Improve deletion logic to ensure correct target card identification",
+            "addCardListDrag": "✨ Add card list drag functionality",
+            "fixCardThumbnailReload": "🐛 Fix card thumbnail reload issue"
         },
         "keybinding": {
             "playPause": "Play/Pause",

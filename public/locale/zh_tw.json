@@ -134,7 +134,12 @@
             "fixFFMPEG": "🐛 修復FFMPEG解碼器問題",
             "addListControl": "✨ 新增列表控制功能",
             "fixSettings": "🐛 修復settings問題",
-            "addCancelBtn": "✨ 新增取消轉碼按鈕"
+            "addCancelBtn": "✨ 新增取消轉碼按鈕",
+            "fixCardDeleteSync": "🐛 修復卡片刪除同步問題",
+            "removeDeleteVisualFeedback": "🔧 移除刪除時的視覺反饋以避免狀態混亂",
+            "improveDeleteLogic": "🔧 改進刪除邏輯，確保正確識別目標卡片",
+            "addCardListDrag": "✨ 新增卡片列表拖拽功能",
+            "fixCardThumbnailReload": "🐛 修復卡片縮略圖重新讀取問題"
         },
         "keybinding": {
             "playPause": "播放/暫停",

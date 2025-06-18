@@ -596,12 +596,8 @@ function createCard(videoData, index) {
     deleteBtn.onclick = (e) => {
         e.stopPropagation();
         if (confirm('確定要刪除這個項目嗎？')) {
+            // 簡單地發送刪除請求，不添加視覺反饋
             ipcRenderer.send('delete-media', index);
-            card.remove();
-            videos.splice(index, 1);
-            Array.from(cardsContainer.children).forEach((card, i) => {
-                updateCardIndex(card, i);
-            });
         }
     };
 
@@ -1020,6 +1016,53 @@ ipcRenderer.on('video-play-state', (event, { index, isPlaying }) => {
             playBtn.innerHTML = isPlaying ? createSvgIcon('pause') : createSvgIcon('play');
         }
     }
+});
+
+// 監聽刪除操作確認
+ipcRenderer.on('media-deleted', (event, { index, success }) => {
+    console.log('Received delete confirmation:', { index, success });
+    
+    // 使用 dataset.index 來查找正確的卡片，而不是DOM位置
+    const card = Array.from(cardsContainer.children).find(c => 
+        parseInt(c.dataset.index) === index
+    );
+    
+    if (card) {
+        if (success) {
+            // 刪除成功，清理事件監聽器
+            if (card.cleanup) {
+                card.cleanup();
+            }
+            
+            // 從DOM中移除卡片
+            card.remove();
+            
+            // 更新videos數組
+            videos.splice(index, 1);
+            
+            // 更新剩餘卡片的索引
+            Array.from(cardsContainer.children).forEach((remainingCard, i) => {
+                remainingCard.dataset.index = i;
+                updateCardIndex(remainingCard, i);
+            });
+            
+            console.log('Media deleted successfully at index:', index);
+        } else {
+            // 刪除失敗，顯示錯誤提示
+            alert('刪除失敗，請稍後重試');
+            console.error('Failed to delete media at index:', index);
+        }
+    } else {
+        console.warn('Card not found for index:', index);
+    }
+});
+
+// 監聽刪除操作失敗
+ipcRenderer.on('media-delete-failed', (event, { index, error }) => {
+    console.error('Delete operation failed:', { index, error });
+    
+    // 顯示錯誤提示
+    alert(`刪除失敗: ${error}`);
 });
 
 // 添加容器的拖拽事件

@@ -1,6 +1,28 @@
 {
     "versions": [
         {
+            "version": "v1.4.1-Beta",
+            "date": "2025-06-18",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixCardDeleteSync",
+                    "description": "修復卡片刪除同步問題"
+                },
+                {
+                    "key": "settings.changelog.removeDeleteVisualFeedback",
+                    "description": "移除刪除時的視覺反饋以避免狀態混亂"
+                },
+                {
+                    "key": "settings.changelog.improveDeleteLogic",
+                    "description": "改進刪除邏輯，確保正確識別目標卡片"
+                },
+                {
+                    "key": "settings.changelog.fixIssues",
+                    "description": "修復已知問題"
+                }
+            ]
+        },
+        {
             "version": "v1.4.0-Beta",
             "date": "2025-05-13",
             "changes": [
