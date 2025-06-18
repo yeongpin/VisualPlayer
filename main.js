@@ -695,7 +695,7 @@ function createTranscodeWindow() {
             document.body.offsetHeight;
         `).then(contentHeight => {
             // 添加一些邊距
-            const windowHeight = contentHeight + 20;  // 20px 邊距
+            const windowHeight = contentHeight + 30;  // 20px 邊距
             // 設置最小和最大高度限制
             const minHeight = 220;
             const maxHeight = 400;
@@ -776,6 +776,31 @@ function createTranscodeOptionsWindow() {
     });
 }
 
+// GPU兼容性檢測函數
+async function checkGPUCompatibility() {
+    return new Promise((resolve) => {
+        const testCommand = ffmpeg()
+            .addInput('color=red:size=320x240:duration=1')
+            .inputFormat('lavfi')
+            .videoCodec('h264_nvenc')
+            .addOptions(['-f', 'null', '-y'])
+            .output('-')
+            .on('start', () => {
+                console.log('Testing GPU compatibility...');
+            })
+            .on('end', () => {
+                console.log('GPU encoding is available');
+                resolve(true);
+            })
+            .on('error', (err) => {
+                console.log('GPU encoding not available:', err.message);
+                resolve(false);
+            });
+        
+        testCommand.run();
+    });
+}
+
 // 修改轉碼處理部分
 ipcMain.on('transcode-video', async (event, { path: videoPath, name }) => {
     try {
@@ -804,7 +829,31 @@ ipcMain.on('transcode-video', async (event, { path: videoPath, name }) => {
 
         // 讀取預設配置
         const presets = require('./public/transcode_presets.json');
-        const selectedPreset = presets[optionResult.quality];
+        let selectedPreset = presets[optionResult.quality];
+
+        // 如果選擇了GPU選項，檢查GPU兼容性
+        if (optionResult.quality.startsWith('gpu_')) {
+            const gpuAvailable = await checkGPUCompatibility();
+            if (!gpuAvailable) {
+                console.log('GPU encoding not available, falling back to CPU');
+                // 降級到對應的CPU預設
+                const fallbackMap = {
+                    'gpu_low': 'low',
+                    'gpu_medium': 'medium',
+                    'gpu_high': 'high',
+                    'gpu_ultra': 'ultra'
+                };
+                selectedPreset = presets[fallbackMap[optionResult.quality]] || presets['medium'];
+                
+                // 通知用戶降級
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                    mainWindow.webContents.send('show-notification', {
+                        type: 'warning',
+                        message: 'GPU編碼不可用，已切換到CPU編碼'
+                    });
+                }
+            }
+        }
 
         // 繼續原有的轉碼流程...
         console.log('Received transcoding request:', { videoPath, name });
@@ -847,7 +896,6 @@ ipcMain.on('transcode-video', async (event, { path: videoPath, name }) => {
             // 創建 FFmpeg 命令
             currentFfmpegCommand = ffmpeg(videoPath)
                 .toFormat('mp4')
-                .videoCodec('libx264')
                 .addOptions(selectedPreset.options)
                 .addOptions([
                     '-threads 0',
@@ -935,14 +983,150 @@ ipcMain.on('transcode-video', async (event, { path: videoPath, name }) => {
                         url: `file://${outputPath}`
                     });
                 })
-                .on('error', (err) => {
+                .on('error', async (err) => {
+                    console.error('Transcoding Error:', err);
+                    
+                    // 如果是GPU編碼錯誤且使用的是GPU預設，嘗試降級到CPU
+                    if (optionResult.quality.startsWith('gpu_') && 
+                        (err.message.includes('nvenc') || 
+                         err.message.includes('3221225477') ||
+                         err.code === 3221225477)) {
+                        
+                        console.log('GPU encoding failed, attempting CPU fallback...');
+                        
+                        // 通知用戶正在降級
+                        if (window && !window.isDestroyed()) {
+                            window.webContents.send('transcode-fallback', { 
+                                message: 'GPU編碼失敗，正在切換到CPU編碼...'
+                            });
+                        }
+                        
+                        // 降級到對應的CPU預設
+                        const fallbackMap = {
+                            'gpu_low': 'low',
+                            'gpu_medium': 'medium',
+                            'gpu_high': 'high',
+                            'gpu_ultra': 'ultra'
+                        };
+                        const fallbackPreset = presets[fallbackMap[optionResult.quality]] || presets['medium'];
+                        
+                        // 重新開始轉碼，使用CPU編碼
+                        currentFfmpegCommand = ffmpeg(videoPath)
+                            .toFormat('mp4')
+                            .addOptions(fallbackPreset.options)
+                            .addOptions([
+                                '-threads 0',
+                                '-movflags +faststart',
+                                '-y',
+                                '-stats',
+                                '-progress pipe:1'
+                            ])
+                            .on('start', (commandLine) => {
+                                if (!isTranscoding) return;
+                                console.log('FFmpeg CPU Fallback:', commandLine);
+                                if (window && !window.isDestroyed()) {
+                                    window.webContents.send('transcode-start', { 
+                                        name: name,
+                                        path: videoPath,
+                                        fallback: true
+                                    });
+                                }
+                            })
+                            .on('progress', (progress) => {
+                                if (!isTranscoding) return;
+                                try {
+                                    if (!window || window.isDestroyed()) {
+                                        currentFfmpegCommand.kill('SIGKILL');
+                                        isTranscoding = false;
+                                        return;
+                                    }
+
+                                    const currentTime = progress.timemark && /^\d{2}:\d{2}:\d{2}/.test(progress.timemark) 
+                                        ? timemarkToSeconds(progress.timemark) 
+                                        : 0;
+                                        
+                                    let percentage = duration ? (currentTime / duration) * 100 : 0;
+                                    percentage = Math.max(0, Math.min(percentage, 100));
+
+                                    window.webContents.send('transcode-progress', { 
+                                        progress: percentage,
+                                        frame: progress.frames || 0,
+                                        fps: progress.currentFps || 0,
+                                        speed: progress.currentKbps || 0,
+                                        stage: 'CPU轉碼中',
+                                        currentTime: Math.max(currentTime, 0),
+                                        duration: Math.max(duration, 0)
+                                    });
+                                } catch (error) {
+                                    console.error('Progress calculation error:', error);
+                                }
+                            })
+                            .on('end', () => {
+                                isTranscoding = false;
+                                currentFfmpegCommand = null;
+                                console.log('CPU Fallback Transcoding completed');
+                                
+                                if (window && !window.isDestroyed()) {
+                                    window.webContents.send('transcode-progress', { 
+                                        progress: 100,
+                                        frame: 0,
+                                        fps: 0,
+                                        speed: 0,
+                                        stage: 'CPU轉碼完成',
+                                        currentTime: duration,
+                                        duration: duration
+                                    });
+
+                                    setTimeout(() => {
+                                        if (window && !window.isDestroyed()) {
+                                            window.webContents.send('transcode-complete', { success: true });
+                                            setTimeout(() => {
+                                                if (window && !window.isDestroyed()) {
+                                                    window.close();
+                                                }
+                                            }, 1000);
+                                        }
+                                    }, 1000);
+                                }
+                                
+                                event.reply('transcode-complete', {
+                                    success: true,
+                                    url: `file://${outputPath}`
+                                });
+                            })
+                            .on('error', (fallbackError) => {
+                                console.error('CPU Fallback also failed:', fallbackError);
+                                isTranscoding = false;
+                                currentFfmpegCommand = null;
+                                
+                                if (window && !window.isDestroyed()) {
+                                    window.webContents.send('transcode-error', { 
+                                        error: `GPU和CPU編碼都失敗: ${fallbackError.message}`
+                                    });
+                                    setTimeout(() => {
+                                        if (!window.isDestroyed()) {
+                                            window.close();
+                                        }
+                                    }, 1500);
+                                }
+                                
+                                event.reply('transcode-complete', {
+                                    success: false,
+                                    error: fallbackError.message
+                                });
+                            });
+                        
+                        // 開始CPU降級轉碼
+                        currentFfmpegCommand.save(outputPath);
+                        return;
+                    }
+                    
+                    // 非GPU錯誤或無法降級的情況
                     isTranscoding = false;
                     currentFfmpegCommand = null;
-                    console.error('Transcoding Error:', err);
                     
                     if (window && !window.isDestroyed()) {
                         window.webContents.send('transcode-error', { error: err.message });
-                        // 等待一段时间后关闭窗口
                         setTimeout(() => {
                             if (!window.isDestroyed()) {
                                 window.close();

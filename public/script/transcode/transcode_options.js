@@ -60,7 +60,11 @@ function getQualityDescription(quality) {
         high: '高畫質，適合大屏幕觀看',
         ultra: '超高畫質，適合4K顯示器',
         NoLoss: '極致高畫質，接近無損，檔案較大',
-        original: '保持原始畫質，文件較大'
+        original: '保持原始畫質，文件較大',
+        gpu_low: 'GPU硬件加速 - 低畫質，速度最快',
+        gpu_medium: 'GPU硬件加速 - 中等畫質，平衡速度與質量',
+        gpu_high: 'GPU硬件加速 - 高畫質，適合高清視頻',
+        gpu_ultra: 'GPU硬件加速 - 超高畫質，適合4K視頻'
     };
     return descriptions[quality] || '';
 } 

@@ -139,7 +139,13 @@
             "removeDeleteVisualFeedback": "🔧 Remove delete visual feedback to avoid state confusion",
             "improveDeleteLogic": "🔧 Improve deletion logic to ensure correct target card identification",
             "addCardListDrag": "✨ Add card list drag functionality",
-            "fixCardThumbnailReload": "🐛 Fix card thumbnail reload issue"
+            "fixCardThumbnailReload": "🐛 Fix card thumbnail reload issue",
+            "addGPUTranscode": "🚀 Add GPU hardware acceleration transcoding support",
+            "addGPUFallback": "🛡️ Add intelligent GPU transcoding fallback mechanism",
+            "addGPUCompatCheck": "🔍 Add GPU compatibility detection feature",
+            "optimizeTranscodeParams": "⚙️ Optimize transcoding parameter configuration",
+            "fixGPUTranscodeFail": "🐛 Fix large file GPU transcoding failure issue",
+            "improveTranscodeSpeed": "⚡ Significantly improve transcoding speed"
         },
         "keybinding": {
             "playPause": "Play/Pause",

@@ -1,6 +1,36 @@
 {
     "versions": [
         {
+            "version": "v1.4.2-Beta",
+            "date": "2025-06-20",
+            "changes": [
+                {
+                    "key": "settings.changelog.addGPUTranscode",
+                    "description": "新增GPU硬件加速轉碼支持"
+                },
+                {
+                    "key": "settings.changelog.addGPUFallback",
+                    "description": "新增GPU轉碼智能降級機制"
+                },
+                {
+                    "key": "settings.changelog.addGPUCompatCheck",
+                    "description": "新增GPU兼容性檢測功能"
+                },
+                {
+                    "key": "settings.changelog.optimizeTranscodeParams",
+                    "description": "優化轉碼參數配置"
+                },
+                {
+                    "key": "settings.changelog.fixGPUTranscodeFail",
+                    "description": "修復大文件GPU轉碼失敗問題"
+                },
+                {
+                    "key": "settings.changelog.improveTranscodeSpeed",
+                    "description": "顯著提升轉碼速度"
+                }
+            ]
+        },
+        {
             "version": "v1.4.1-Beta",
             "date": "2025-06-18",
             "changes": [

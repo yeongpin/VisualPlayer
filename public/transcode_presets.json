@@ -143,5 +143,90 @@
             "-ac 2",
             "-vf scale='iw':'-2'"
         ]
+    },
+    "gpu_low": {
+        "name": "GPU 低畫質",
+        "options": [
+            "-c:v h264_nvenc",
+            "-pix_fmt yuv420p",
+            "-preset p1",
+            "-tune ll",
+            "-profile:v main",
+            "-level 4.0",
+            "-rc vbr",
+            "-cq 28",
+            "-maxrate 2000k",
+            "-bufsize 4000k",
+            "-vf scale='min(1280,iw)':'-2'",
+            "-c:a aac",
+            "-b:a 128k",
+            "-ar 44100",
+            "-ac 2"
+        ]
+    },
+    "gpu_medium": {
+        "name": "GPU 中等畫質",
+        "options": [
+            "-c:v h264_nvenc",
+            "-pix_fmt yuv420p",
+            "-preset p4",
+            "-tune hq",
+            "-profile:v high",
+            "-level 4.0",
+            "-rc vbr",
+            "-cq 23",
+            "-maxrate 5000k",
+            "-bufsize 10000k",
+            "-vf scale='min(1920,iw)':'-2'",
+            "-c:a aac",
+            "-b:a 192k",
+            "-ar 48000",
+            "-ac 2"
+        ]
+    },
+    "gpu_high": {
+        "name": "GPU 高畫質",
+        "options": [
+            "-c:v h264_nvenc",
+            "-pix_fmt yuv420p",
+            "-preset p6",
+            "-tune hq",
+            "-profile:v high",
+            "-level 5.1",
+            "-rc vbr",
+            "-cq 18",
+            "-maxrate 8000k",
+            "-bufsize 16000k",
+            "-spatial_aq 1",
+            "-temporal_aq 1",
+            "-vf scale='min(2560,iw)':'-2'",
+            "-c:a aac",
+            "-b:a 256k",
+            "-ar 48000",
+            "-ac 2"
+        ]
+    },
+    "gpu_ultra": {
+        "name": "GPU 超高畫質",
+        "options": [
+            "-c:v h264_nvenc",
+            "-pix_fmt yuv420p",
+            "-preset p7",
+            "-tune hq",
+            "-profile:v high",
+            "-level 5.2",
+            "-rc vbr",
+            "-cq 15",
+            "-maxrate 15000k",
+            "-bufsize 30000k",
+            "-spatial_aq 1",
+            "-temporal_aq 1",
+            "-multipass fullres",
+            "-vf scale='min(3840,iw)':'-2'",
+            "-c:a aac",
+            "-b:a 320k",
+            "-ar 48000",
+            "-ac 2"
+        ]
     }
 } 

@@ -139,7 +139,13 @@
             "removeDeleteVisualFeedback": "🔧 移除刪除時的視覺反饋以避免狀態混亂",
             "improveDeleteLogic": "🔧 改進刪除邏輯，確保正確識別目標卡片",
             "addCardListDrag": "✨ 新增卡片列表拖拽功能",
-            "fixCardThumbnailReload": "🐛 修復卡片縮略圖重新讀取問題"
+            "fixCardThumbnailReload": "🐛 修復卡片縮略圖重新讀取問題",
+            "addGPUTranscode": "🚀 新增GPU硬件加速轉碼支持",
+            "addGPUFallback": "🛡️ 新增GPU轉碼智能降級機制",
+            "addGPUCompatCheck": "🔍 新增GPU兼容性檢測功能",
+            "optimizeTranscodeParams": "⚙️ 優化轉碼參數配置",
+            "fixGPUTranscodeFail": "🐛 修復大文件GPU轉碼失敗問題",
+            "improveTranscodeSpeed": "⚡ 顯著提升轉碼速度"
         },
         "keybinding": {
             "playPause": "播放/暫停",

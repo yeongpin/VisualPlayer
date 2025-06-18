@@ -78,6 +78,18 @@ ipcRenderer.on('transcode-cancelled', () => {
     cancelBtn.textContent = '已取消';
 });
 
+// 處理GPU降級事件
+ipcRenderer.on('transcode-fallback', (event, { message }) => {
+    stageText.textContent = message;
+    stageText.style.color = '#ff9800'; // 橙色警告
+    fileName.textContent = '正在切換編碼器...';
+    
+    // 暫時顯示降級消息
+    setTimeout(() => {
+        stageText.style.color = '';
+    }, 3000);
+});
+
 function formatTime(seconds) {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
