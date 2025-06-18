@@ -27,6 +27,22 @@
                 {
                     "key": "settings.changelog.improveTranscodeSpeed",
                     "description": "顯著提升轉碼速度"
+                },
+                {
+                    "key": "settings.changelog.addBatchSelection",
+                    "description": "新增卡片批量選擇功能"
+                },
+                {
+                    "key": "settings.changelog.addBatchDelete",
+                    "description": "新增批量刪除功能"
+                },
+                {
+                    "key": "settings.changelog.addSelectAllCheckbox",
+                    "description": "新增全選/取消全選功能"
+                },
+                {
+                    "key": "settings.changelog.improveBatchUI",
+                    "description": "優化批量操作界面和視覺反饋"
                 }
             ]
         },

@@ -145,7 +145,11 @@
             "addGPUCompatCheck": "🔍 新增GPU兼容性檢測功能",
             "optimizeTranscodeParams": "⚙️ 優化轉碼參數配置",
             "fixGPUTranscodeFail": "🐛 修復大文件GPU轉碼失敗問題",
-            "improveTranscodeSpeed": "⚡ 顯著提升轉碼速度"
+            "improveTranscodeSpeed": "⚡ 顯著提升轉碼速度",
+            "addBatchSelection": "☑️ 新增卡片批量選擇功能",
+            "addBatchDelete": "🗑️ 新增批量刪除功能",
+            "addSelectAllCheckbox": "📋 新增全選/取消全選功能",
+            "improveBatchUI": "🎨 優化批量操作界面和視覺反饋"
         },
         "keybinding": {
             "playPause": "播放/暫停",

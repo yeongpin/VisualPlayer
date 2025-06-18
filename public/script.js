@@ -116,6 +116,69 @@ class MainManager {
             }
         });
 
+        // 處理批量刪除媒體事件
+        ipcRenderer.on('batch-delete-media', (event, indices) => {
+            console.log('Batch deleting media at indices:', indices);
+            
+            let successCount = 0;
+            let failCount = 0;
+            const errors = [];
+            
+            // 從大到小排序索引，避免刪除時索引錯位
+            const sortedIndices = [...indices].sort((a, b) => b - a);
+            
+            sortedIndices.forEach(index => {
+                try {
+                    const videoData = this.videos[index];
+                    if (videoData) {
+                        // 從 DOM 中移除元素
+                        videoData.wrapper.remove();
+                        
+                        // 從數組中移除元素
+                        this.videos.splice(index, 1);
+                        
+                        successCount++;
+                        console.log('Successfully deleted media at index:', index);
+                    } else {
+                        failCount++;
+                        errors.push(`索引 ${index} 處未找到媒體`);
+                        console.warn('No video data found at index:', index);
+                    }
+                } catch (error) {
+                    failCount++;
+                    errors.push(`刪除索引 ${index} 時出錯: ${error.message}`);
+                    console.error('Error deleting media at index:', index, error);
+                }
+            });
+            
+            console.log('Batch deletion completed:', { successCount, failCount, errors });
+            
+            // 如果沒有視頻了，顯示 dropZone
+            if (this.videos.length === 0) {
+                this.dropZone.style.display = 'flex';
+            }
+            
+            // 立即更新卡片列表
+            ipcRenderer.send('update-cards', {
+                videos: this.videos.map(v => ({
+                    isImage: v.isImage,
+                    video: {
+                        src: v.video.src,
+                        dataset: {
+                            originalFileName: v.video.dataset.originalFileName
+                        }
+                    }
+                }))
+            });
+            
+            // 向主進程發送批量刪除完成通知，讓主進程轉發給卡片窗口
+            ipcRenderer.send('batch-delete-completed', {
+                successCount,
+                failCount,
+                errors
+            });
+        });
+
         // 添加請求 filterValues 的處理
         ipcRenderer.on('request-filter-values', (event, index) => {
             const videoData = this.videos[index];

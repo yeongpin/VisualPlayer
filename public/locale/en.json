@@ -145,7 +145,11 @@
             "addGPUCompatCheck": "🔍 Add GPU compatibility detection feature",
             "optimizeTranscodeParams": "⚙️ Optimize transcoding parameter configuration",
             "fixGPUTranscodeFail": "🐛 Fix large file GPU transcoding failure issue",
-            "improveTranscodeSpeed": "⚡ Significantly improve transcoding speed"
+            "improveTranscodeSpeed": "⚡ Significantly improve transcoding speed",
+            "addBatchSelection": "☑️ Add batch selection feature for cards",
+            "addBatchDelete": "🗑️ Add batch delete functionality",
+            "addSelectAllCheckbox": "📋 Add select all/deselect all feature",
+            "improveBatchUI": "🎨 Improve batch operation interface and visual feedback"
         },
         "keybinding": {
             "playPause": "Play/Pause",

@@ -546,6 +546,37 @@ ipcMain.on('delete-media', (event, index) => {
     }
 });
 
+// 處理批量刪除媒體的請求
+ipcMain.on('batch-delete-media', (event, indices) => {
+    console.log('Received batch delete request for indices:', indices); // 添加調試日誌
+    
+    // 獲取主窗口
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    
+    if (mainWindow) {
+        console.log('Forwarding batch delete request to main window'); // 添加調試日誌
+        mainWindow.webContents.send('batch-delete-media', indices);
+    }
+});
+
+// 處理批量刪除完成通知
+ipcMain.on('batch-delete-completed', (event, result) => {
+    console.log('Received batch delete completion:', result);
+    
+    // 轉發給所有卡片窗口
+    const cardsWindows = BrowserWindow.getAllWindows().filter(win => 
+        win.webContents.getURL().includes('cards.html')
+    );
+    
+    cardsWindows.forEach(win => {
+        if (!win.isDestroyed()) {
+            win.webContents.send('batch-delete-completed', result);
+        }
+    });
+});
+
 // 添加更新卡片的處理
 ipcMain.on('update-cards', (event, data) => {
     const cardsWindow = BrowserWindow.getAllWindows().find(win => 

@@ -15,6 +15,16 @@
             <button class="titlebar-button close-button" title="Close" data-i18n="cards.close"></button>
         </div>
     </div>
+    <div class="batch-operations">
+        <label class="select-all-container">
+            <input type="checkbox" id="selectAll" class="select-all-checkbox">
+            <span class="select-all-text">全選</span>
+        </label>
+        <button id="deleteSelected" class="batch-delete-btn" disabled>刪除選中項 (0)</button>
+        <div class="selection-info">
+            <span id="selectionCount">未選中任何項目</span>
+        </div>
+    </div>
     <div class="cards-container"></div>
     <script src="script/language/languageManager.js"></script>
     <script src="cards.js"></script>

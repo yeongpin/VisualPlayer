@@ -18,11 +18,101 @@ let videoStates = new Map(); // 用於保存每個視頻的狀態
 let isDragging = false;
 let activeHandle = null;
 let thumbnailCache = new Map(); // 缩略图缓存
+let selectedCards = new Set(); // 保存選中的卡片索引
 
 // 添加刷新按鈕事件
 refreshButton.onclick = () => {
     ipcRenderer.send('request-videos-data');
 };
+
+// 批量操作相關元素
+const selectAllCheckbox = document.getElementById('selectAll');
+const deleteSelectedBtn = document.getElementById('deleteSelected');
+const selectionCountSpan = document.getElementById('selectionCount');
+
+// 更新選擇狀態顯示
+function updateSelectionDisplay() {
+    const selectedCount = selectedCards.size;
+    const totalCount = videos.length;
+    
+    // 更新全選checkbox狀態
+    if (selectedCount === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    } else if (selectedCount === totalCount) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+    } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+    }
+    
+    // 更新刪除按鈕狀態
+    deleteSelectedBtn.disabled = selectedCount === 0;
+    deleteSelectedBtn.textContent = selectedCount > 0 
+        ? `刪除選中項 (${selectedCount})` 
+        : '刪除選中項 (0)';
+    
+    // 更新選擇信息
+    if (selectedCount === 0) {
+        selectionCountSpan.textContent = '未選中任何項目';
+    } else {
+        selectionCountSpan.textContent = `已選中 ${selectedCount} / ${totalCount} 項`;
+    }
+}
+
+// 全選/取消全選事件
+selectAllCheckbox.addEventListener('change', (e) => {
+    const isChecked = e.target.checked;
+    
+    if (isChecked) {
+        // 全選
+        selectedCards.clear();
+        videos.forEach((_, index) => {
+            selectedCards.add(index);
+        });
+    } else {
+        // 取消全選
+        selectedCards.clear();
+    }
+    
+    // 更新所有卡片的視覺狀態
+    updateAllCardsSelection();
+    updateSelectionDisplay();
+});
+
+// 批量刪除事件
+deleteSelectedBtn.addEventListener('click', () => {
+    const selectedCount = selectedCards.size;
+    if (selectedCount === 0) return;
+    
+    const confirmMessage = `確定要刪除選中的 ${selectedCount} 個項目嗎？此操作無法撤銷。`;
+    if (confirm(confirmMessage)) {
+        // 轉換為數組並排序（從大到小，避免索引問題）
+        const selectedIndices = Array.from(selectedCards).sort((a, b) => b - a);
+        
+        // 發送批量刪除請求
+        ipcRenderer.send('batch-delete-media', selectedIndices);
+        
+        // 清空選中狀態
+        selectedCards.clear();
+        updateSelectionDisplay();
+    }
+});
+
+// 更新所有卡片的選中狀態
+function updateAllCardsSelection() {
+    const cards = cardsContainer.querySelectorAll('.video-card');
+    cards.forEach((card, index) => {
+        const checkbox = card.querySelector('.card-checkbox');
+        const isSelected = selectedCards.has(index);
+        
+        if (checkbox) {
+            checkbox.checked = isSelected;
+        }
+        card.classList.toggle('selected', isSelected);
+    });
+}
 
 // 请求加载缓存的缩略图
 ipcRenderer.send('load-thumbnails');
@@ -143,13 +233,27 @@ function updateCardsList(videoData) {
             card.dataset.index = index;
             updateCardTitle(card, index, videoData[index].isImage);
         });
+        
+        // 更新選中狀態顯示
+        updateSelectionDisplay();
     } else if (newCount < currentCount) {
         // 有卡片被删除，移除多余的卡片
         for (let i = currentCount - 1; i >= newCount; i--) {
             if (cardsContainer.children[i]) {
+                // 清理選中狀態
+                selectedCards.delete(i);
                 cardsContainer.removeChild(cardsContainer.children[i]);
             }
         }
+        
+        // 重新整理選中狀態的索引
+        const newSelectedCards = new Set();
+        selectedCards.forEach(index => {
+            if (index < newCount) {
+                newSelectedCards.add(index);
+            }
+        });
+        selectedCards = newSelectedCards;
         
         // 更新剩余卡片
         for (let i = 0; i < newCount; i++) {
@@ -181,7 +285,13 @@ function updateCardsList(videoData) {
                 updateCardThumbnail(card, videoData[i]);
             }
         }
+        
+        // 更新選中狀態顯示
+        updateSelectionDisplay();
     }
+    
+    // 確保所有卡片都有正確的選中狀態
+    updateAllCardsSelection();
 }
 
 // 更新卡片标题
@@ -454,6 +564,29 @@ function createCard(videoData, index) {
         thumbnail.src = videoData.video.src;
     }
     
+    // 創建選擇checkbox
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'card-checkbox';
+    checkbox.checked = selectedCards.has(index);
+    
+    // checkbox事件處理
+    checkbox.addEventListener('change', (e) => {
+        e.stopPropagation(); // 防止觸發卡片點擊事件
+        
+        if (e.target.checked) {
+            selectedCards.add(index);
+        } else {
+            selectedCards.delete(index);
+        }
+        
+        // 更新卡片視覺狀態
+        card.classList.toggle('selected', e.target.checked);
+        
+        // 更新顯示
+        updateSelectionDisplay();
+    });
+
     // 創建信息區域
     const info = document.createElement('div');
     info.className = 'card-info';
@@ -610,6 +743,7 @@ function createCard(videoData, index) {
     actions.appendChild(filterBtn);
     actions.appendChild(deleteBtn);
 
+    card.appendChild(checkbox);
     card.appendChild(thumbnail);
     card.appendChild(info);
     
@@ -1040,11 +1174,29 @@ ipcRenderer.on('media-deleted', (event, { index, success }) => {
             // 更新videos數組
             videos.splice(index, 1);
             
+            // 清理選中狀態中被刪除的項目
+            selectedCards.delete(index);
+            
+            // 重新整理選中狀態的索引（所有大於被刪除索引的都要減1）
+            const newSelectedCards = new Set();
+            selectedCards.forEach(selectedIndex => {
+                if (selectedIndex > index) {
+                    newSelectedCards.add(selectedIndex - 1);
+                } else {
+                    newSelectedCards.add(selectedIndex);
+                }
+            });
+            selectedCards = newSelectedCards;
+            
             // 更新剩餘卡片的索引
             Array.from(cardsContainer.children).forEach((remainingCard, i) => {
                 remainingCard.dataset.index = i;
                 updateCardIndex(remainingCard, i);
             });
+            
+            // 更新選中狀態顯示
+            updateSelectionDisplay();
+            updateAllCardsSelection();
             
             console.log('Media deleted successfully at index:', index);
         } else {
@@ -1063,6 +1215,30 @@ ipcRenderer.on('media-delete-failed', (event, { index, error }) => {
     
     // 顯示錯誤提示
     alert(`刪除失敗: ${error}`);
+});
+
+// 監聽批量刪除結果
+ipcRenderer.on('batch-delete-completed', (event, { successCount, failCount, errors }) => {
+    console.log('Batch delete completed:', { successCount, failCount, errors });
+    
+    // 清空選中狀態
+    selectedCards.clear();
+    updateSelectionDisplay();
+    updateAllCardsSelection();
+    
+    // 顯示結果消息
+    if (failCount === 0) {
+        if (successCount === 1) {
+            alert(`成功刪除 1 個項目`);
+        } else {
+            alert(`成功刪除 ${successCount} 個項目`);
+        }
+    } else {
+        alert(`刪除完成：成功 ${successCount} 個，失敗 ${failCount} 個`);
+        if (errors && errors.length > 0) {
+            console.error('Batch delete errors:', errors);
+        }
+    }
 });
 
 // 添加容器的拖拽事件

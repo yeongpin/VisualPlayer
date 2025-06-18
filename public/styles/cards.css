@@ -555,4 +555,75 @@ body {
     right: 0;
     display: none;
 }
+
+/* 批量操作區域 */
+.batch-operations {
+    background: #2d2d2d;
+    border-bottom: 1px solid #3d3d3d;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+}
+
+.select-all-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 14px;
+}
+
+.select-all-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: #0066cc;
+    cursor: pointer;
+}
+
+.batch-delete-btn {
+    background: #f44336;
+    border: none;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.batch-delete-btn:hover:not(:disabled) {
+    background: #d32f2f;
+}
+
+.batch-delete-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.selection-info {
+    color: #999;
+    font-size: 12px;
+    margin-left: auto;
+}
+
+/* 卡片選中狀態 */
+.video-card.selected {
+    border: 2px solid #0066cc;
+    background: rgba(0, 102, 204, 0.1);
+}
+
+.video-card .card-checkbox {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 18px;
+    height: 18px;
+    accent-color: #0066cc;
+    cursor: pointer;
+    z-index: 2;
+} 
  
