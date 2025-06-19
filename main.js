@@ -561,6 +561,22 @@ ipcMain.on('batch-delete-media', (event, indices) => {
     }
 });
 
+// 處理單個媒體刪除完成通知
+ipcMain.on('media-deleted', (event, result) => {
+    console.log('Received media deletion result:', result);
+    
+    // 轉發給所有卡片窗口
+    const cardsWindows = BrowserWindow.getAllWindows().filter(win => 
+        win.webContents.getURL().includes('cards.html')
+    );
+    
+    cardsWindows.forEach(win => {
+        if (!win.isDestroyed()) {
+            win.webContents.send('media-deleted', result);
+        }
+    });
+});
+
 // 處理批量刪除完成通知
 ipcMain.on('batch-delete-completed', (event, result) => {
     console.log('Received batch delete completion:', result);

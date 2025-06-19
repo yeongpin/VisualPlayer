@@ -100,23 +100,9 @@ class MainManager {
                     this.dropZone.style.display = 'flex';
                 }
 
-                // 立即更新卡片列表
+                // 通知卡片窗口刪除成功
                 const { ipcRenderer } = require('electron');
-                ipcRenderer.send('update-cards', {
-                    videos: this.videos.map(v => ({
-                        isImage: v.isImage,
-                        scale: v.scale || 1.0,
-                        rotation: v.rotation || 0,
-                        flipX: v.flipX || false,
-                        flipY: v.flipY || false,
-                        video: {
-                            src: v.video.src,
-                            dataset: {
-                                originalFileName: v.video.dataset.originalFileName
-                            }
-                        }
-                    }))
-                });
+                ipcRenderer.send('media-deleted', { index, success: true });
             }
         });
 
@@ -162,22 +148,7 @@ class MainManager {
                 this.dropZone.style.display = 'flex';
             }
             
-            // 立即更新卡片列表
-            ipcRenderer.send('update-cards', {
-                videos: this.videos.map(v => ({
-                    isImage: v.isImage,
-                    scale: v.scale || 1.0,
-                    rotation: v.rotation || 0,
-                    flipX: v.flipX || false,
-                    flipY: v.flipY || false,
-                    video: {
-                        src: v.video.src,
-                        dataset: {
-                            originalFileName: v.video.dataset.originalFileName
-                        }
-                    }
-                }))
-            });
+            // 不需要立即更新整個卡片列表，批量刪除完成事件會處理
             
             // 向主進程發送批量刪除完成通知，讓主進程轉發給卡片窗口
             ipcRenderer.send('batch-delete-completed', {

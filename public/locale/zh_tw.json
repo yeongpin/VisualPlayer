@@ -161,7 +161,18 @@
             "optimizeTranscodeDetection": "⚡ 優化轉碼檢測邏輯，避免不必要的轉碼",
             "improveFileCompatibility": "🔍 改進文件兼容性檢測，提升直接播放成功率",
             "speedupTranscodeCheck": "🚀 提升轉碼檢測速度，從5秒縮短至1秒",
-            "fixCardsTranscodeLogic": "�� 修復卡片窗口拖拽文件轉碼邏輯問題"
+            "fixCardsTranscodeLogic": "🐛 修復卡片窗口拖拽文件轉碼邏輯問題",
+            "fixBatchDeleteCards": "🗑️ 修復批量刪除後卡片仍顯示的問題",
+            "improveBatchDeleteSync": "🔄 改進批量刪除後卡片列表同步機制",
+            "fixCardListRefresh": "🔄 修復批量操作後卡片列表未更新問題",
+            "enhanceBatchDeleteReliability": "🛡️ 增強批量刪除操作可靠性",
+            "fixCardIndexError": "🐛 修復卡片刪除索引錯誤問題",
+            "fixDeleteWrongCard": "🚨 修復刪除錯誤卡片的嚴重問題",
+            "improveDynamicIndex": "🔧 改進動態索引系統，確保操作正確性",
+            "optimizeThumbnailRefresh": "⚡ 優化縮略圖刷新邏輯，避免不必要的重新加載",
+            "fixClosureIndexIssue": "🔒 修復閉包索引固化導致的操作錯誤",
+            "improveCardEventHandlers": "🎛️ 改進所有卡片事件處理器使用動態索引",
+            "enhanceDeleteReliability": "🛡️ 增強刪除操作可靠性和準確性"
         },
         "keybinding": {
             "playPause": "播放/暫停",

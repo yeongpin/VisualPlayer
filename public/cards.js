@@ -203,9 +203,6 @@ function updateCardsList(videoData) {
     // 更新视频数据引用
     videos = videoData;
     
-    // 预加载缩略图
-    preloadThumbnails(videoData);
-    
     // 获取当前卡片数量
     const currentCards = cardsContainer.querySelectorAll('.video-card');
     const currentCount = currentCards.length;
@@ -221,6 +218,9 @@ function updateCardsList(videoData) {
     
     if (isJustAddingNewVideos) {
         console.log('只添加新视频，保持现有顺序');
+        // 只預加載新視頻的縮略圖
+        const newVideos = videoData.slice(currentCount);
+        preloadThumbnails(newVideos);
         // 只添加新视频，保持现有顺序
         for (let i = currentCount; i < newCount; i++) {
             createCard(videoData[i], i);
@@ -229,7 +229,10 @@ function updateCardsList(videoData) {
     }
     
     if (newCount > currentCount) {
-        // 有新卡片添加，只添加新卡片
+        // 有新卡片添加，只預加載新卡片的縮略圖
+        const newVideos = videoData.slice(currentCount);
+        preloadThumbnails(newVideos);
+        // 只添加新卡片
         for (let i = currentCount; i < newCount; i++) {
             createCard(videoData[i], i);
         }
@@ -243,7 +246,7 @@ function updateCardsList(videoData) {
         // 更新選中狀態顯示
         updateSelectionDisplay();
     } else if (newCount < currentCount) {
-        // 有卡片被删除，移除多余的卡片
+        // 有卡片被删除，移除多余的卡片（不需要預加載縮略圖）
         for (let i = currentCount - 1; i >= newCount; i--) {
             if (cardsContainer.children[i]) {
                 // 清理選中狀態
@@ -261,13 +264,14 @@ function updateCardsList(videoData) {
         });
         selectedCards = newSelectedCards;
         
-        // 更新剩余卡片
+        // 更新剩余卡片（只更新索引和標題，不更新縮略圖）
         for (let i = 0; i < newCount; i++) {
             const card = cardsContainer.children[i];
             if (card) {
                 card.dataset.index = i;
                 updateCardTitle(card, i, videoData[i].isImage);
-                updateCardThumbnail(card, videoData[i]);
+                // 刪除操作時不需要更新縮略圖，因為視頻源沒有改變
+                // updateCardThumbnail(card, videoData[i]);
             }
         }
     } else {
@@ -283,6 +287,15 @@ function updateCardsList(videoData) {
         }
         
         // 卡片数量相同，可能只是顺序或内容变化
+        // 檢查是否有新的視頻需要預加載縮略圖
+        const newVideosToPreload = videoData.filter((video, index) => {
+            return index < oldVideos.length && 
+                   video.video.src !== oldVideos[index].video.src;
+        });
+        if (newVideosToPreload.length > 0) {
+            preloadThumbnails(newVideosToPreload);
+        }
+        
         for (let i = 0; i < newCount; i++) {
             const card = cardsContainer.children[i];
             if (card) {
@@ -637,7 +650,8 @@ function createCard(videoData, index) {
         e.stopPropagation();
         const newScale = parseFloat(e.target.value);
         if (newScale >= 0.1 && newScale <= 10) {
-            ipcRenderer.send('set-media-scale', { index, scale: newScale });
+            const currentIndex = parseInt(card.dataset.index);
+            ipcRenderer.send('set-media-scale', { index: currentIndex, scale: newScale });
         } else {
             // 如果輸入無效，恢復到當前值
             e.target.value = scaleInput.dataset.currentScale || '1.0';
@@ -668,7 +682,8 @@ function createCard(videoData, index) {
         const currentValue = parseFloat(scaleInput.value) || 1.0;
         const newValue = Math.min(10, currentValue + 0.1);
         scaleInput.value = newValue.toFixed(1);
-        ipcRenderer.send('set-media-scale', { index, scale: newValue });
+        const currentIndex = parseInt(card.dataset.index);
+        ipcRenderer.send('set-media-scale', { index: currentIndex, scale: newValue });
     });
     
     // 向下按鈕 (-0.1)
@@ -681,7 +696,8 @@ function createCard(videoData, index) {
         const currentValue = parseFloat(scaleInput.value) || 1.0;
         const newValue = Math.max(0.1, currentValue - 0.1);
         scaleInput.value = newValue.toFixed(1);
-        ipcRenderer.send('set-media-scale', { index, scale: newValue });
+        const currentIndex = parseInt(card.dataset.index);
+        ipcRenderer.send('set-media-scale', { index: currentIndex, scale: newValue });
     });
     
     scaleButtons.appendChild(scaleUpBtn);
@@ -705,8 +721,9 @@ function createCard(videoData, index) {
         editBtn.onclick = (e) => {
             e.stopPropagation();
             // 發送打開編輯器窗口的請求
+            const currentIndex = parseInt(card.dataset.index);
             ipcRenderer.send('open-video-editor', {
-                index,
+                index: currentIndex,
                 videoPath: videoData.video.src,
                 originalFileName: videoData.video.dataset.originalFileName
             });
@@ -735,7 +752,8 @@ function createCard(videoData, index) {
         e.stopPropagation();
         const newHiddenState = !toggleVisibleBtn.classList.contains('hidden');
         videoStates.set(videoData.video.src, newHiddenState);
-        ipcRenderer.send('toggle-visible', index);
+        const currentIndex = parseInt(card.dataset.index);
+        ipcRenderer.send('toggle-visible', currentIndex);
         toggleVisibleBtn.classList.toggle('hidden');
         toggleVisibleBtn.innerHTML = toggleVisibleBtn.classList.contains('hidden') 
             ? createSvgIcon('hidden') 
@@ -749,7 +767,8 @@ function createCard(videoData, index) {
     resetBtn.innerHTML = createSvgIcon('reset');
     resetBtn.onclick = (e) => {
         e.stopPropagation();
-        ipcRenderer.send('reset-transform', index);
+        const currentIndex = parseInt(card.dataset.index);
+        ipcRenderer.send('reset-transform', currentIndex);
     };
 
     // 水平翻轉按鈕
@@ -759,7 +778,8 @@ function createCard(videoData, index) {
     flipXBtn.innerHTML = createSvgIcon('flipX');
     flipXBtn.onclick = (e) => {
         e.stopPropagation();
-        ipcRenderer.send('flip-x', index);
+        const currentIndex = parseInt(card.dataset.index);
+        ipcRenderer.send('flip-x', currentIndex);
     };
 
     // 垂直翻轉按鈕
@@ -769,7 +789,8 @@ function createCard(videoData, index) {
     flipYBtn.innerHTML = createSvgIcon('flipY');
     flipYBtn.onclick = (e) => {
         e.stopPropagation();
-        ipcRenderer.send('flip-y', index);
+        const currentIndex = parseInt(card.dataset.index);
+        ipcRenderer.send('flip-y', currentIndex);
     };
 
     // 調整大小按鈕
@@ -779,7 +800,8 @@ function createCard(videoData, index) {
     resizeBtn.innerHTML = createSvgIcon('resize');
     resizeBtn.onclick = (e) => {
         e.stopPropagation();
-        ipcRenderer.send('resize-media', index);
+        const currentIndex = parseInt(card.dataset.index);
+        ipcRenderer.send('resize-media', currentIndex);
     };
 
     // 濾鏡按鈕
@@ -789,8 +811,9 @@ function createCard(videoData, index) {
     filterBtn.innerHTML = createSvgIcon('filter');
     filterBtn.onclick = (e) => {
         e.stopPropagation();
-        ipcRenderer.send('focus-media', index);
-        ipcRenderer.send('request-filter-values', index);
+        const currentIndex = parseInt(card.dataset.index);
+        ipcRenderer.send('focus-media', currentIndex);
+        ipcRenderer.send('request-filter-values', currentIndex);
     };
 
     // 刪除按鈕
@@ -801,8 +824,10 @@ function createCard(videoData, index) {
     deleteBtn.onclick = (e) => {
         e.stopPropagation();
         if (confirm('確定要刪除這個項目嗎？')) {
-            // 簡單地發送刪除請求，不添加視覺反饋
-            ipcRenderer.send('delete-media', index);
+            // 使用當前的 dataset.index 而不是創建時的 index
+            const currentIndex = parseInt(card.dataset.index);
+            console.log('Deleting card with current index:', currentIndex);
+            ipcRenderer.send('delete-media', currentIndex);
         }
     };
 
@@ -920,8 +945,9 @@ function createCard(videoData, index) {
             
             updateTimeRange();
             // 發送時間範圍更新事件
+            const currentIndex = parseInt(card.dataset.index);
             ipcRenderer.send('time-range-update', {
-                index,
+                index: currentIndex,
                 startTime: videoData.video.startTime,
                 endTime: videoData.video.endTime
             });
@@ -1070,15 +1096,17 @@ function createCard(videoData, index) {
         // 添加播放/暫停按鈕事件
         playPause.onclick = (e) => {
             e.stopPropagation();
-            console.log('Sending toggle play:', index);
-            ipcRenderer.send('toggle-play', index);
+            const currentIndex = parseInt(card.dataset.index);
+            console.log('Sending toggle play:', currentIndex);
+            ipcRenderer.send('toggle-play', currentIndex);
         };
         
         // 添加靜音按鈕事件
         muteBtn.onclick = (e) => {
             e.stopPropagation();
-            console.log('Sending toggle mute:', index);
-            ipcRenderer.send('toggle-mute', index);
+            const currentIndex = parseInt(card.dataset.index);
+            console.log('Sending toggle mute:', currentIndex);
+            ipcRenderer.send('toggle-mute', currentIndex);
             // 立即更新按鈕狀態
             const currentState = muteBtn.classList.contains('muted');
             muteBtn.innerHTML = currentState ? createSvgIcon('unmute') : createSvgIcon('mute');
@@ -1088,7 +1116,9 @@ function createCard(videoData, index) {
         // 添加循環播放按鈕事件
         loopBtn.onclick = (e) => {
             e.stopPropagation();
-            console.log('Sending toggle loop:', index);            ipcRenderer.send('toggle-loop', index);
+            const currentIndex = parseInt(card.dataset.index);
+            console.log('Sending toggle loop:', currentIndex);
+            ipcRenderer.send('toggle-loop', currentIndex);
             // 立即更新按鈕狀態
             const currentState = loopBtn.classList.contains('active');
             loopBtn.classList.toggle('active');
@@ -1100,21 +1130,24 @@ function createCard(videoData, index) {
         // 添加前後幀按鈕事件
         skipBackward.onclick = (e) => {
             e.stopPropagation();
-            console.log('Sending skip backward:', index);
-            ipcRenderer.send('video-skipprev', index );
+            const currentIndex = parseInt(card.dataset.index);
+            console.log('Sending skip backward:', currentIndex);
+            ipcRenderer.send('video-skipprev', currentIndex);
         };
         
         skipForward.onclick = (e) => {
             e.stopPropagation();
-            console.log('Sending skip forward:', index);
-            ipcRenderer.send('video-skipnext',  index );
+            const currentIndex = parseInt(card.dataset.index);
+            console.log('Sending skip forward:', currentIndex);
+            ipcRenderer.send('video-skipnext', currentIndex);
         };
         
         // 添加重設時間按鈕事件
         resetTimeBtn.onclick = (e) => {
             e.stopPropagation();
-            console.log('Sending reset time:', index);
-            ipcRenderer.send('reset-time-range', { index });
+            const currentIndex = parseInt(card.dataset.index);
+            console.log('Sending reset time:', currentIndex);
+            ipcRenderer.send('reset-time-range', { index: currentIndex });
             // 立即更新本地顯示
             videoData.video.startTime = 0;
             videoData.video.endTime = undefined;
@@ -1143,8 +1176,9 @@ function createCard(videoData, index) {
                 console.log('Time is within range, seeking to:', time);
                 // 更新进度条显示
                 progressPlayed.style.width = `${(time / duration) * 100}%`;
+                const currentIndex = parseInt(card.dataset.index);
                 ipcRenderer.send('video-seek-to', { 
-                    index, 
+                    index: currentIndex, 
                     currentTime: time,
                     duration: duration
                 });
@@ -1168,7 +1202,8 @@ function createCard(videoData, index) {
     
     // 點擊卡片時聚焦對應的視頻/圖片
     card.onclick = () => {
-        ipcRenderer.send('focus-media', index);
+        const currentIndex = parseInt(card.dataset.index);
+        ipcRenderer.send('focus-media', currentIndex);
     };
     
     cardsContainer.appendChild(card);
@@ -1285,6 +1320,9 @@ ipcRenderer.on('batch-delete-completed', (event, { successCount, failCount, erro
     selectedCards.clear();
     updateSelectionDisplay();
     updateAllCardsSelection();
+    
+    // 重新請求最新的視頻數據以更新卡片列表
+    ipcRenderer.send('request-videos-data');
     
     // 顯示結果消息
     if (failCount === 0) {

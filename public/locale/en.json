@@ -161,7 +161,18 @@
             "optimizeTranscodeDetection": "⚡ Optimize transcoding detection logic to avoid unnecessary transcoding",
             "improveFileCompatibility": "🔍 Improve file compatibility detection for better direct playback success rate",
             "speedupTranscodeCheck": "🚀 Speed up transcoding detection from 5 seconds to 1 second",
-            "fixCardsTranscodeLogic": "🐛 Fix Cards window drag-and-drop transcoding logic issues"
+            "fixCardsTranscodeLogic": "🐛 Fix Cards window drag-and-drop transcoding logic issues",
+            "fixBatchDeleteCards": "🗑️ Fix issue where cards remain visible after batch deletion",
+            "improveBatchDeleteSync": "🔄 Improve card list synchronization after batch deletion",
+            "fixCardListRefresh": "🔄 Fix card list not updating after batch operations",
+            "enhanceBatchDeleteReliability": "🛡️ Enhance batch deletion operation reliability",
+            "fixCardIndexError": "🐛 Fix card deletion index error issue",
+            "fixDeleteWrongCard": "🚨 Fix critical issue of deleting wrong cards",
+            "improveDynamicIndex": "🔧 Improve dynamic index system for operation accuracy",
+            "optimizeThumbnailRefresh": "⚡ Optimize thumbnail refresh logic to avoid unnecessary reloading",
+            "fixClosureIndexIssue": "🔒 Fix closure index fixation causing operation errors",
+            "improveCardEventHandlers": "🎛️ Improve all card event handlers to use dynamic indexing",
+            "enhanceDeleteReliability": "🛡️ Enhance deletion operation reliability and accuracy"
         },
         "keybinding": {
             "playPause": "Play/Pause",

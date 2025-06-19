@@ -97,7 +97,6 @@ body {
     height: 120px;
     cursor: grab;
     -webkit-user-drag: element;
-    user-drag: element;
 }
 
 .video-card:hover {

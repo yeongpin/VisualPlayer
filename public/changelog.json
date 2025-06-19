@@ -1,6 +1,62 @@
 {
     "versions": [
         {
+            "version": "v1.4.5-Beta",
+            "date": "2025-06-25",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixBatchDeleteCards",
+                    "description": "修復批量刪除後卡片仍顯示的問題"
+                },
+                {
+                    "key": "settings.changelog.improveBatchDeleteSync",
+                    "description": "改進批量刪除後卡片列表同步機制"
+                },
+                {
+                    "key": "settings.changelog.fixCardListRefresh",
+                    "description": "修復批量操作後卡片列表未更新問題"
+                },
+                {
+                    "key": "settings.changelog.enhanceBatchDeleteReliability",
+                    "description": "增強批量刪除操作可靠性"
+                }
+            ]
+        },
+        {
+            "version": "v1.4.4-Beta",
+            "date": "2025-06-24",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixCardIndexError",
+                    "description": "修復卡片刪除索引錯誤問題"
+                },
+                {
+                    "key": "settings.changelog.fixDeleteWrongCard",
+                    "description": "修復刪除錯誤卡片的嚴重問題"
+                },
+                {
+                    "key": "settings.changelog.improveDynamicIndex",
+                    "description": "改進動態索引系統，確保操作正確性"
+                },
+                {
+                    "key": "settings.changelog.optimizeThumbnailRefresh",
+                    "description": "優化縮略圖刷新邏輯，避免不必要的重新加載"
+                },
+                {
+                    "key": "settings.changelog.fixClosureIndexIssue",
+                    "description": "修復閉包索引固化導致的操作錯誤"
+                },
+                {
+                    "key": "settings.changelog.improveCardEventHandlers",
+                    "description": "改進所有卡片事件處理器使用動態索引"
+                },
+                {
+                    "key": "settings.changelog.enhanceDeleteReliability",
+                    "description": "增強刪除操作可靠性和準確性"
+                }
+            ]
+        },
+        {
             "version": "v1.4.3-Beta",
             "date": "2025-06-23",
             "changes": [
