@@ -1,6 +1,44 @@
 {
     "versions": [
         {
+            "version": "v1.4.3-Beta",
+            "date": "2025-06-23",
+            "changes": [
+                {
+                    "key": "settings.changelog.addCardsDropZone",
+                    "description": "新增卡片窗口拖拽添加文件功能"
+                },
+                {
+                    "key": "settings.changelog.improveCardsUI",
+                    "description": "優化卡片窗口用戶體驗"
+                },
+                {
+                    "key": "settings.changelog.addDragDropSupport",
+                    "description": "支援視頻、圖片和RAW圖片拖拽添加"
+                },
+                {
+                    "key": "settings.changelog.fixDropZoneOverlay",
+                    "description": "修復拖拽區域遮擋標題欄問題"
+                },
+                {
+                    "key": "settings.changelog.optimizeTranscodeDetection",
+                    "description": "優化轉碼檢測邏輯，避免不必要的轉碼"
+                },
+                {
+                    "key": "settings.changelog.improveFileCompatibility",
+                    "description": "改進文件兼容性檢測，提升直接播放成功率"
+                },
+                {
+                    "key": "settings.changelog.speedupTranscodeCheck",
+                    "description": "提升轉碼檢測速度，從5秒縮短至1秒"
+                },
+                {
+                    "key": "settings.changelog.fixCardsTranscodeLogic",
+                    "description": "修復卡片窗口拖拽文件轉碼邏輯問題"
+                }
+            ]
+        },
+        {
             "version": "v1.4.2-Beta",
             "date": "2025-06-20",
             "changes": [

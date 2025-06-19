@@ -179,6 +179,9 @@ ipcRenderer.on('cards-data', (event, { videos: videoData }) => {
         // 非首次加载，使用智能更新
         updateCardsList(videoData);
     }
+    
+    // 更新 dropZone 可见性
+    updateDropZoneVisibility();
 });
 
 // 更新卡片列表
@@ -187,6 +190,9 @@ ipcRenderer.on('update-cards', (event, { videos: videoData }) => {
     
     // 智能更新卡片列表，而不是完全重建
     updateCardsList(videoData);
+    
+    // 更新 dropZone 可见性
+    updateDropZoneVisibility();
 });
 
 // 智能更新卡片列表
@@ -621,7 +627,7 @@ function createCard(videoData, index) {
     scaleInput.max = '10';
     scaleInput.step = '0.1';
     // 獲取當前實際的scale值，如果沒有則默認為1.0
-    const currentScale = videoData.scale || 1.0;
+    const currentScale = videoData.scale || 1.8;
     scaleInput.value = currentScale.toFixed(1);
     scaleInput.dataset.currentScale = currentScale.toFixed(1);
     scaleInput.title = '縮放比例 (0.1-10.0)';
@@ -1406,4 +1412,117 @@ function generateAndCacheThumbnail(videoElement, cacheKey) {
         console.error('Error generating thumbnail:', error);
         return null;
     }
-} 
+}
+
+// DropZone 功能
+const dropZone = document.getElementById('dropZone');
+
+// 初始化 dropZone 状态
+function updateDropZoneVisibility() {
+    if (videos.length > 0) {
+        dropZone.classList.add('hidden');
+    } else {
+        dropZone.classList.remove('hidden');
+    }
+}
+
+// 检查是否为 RAW 图片格式
+function isRawImage(filename) {
+    const rawExtensions = [
+        '.arw',  // Sony
+        '.cr2',  // Canon
+        '.cr3',  // Canon
+        '.dng',  // Adobe, Google, etc
+        '.nef',  // Nikon
+        '.orf',  // Olympus
+        '.raf',  // Fujifilm
+        '.rw2',  // Panasonic
+        '.pef',  // Pentax
+        '.srw'   // Samsung
+    ];
+    
+    const ext = filename.toLowerCase().match(/\.[^.]*$/)?.[0];
+    return ext && rawExtensions.includes(ext);
+}
+
+// 初始化拖拽功能
+function initDropZone() {
+    document.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('hidden');
+    });
+    
+    document.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // 检查是否真的离开了窗口
+        if (e.clientX === 0 && e.clientY === 0) {
+            updateDropZoneVisibility();
+        }
+    });
+    
+    document.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const files = Array.from(e.dataTransfer.files);
+        console.log('Files dropped in cards window:', files.length);
+        
+        for (const file of files) {
+            if (file.type.startsWith('video/')) {
+                // 发送视频文件到主窗口处理
+                console.log('Adding video from cards:', file.name);
+                ipcRenderer.send('add-video-from-cards', {
+                    name: file.name,
+                    path: file.path,
+                    type: 'video'
+                });
+            } else if (file.type.startsWith('image/') || isRawImage(file.name)) {
+                if (isRawImage(file.name)) {
+                    // 处理 RAW 图片
+                    console.log('Processing RAW file from cards:', file.name);
+                    try {
+                        // 等待用戶選擇 RAW 處理選項
+                        const optionResult = await new Promise(resolve => {
+                            const cleanPath = file.path.toString();
+                            ipcRenderer.send('create-raw-options-window', { 
+                                filename: file.name,
+                                path: cleanPath
+                            });
+                            
+                            ipcRenderer.once('raw-option-selected', (event, result) => {
+                                resolve(result);
+                            });
+                        });
+
+                        if (!optionResult.cancelled) {
+                            // 发送 RAW 图片处理请求到主窗口
+                            ipcRenderer.send('add-raw-image-from-cards', {
+                                name: file.name,
+                                path: file.path.toString(),
+                                options: optionResult.options
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error processing RAW image from cards:', error);
+                    }
+                } else {
+                    // 发送普通图片到主窗口处理
+                    console.log('Adding image from cards:', file.name);
+                    ipcRenderer.send('add-image-from-cards', {
+                        name: file.name,
+                        path: file.path,
+                        type: 'image'
+                    });
+                }
+            }
+        }
+        
+        // 更新 dropZone 可见性
+        updateDropZoneVisibility();
+    });
+}
+
+// 初始化 dropZone
+initDropZone(); 

@@ -589,19 +589,58 @@ class MainManager {
             }
         });
 
-        // 添加視頻事件監聽
-        video.addEventListener('volumechange', () => {
-            ipcRenderer.send('video-mute-changed', { 
-                index: this.videos.indexOf(videoData), 
-                isMuted: video.muted 
-            });
+        // 處理來自 cards 窗口的文件添加事件
+        ipcRenderer.on('add-video-file', async (event, { name, path, type }) => {
+            console.log('Adding video file from cards:', name);
+            try {
+                // 直接使用文件路径，不读取整个文件到内存
+                // 创建一个轻量级的 File-like 对象
+                const fileInfo = {
+                    name: name,
+                    path: path,
+                    type: type || this.getVideoMimeType(name),
+                    isFromPath: true // 标记这是从路径来的文件
+                };
+                
+                // 使用 videoManager.addVideo，它会自动处理转码
+                await this.videoManager.addVideo(fileInfo, name);
+            } catch (error) {
+                console.error('Error loading video file from cards:', error);
+            }
         });
 
-        video.addEventListener('loop', () => {
-            ipcRenderer.send('video-loop-changed', { 
-                index: this.videos.indexOf(videoData), 
-                isLooping: video.loop 
-            });
+        ipcRenderer.on('add-image-file', async (event, { name, path, type }) => {
+            console.log('Adding image file from cards:', name);
+            try {
+                const fs = require('fs').promises;
+                const fileData = await fs.readFile(path);
+                const blob = new Blob([fileData]);
+                const blobUrl = URL.createObjectURL(blob);
+                this.imageManager.addImage(blobUrl, name);
+            } catch (error) {
+                console.error('Error loading image file from cards:', error);
+            }
+        });
+
+        ipcRenderer.on('add-raw-image-file', async (event, { name, path, options }) => {
+            console.log('Adding RAW image file from cards:', name);
+            try {
+                const result = await ipcRenderer.invoke('process-raw-image', {
+                    path: path,
+                    options: options
+                });
+
+                if (result.success) {
+                    const buffer = Buffer.from(result.data);
+                    const blob = new Blob([buffer], { type: 'image/jpeg' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    this.imageManager.addImage(blobUrl, name);
+                } else {
+                    console.error('RAW image processing failed:', result.error);
+                }
+            } catch (error) {
+                console.error('Error processing RAW image from cards:', error);
+            }
         });
     }
     
@@ -766,6 +805,25 @@ class MainManager {
         
         const ext = filename.toLowerCase().match(/\.[^.]*$/)?.[0];
         return ext && rawExtensions.includes(ext);
+    }
+
+    getVideoMimeType(filename) {
+        const ext = filename.toLowerCase().match(/\.[^.]*$/)?.[0];
+        const mimeTypes = {
+            '.mp4': 'video/mp4',
+            '.mov': 'video/quicktime',
+            '.avi': 'video/x-msvideo',
+            '.mkv': 'video/x-matroska',
+            '.webm': 'video/webm',
+            '.flv': 'video/x-flv',
+            '.wmv': 'video/x-ms-wmv',
+            '.m4v': 'video/x-m4v',
+            '.3gp': 'video/3gpp',
+            '.ts': 'video/mp2t',
+            '.mts': 'video/mp2t',
+            '.m2ts': 'video/mp2t'
+        };
+        return mimeTypes[ext] || 'video/mp4';
     }
 }
 

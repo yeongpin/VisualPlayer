@@ -17,6 +17,27 @@ body {
     flex-direction: column;
 }
 
+#dropZone {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 30px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #666;
+    font-size: 24px;
+    z-index: 10;
+    pointer-events: none;
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+#dropZone.hidden {
+    display: none;
+}
+
 .titlebar {
     height: 30px;
     background: #2d2d2d;

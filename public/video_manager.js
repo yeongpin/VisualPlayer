@@ -68,9 +68,77 @@ class VideoManager {
         });
     }
 
+    async testDirectPlay(url, mimeType) {
+        // 使用和codecManager相同的测试方法，但用file:// URL
+        return new Promise((resolve) => {
+            const video = document.createElement('video');
+            let timeoutId;
+
+            const cleanup = () => {
+                clearTimeout(timeoutId);
+                video.removeEventListener('loadeddata', onLoadedData);
+                video.removeEventListener('error', onError);
+                video.remove();
+            };
+
+            const onLoadedData = () => {
+                if (video.readyState >= 3 && !video.videoWidth) {
+                    // 如果视频加载了但没有宽度，可能是音频文件或损坏的视频
+                    cleanup();
+                    resolve(false);
+                } else if (video.readyState >= 3) { // HAVE_FUTURE_DATA
+                    cleanup();
+                    resolve(true);
+                }
+            };
+
+            const onError = (error) => {
+                console.log('Direct play test failed:', error);
+                cleanup();
+                resolve(false);
+            };
+
+            // 1秒快速检测
+            timeoutId = setTimeout(() => {
+                cleanup();
+                resolve(false);
+            }, 1000);
+
+            video.addEventListener('loadeddata', onLoadedData);
+            video.addEventListener('error', onError);
+            video.preload = 'auto';
+            video.src = url;
+            video.load();
+        });
+    }
+
+    async handleFileFromPath(fileInfo) {
+        // 直接发送转码请求到主进程，不需要在渲染进程中处理文件
+        return new Promise((resolve, reject) => {
+            console.log('Start Transcoding from path:', fileInfo.path);
+
+            // 发送到主進程進行轉碼
+            const { ipcRenderer } = require('electron');
+            ipcRenderer.send('transcode-video', {
+                path: fileInfo.path,
+                name: fileInfo.name
+            });
+
+            // 監聽轉碼完成事件
+            ipcRenderer.once('transcode-complete', (event, result) => {
+                if (result.success) {
+                    resolve(result.url);
+                } else {
+                    console.error('Transcode Failed:', result.error);
+                    reject(new Error(result.error));
+                }
+            });
+        });
+    }
+
     async addVideo(source, originalFileName) {
-        // 如果是文件而不是 URL
-        if (source instanceof File) {
+        // 如果是文件而不是 URL，或者是从路径来的文件信息
+        if (source instanceof File || (source && source.isFromPath)) {
             // 添加加載提示
             const loadingDiv = document.createElement('div');
             loadingDiv.style.cssText = `
@@ -89,7 +157,22 @@ class VideoManager {
             document.body.appendChild(loadingDiv);
 
             try {
-                const videoUrl = await this.codecManager.handleVideoFile(source);
+                let videoUrl;
+                if (source.isFromPath) {
+                    // 对于从路径来的文件，先尝试直接播放
+                    const fileUrl = `file://${source.path}`;
+                    const canPlayDirectly = await this.testDirectPlay(fileUrl, source.type);
+                    
+                    if (canPlayDirectly) {
+                        console.log(`${source.name} can play directly with file:// URL`);
+                        videoUrl = fileUrl;
+                    } else {
+                        console.log(`${source.name} needs transcoding`);
+                        videoUrl = await this.handleFileFromPath(source);
+                    }
+                } else {
+                    videoUrl = await this.codecManager.handleVideoFile(source);
+                }
                 if (!videoUrl) {
                     console.error('無法處理該視頻文件:', source.name);
                     // 顯示錯誤提示

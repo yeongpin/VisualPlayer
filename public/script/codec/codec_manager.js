@@ -155,11 +155,11 @@ class CodecManager {
                 reject(error);
             };
 
-            // 增加超时时间，给大文件更多时间检查
+            // 快速检测超时时间
             timeoutId = setTimeout(() => {
                 cleanup();
                 resolve(false);
-            }, 5000); // 增加超时时间到 5 秒
+            }, 1000); // 1 秒快速检测
 
             video.addEventListener('loadeddata', onLoadedData);
             video.addEventListener('error', onError);

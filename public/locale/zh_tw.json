@@ -153,7 +153,15 @@
             "addScaleInputControl": "🎚️ 新增scale縮放數值輸入控制",
             "addScaleButtons": "🔺 新增scale上下調節按鈕（±0.1）",
             "fixScaleSync": "🔄 修復滾輪縮放與輸入框同步問題",
-            "optimizeScaleUI": "✨ 優化scale控制界面設計"
+            "optimizeScaleUI": "✨ 優化scale控制界面設計",
+            "addCardsDropZone": "📁 新增卡片窗口拖拽添加文件功能",
+            "improveCardsUI": "🎨 優化卡片窗口用戶體驗",
+            "addDragDropSupport": "🎯 支援視頻、圖片和RAW圖片拖拽添加",
+            "fixDropZoneOverlay": "🐛 修復拖拽區域遮擋標題欄問題",
+            "optimizeTranscodeDetection": "⚡ 優化轉碼檢測邏輯，避免不必要的轉碼",
+            "improveFileCompatibility": "🔍 改進文件兼容性檢測，提升直接播放成功率",
+            "speedupTranscodeCheck": "🚀 提升轉碼檢測速度，從5秒縮短至1秒",
+            "fixCardsTranscodeLogic": "�� 修復卡片窗口拖拽文件轉碼邏輯問題"
         },
         "keybinding": {
             "playPause": "播放/暫停",

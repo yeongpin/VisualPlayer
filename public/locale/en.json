@@ -153,7 +153,15 @@
             "addScaleInputControl": "🎚️ Add scale input control for precise scaling",
             "addScaleButtons": "🔺 Add scale adjustment buttons (±0.1)",
             "fixScaleSync": "🔄 Fix wheel scaling and input box synchronization",
-            "optimizeScaleUI": "✨ Optimize scale control interface design"
+            "optimizeScaleUI": "✨ Optimize scale control interface design",
+            "addCardsDropZone": "📁 Add drag-and-drop file support to Cards window",
+            "improveCardsUI": "🎨 Improve Cards window user experience",
+            "addDragDropSupport": "🎯 Support video, image and RAW image drag-and-drop",
+            "fixDropZoneOverlay": "🐛 Fix drop zone overlay blocking title bar issue",
+            "optimizeTranscodeDetection": "⚡ Optimize transcoding detection logic to avoid unnecessary transcoding",
+            "improveFileCompatibility": "🔍 Improve file compatibility detection for better direct playback success rate",
+            "speedupTranscodeCheck": "🚀 Speed up transcoding detection from 5 seconds to 1 second",
+            "fixCardsTranscodeLogic": "🐛 Fix Cards window drag-and-drop transcoding logic issues"
         },
         "keybinding": {
             "playPause": "Play/Pause",

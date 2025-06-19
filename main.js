@@ -722,7 +722,6 @@ function createTranscodeWindow() {
         frame: false,
         alwaysOnTop: true,
         resizable: false,
-        parent: mainWindow,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
@@ -777,7 +776,7 @@ function createTranscodeOptionsWindow() {
         width: 500,
         height: 400,
         modal: true,
-        parent: mainWindow,
+        alwaysOnTop: true,
         frame: false,
         resizable: false,
         movable: true,  // 確保窗口可以移動
@@ -1460,7 +1459,7 @@ ipcMain.on('create-raw-options-window', (event, { filename }) => {
         width: 500,
         height: 600,
         modal: true,
-        parent: mainWindow,
+        alwaysOnTop: true,
         frame: false,
         resizable: false,
         webPreferences: {
@@ -1497,7 +1496,7 @@ ipcMain.on('open-video-editor', (event, videoData) => {
         resizable: true,
         alwaysOnTop: true,
         movable: true,
-        parent: mainWindow,
+        alwaysOnTop: true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
@@ -1577,4 +1576,38 @@ ipcMain.on('update-video-order', (event, { fromIndex, toIndex }) => {
             win.webContents.send('video-order-updated', { fromIndex, toIndex });
         }
     });
+});
+
+// 處理來自 cards 窗口的文件拖拽
+ipcMain.on('add-video-from-cards', (event, { name, path, type }) => {
+    console.log('Adding video from cards window:', name);
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        // 通知主窗口添加視頻文件
+        mainWindow.webContents.send('add-video-file', { name, path, type });
+    }
+});
+
+ipcMain.on('add-image-from-cards', (event, { name, path, type }) => {
+    console.log('Adding image from cards window:', name);
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        // 通知主窗口添加圖片文件
+        mainWindow.webContents.send('add-image-file', { name, path, type });
+    }
+});
+
+ipcMain.on('add-raw-image-from-cards', (event, { name, path, options }) => {
+    console.log('Adding RAW image from cards window:', name);
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        // 通知主窗口添加 RAW 圖片文件
+        mainWindow.webContents.send('add-raw-image-file', { name, path, options });
+    }
 });
