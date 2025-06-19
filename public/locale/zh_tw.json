@@ -25,7 +25,11 @@
         "close": "關閉",
         "skipForward": "向前跳轉",
         "skipBackward": "向後跳轉",
-        "resetTimeRange": "重置時間範圍"
+        "resetTimeRange": "重置時間範圍",
+        "warp": "變形",
+        "resetWarp": "重置變形",
+        "applyWarp": "應用變形",
+        "cancelWarp": "取消變形"
     },
     "performance": {
         "fps": "FPS",
@@ -185,7 +189,15 @@
             "enableMultiInstance": "🪟 恢復多實例模式，每個影片文件獨立開啟新視窗",
             "commentSingleInstance": "💬 保留單實例代碼註釋，便於未來切換模式",
             "improveInstanceManagement": "⚙️ 改進實例管理邏輯，提升用戶體驗",
-            "fixInstanceSyntax": "🔧 修復實例切換時的語法錯誤"
+            "fixInstanceSyntax": "🔧 修復實例切換時的語法錯誤",
+            "addWarpEditor": "✨ 新增8點變形編輯器功能，支援自由形狀變形",
+            "addWarpWindow": "🪟 新增獨立變形編輯視窗，避免與原系統衝突",
+            "fixWarpTransformPreservation": "🐛 修復滾輪縮放覆蓋變形效果問題，確保變形狀態持久保存",
+            "improveWarpUI": "🎨 優化變形編輯器界面，統一與主程式的視覺風格",
+            "addWarpTransformManager": "🔧 新增變形變換管理器，智能組合多種變換效果",
+            "fixWarpImageSizing": "🐛 修復變形編輯器圖片尺寸問題，保持原始比例顯示",
+            "addWarpControls": "🎮 新增變形控制按鈕：重置、取消、應用變形",
+            "integrateMoveable": "🔗 整合Moveable.js庫，提供專業級8點變形功能"
         },
         "keybinding": {
             "playPause": "播放/暫停",
@@ -248,5 +260,13 @@
             "refresh": "刷新列表",
             "close": "關閉"
         }
+    },
+    "warpEditor": {
+        "title": "變形編輯器",
+        "resetTransform": "重置變形",
+        "cancel": "取消",
+        "apply": "應用變形",
+        "instructions": "拖拽8個控制點來變形圖片或視頻",
+        "tips": "提示：可以創建透視、扭曲等專業效果"
     }
 } 

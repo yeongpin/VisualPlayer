@@ -201,6 +201,35 @@ class MainManager {
             }
         });
 
+        // 处理应用变形的事件
+        ipcRenderer.on('apply-warp-transform', (event, { index, transform }) => {
+            const videoData = this.videos[index];
+            if (videoData) {
+                // 使用 TransformManager 的新方法来应用 warp 变换
+                this.transformManager.applyWarpTransform(videoData, transform);
+                console.log(`Applied warp transform to media ${index}:`, transform);
+            }
+        });
+
+        // 处理获取变形编辑器数据的请求
+        ipcRenderer.on('get-warp-editor-data', (event, { index, requestId }) => {
+            const videoData = this.videos[index];
+            if (videoData) {
+                const mediaData = {
+                    index: index,
+                    src: videoData.video.src,
+                    isImage: videoData.isImage,
+                    originalFileName: videoData.video.dataset.originalFileName,
+                    currentWarpTransform: videoData.warpTransform || '' // 包含当前的变形状态
+                };
+                
+                console.log('Sending warp editor data:', mediaData);
+                
+                // 回应数据
+                ipcRenderer.send('warp-editor-data-response', { mediaData, requestId });
+            }
+        });
+
         // 添加 filter-update 事件監聽
         ipcRenderer.on('filter-update', (event, { targetTitle, filterValues }) => {
             // 找到對應的視頻/圖片
@@ -251,14 +280,14 @@ class MainManager {
                 const maxInitialWidth = window.innerWidth * 0.8;  // 或其他適的最大寬度
                 const scale = Math.min(1, maxInitialWidth / originalWidth);
 
-                // 重置變換屬性
+                // 重置變換屬性（包括 warp 变换）
                 videoData.scale = 1;
                 videoData.rotation = 0;
                 videoData.flipX = false;
                 videoData.flipY = false;
-
-                // 更新變換
-                this.updateVideoTransform(videoData);
+                
+                // 重置 warp 变换
+                this.transformManager.resetWarpTransform(videoData);
 
                 // 重置 wrapper 尺寸
                 videoData.wrapper.style.width = `${originalWidth * scale}px`;

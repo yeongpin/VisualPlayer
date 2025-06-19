@@ -832,10 +832,21 @@ function createCard(videoData, index) {
     };
 
     // 添加其他按鈕
+    // 添加变形按钮
+    const warpBtn = document.createElement('button');
+    warpBtn.className = 'action-button warp';
+    warpBtn.title = '变形';
+    warpBtn.innerHTML = createSvgIcon('warp');
+    warpBtn.onclick = (e) => {
+        e.stopPropagation();
+        openWarpEditor(index, videoData.video);
+    };
+
     actions.appendChild(toggleVisibleBtn);
     actions.appendChild(resetBtn);
     actions.appendChild(flipXBtn);
     actions.appendChild(flipYBtn);
+    actions.appendChild(warpBtn);
     actions.appendChild(resizeBtn);
     actions.appendChild(filterBtn);
     actions.appendChild(deleteBtn);
@@ -1563,4 +1574,10 @@ function initDropZone() {
 }
 
 // 初始化 dropZone
-initDropZone(); 
+initDropZone();
+
+// 打开变形编辑器
+function openWarpEditor(index, video) {
+    // 请求主窗口提供完整的视频数据（包括当前的变形状态）
+    ipcRenderer.send('request-warp-editor-data', { index });
+} 

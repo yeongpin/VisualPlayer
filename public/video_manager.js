@@ -173,7 +173,7 @@ class VideoManager {
                 let videoUrl;
                 if (source.isFromPath) {
                     // 对于从路径来的文件，使用改进的处理方法
-                    videoUrl = await this.handleFileFromPath(source);
+                        videoUrl = await this.handleFileFromPath(source);
                 } else {
                     videoUrl = await this.codecManager.handleVideoFile(source);
                 }

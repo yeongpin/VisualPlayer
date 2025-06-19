@@ -12,6 +12,7 @@ const USE_SINGLE_INSTANCE = true; // true: 单实例模式, false: 多实例模�
 
 let transcodeWindow = null;
 let mainWindow = null;
+let moveableWindow = null;
 
 // 轉碼相關變量
 let isTranscoding = false;
@@ -129,6 +130,8 @@ function createWindow() {
             experimentalFeatures: true
         }
     })
+
+    //mainWindow.webContents.openDevTools();
 
     // 禁用幀率限制
     mainWindow.webContents.setFrameRate(0);
@@ -653,6 +656,8 @@ ipcMain.on('create-cards-window', (event, { videos }) => {
         focusable: true
     });
 
+    //cardsWindow.webContents.openDevTools();
+
     cardsWindow.loadFile('public/cards.html');
     require('@electron/remote/main').enable(cardsWindow.webContents);
 
@@ -825,6 +830,50 @@ ipcMain.on('flip-x', (event, index) => {
     }
 });
 
+// 處理創建 Moveable 窗口的請求
+ipcMain.on('create-moveable-window', (event, mediaData) => {
+    createMoveableWindow(mediaData);
+});
+
+// 處理請求變形編輯器數據的請求
+ipcMain.on('request-warp-editor-data', (event, { index }) => {
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        // 請求主窗口提供完整的媒體數據（包括變形狀態）
+        mainWindow.webContents.send('get-warp-editor-data', { index, requestId: event.sender.id });
+    }
+});
+
+// 處理來自主窗口的完整媒體數據回應
+ipcMain.on('warp-editor-data-response', (event, { mediaData, requestId }) => {
+    // 找到請求的窗口並創建 Moveable 窗口
+    createMoveableWindow(mediaData);
+});
+
+// 處理應用變形的請求
+ipcMain.on('apply-warp-transform', (event, { index, transform }) => {
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        mainWindow.webContents.send('apply-warp-transform', { index, transform });
+    }
+    
+    // 關閉 Moveable 窗口
+    if (moveableWindow) {
+        moveableWindow.close();
+    }
+});
+
+// 處理取消變形的請求
+ipcMain.on('cancel-warp-transform', (event) => {
+    if (moveableWindow) {
+        moveableWindow.close();
+    }
+});
+
 ipcMain.on('flip-y', (event, index) => {
     const mainWindow = BrowserWindow.getAllWindows().find(win => 
         win.webContents.getURL().includes('index.html')
@@ -948,6 +997,44 @@ function createTranscodeWindow() {
 
 // 添加新的轉碼選項窗口
 let transcodeOptionsWindow = null;
+
+// 添加 Moveable 窗口
+function createMoveableWindow(mediaData) {
+    if (moveableWindow) {
+        moveableWindow.focus();
+        return;
+    }
+
+    moveableWindow = new BrowserWindow({
+        width: 1000,
+        height: 700,
+        modal: true,
+        alwaysOnTop: true,
+        frame: false,
+        resizable: true,
+        movable: true,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true,
+            webSecurity: false
+        }
+    });
+
+    //moveableWindow.webContents.openDevTools();
+
+    require('@electron/remote/main').enable(moveableWindow.webContents);
+    moveableWindow.loadFile('public/moveable.html');
+
+    // 窗口加载完成后发送媒体数据
+    moveableWindow.webContents.once('did-finish-load', () => {
+        moveableWindow.webContents.send('load-media', mediaData);
+    });
+
+    moveableWindow.on('closed', () => {
+        moveableWindow = null;
+    });
+}
 
 function createTranscodeOptionsWindow() {
     transcodeOptionsWindow = new BrowserWindow({

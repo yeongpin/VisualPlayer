@@ -25,7 +25,11 @@
         "close": "Close",
         "skipForward": "Skip Forward",
         "skipBackward": "Skip Backward",
-        "resetTimeRange": "Reset Time Range"
+        "resetTimeRange": "Reset Time Range",
+        "warp": "Warp",
+        "resetWarp": "Reset Warp",
+        "applyWarp": "Apply Warp",
+        "cancelWarp": "Cancel Warp"
     },
     "performance": {
         "fps": "FPS",
@@ -185,7 +189,15 @@
             "enableMultiInstance": "🪟 Enable multi-instance mode, each video file opens in independent window",
             "commentSingleInstance": "💬 Preserve single-instance code as comments for future mode switching",
             "improveInstanceManagement": "⚙️ Improve instance management logic for better user experience",
-            "fixInstanceSyntax": "🔧 Fix syntax errors during instance mode switching"
+            "fixInstanceSyntax": "🔧 Fix syntax errors during instance mode switching",
+            "addWarpEditor": "✨ Add 8-point warp editor with free-form shape transformation",
+            "addWarpWindow": "🪟 Add independent warp editing window to avoid system conflicts",
+            "fixWarpTransformPreservation": "🐛 Fix wheel scaling overriding warp effects, ensure persistent warp state",
+            "improveWarpUI": "🎨 Improve warp editor interface with unified visual design",
+            "addWarpTransformManager": "🔧 Add warp transform manager for intelligent transform combination",
+            "fixWarpImageSizing": "🐛 Fix warp editor image sizing issues, maintain original aspect ratio",
+            "addWarpControls": "🎮 Add warp control buttons: reset, cancel, apply transform",
+            "integrateMoveable": "🔗 Integrate Moveable.js library for professional 8-point warping"
         },
         "keybinding": {
             "playPause": "Play/Pause",
@@ -248,5 +260,13 @@
             "refresh": "Refresh List",
             "close": "Close"
         }
+    },
+    "warpEditor": {
+        "title": "Warp Editor",
+        "resetTransform": "Reset Transform",
+        "cancel": "Cancel",
+        "apply": "Apply Transform",
+        "instructions": "Drag the 8 control points to warp the image or video",
+        "tips": "Tip: Create perspective, distortion and other professional effects"
     }
 } 

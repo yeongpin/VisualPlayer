@@ -1,6 +1,44 @@
 {
     "versions": [
         {
+            "version": "v1.4.9-Beta", 
+            "date": "2025-06-30",
+            "changes": [
+                {
+                    "key": "settings.changelog.addWarpEditor",
+                    "description": "新增8點變形編輯器功能，支援自由形狀變形"
+                },
+                {
+                    "key": "settings.changelog.addWarpWindow",
+                    "description": "新增獨立變形編輯視窗，避免與原系統衝突"
+                },
+                {
+                    "key": "settings.changelog.fixWarpTransformPreservation",
+                    "description": "修復滾輪縮放覆蓋變形效果問題，確保變形狀態持久保存"
+                },
+                {
+                    "key": "settings.changelog.improveWarpUI",
+                    "description": "優化變形編輯器界面，統一與主程式的視覺風格"
+                },
+                {
+                    "key": "settings.changelog.addWarpTransformManager",
+                    "description": "新增變形變換管理器，智能組合多種變換效果"
+                },
+                {
+                    "key": "settings.changelog.fixWarpImageSizing",
+                    "description": "修復變形編輯器圖片尺寸問題，保持原始比例顯示"
+                },
+                {
+                    "key": "settings.changelog.addWarpControls",
+                    "description": "新增變形控制按鈕：重置、取消、應用變形"
+                },
+                {
+                    "key": "settings.changelog.integrateMoveable",
+                    "description": "整合Moveable.js庫，提供專業級8點變形功能"
+                }
+            ]
+        },
+        {
             "version": "v1.4.8-Beta", 
             "date": "2025-06-27",
             "changes": [

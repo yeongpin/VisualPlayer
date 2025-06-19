@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warp Editor</title>
+    <link rel="stylesheet" href="./styles/cards.css">
+    <style>
+        /* 覆盖cards.css中body的overflow设置，允许滚动 */
+        body {
+            overflow: visible;
+        }
+
+        /* 主编辑区域 */
+        .warp-editor-container {
+            flex: 1;
+            background: #1a1a1a;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .target {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            background: transparent;
+            border: none;
+            box-sizing: border-box;
+            object-fit: contain;
+        }
+
+        .target.image {
+            width: auto;
+            height: auto;
+        }
+
+        .target.video {
+            width: auto;
+            height: auto;
+        }
+
+        /* 底部控制栏 - 使用与cards.css一致的样式 */
+        .warp-controls {
+            background: #2d2d2d;
+            padding: 15px 20px;
+            border-top: 1px solid #3d3d3d;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-shrink: 0;
+            height: 60px;
+            box-sizing: border-box;
+        }
+
+        /* 按钮样式与action-button保持一致 */
+        .warp-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            height: 40px;
+            min-width: 80px;
+        }
+
+        .warp-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .warp-btn.secondary {
+            background: rgba(102, 102, 102, 0.3);
+        }
+
+        .warp-btn.secondary:hover {
+            background: rgba(119, 119, 119, 0.4);
+        }
+
+        .warp-btn.danger {
+            background: rgba(231, 76, 60, 0.3);
+        }
+
+        .warp-btn.danger:hover {
+            background: rgba(192, 57, 43, 0.4);
+        }
+
+        .warp-btn.primary {
+            background: rgba(74, 144, 226, 0.3);
+        }
+
+        .warp-btn.primary:hover {
+            background: rgba(53, 122, 189, 0.4);
+        }
+
+        /* Moveable 样式 */
+        .moveable-normal.red {
+            background: red !important;
+        }
+
+        .moveable-gap.red {
+            background: red !important;
+        }
+
+        .moveable-bold.red {
+            background: red !important;
+        }
+
+        .moveable-dashed.red {
+            border-top-color: red !important;
+            border-left-color: red !important;
+        }
+
+        .moveable-normal.green {
+            background: green !important;
+        }
+
+        .moveable-gap.green {
+            background: green !important;
+        }
+
+        .moveable-bold.green {
+            background: green !important;
+        }
+
+        .moveable-dashed.green {
+            border-top-color: green !important;
+            border-left-color: green !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 使用与cards.html一致的titlebar结构 -->
+    <div class="titlebar">
+        <div class="title">Warp Editor</div>
+        <div class="titlebar-buttons">
+            <button class="titlebar-button close-button" title="Close" onclick="cancelTransform()"></button>
+        </div>
+    </div>
+
+    <!-- 主编辑区域 -->
+    <div class="warp-editor-container">
+        <div class="container" data-croffle-ref="element$0">
+            <!-- 媒体元素将在这里动态创建 -->
+        </div>
+    </div>
+
+    <!-- 底部控制栏 -->
+    <div class="warp-controls">
+        <button class="warp-btn secondary" onclick="resetTransform()">重置变形</button>
+        <button class="warp-btn danger" onclick="cancelTransform()">取消</button>
+        <button class="warp-btn primary" onclick="applyTransform()">应用变形</button>
+    </div>
+
+    <script src="https://unpkg.com/moveable@0.53.0/dist/moveable.min.js"></script>
+    <script src="icons.js"></script>
+    <script>
+        const { ipcRenderer } = require('electron');
+        let currentMediaData = null;
+        let moveable = null;
+        let mediaElement = null;
+
+        // 初始化关闭按钮图标
+        document.addEventListener('DOMContentLoaded', () => {
+            const closeButton = document.querySelector('.close-button');
+            if (closeButton) {
+                closeButton.innerHTML = createSvgIcon('close');
+            }
+        });
+
+        // 接收媒体数据
+        ipcRenderer.on('load-media', (event, mediaData) => {
+            currentMediaData = mediaData;
+            loadMedia(mediaData);
+        });
+
+        function loadMedia(mediaData) {
+            console.log('Loading media data:', mediaData);
+            const container = document.querySelector('[data-croffle-ref="element$0"]');
+            container.innerHTML = '';
+
+            if (mediaData.isImage) {
+                mediaElement = document.createElement('img');
+                mediaElement.src = mediaData.src;
+                mediaElement.className = 'target image';
+                mediaElement.setAttribute('data-croffle-ref', 'targetRef');
+                mediaElement.onload = () => {
+                    console.log('Image loaded successfully');
+                    console.log('Image natural size:', mediaElement.naturalWidth, 'x', mediaElement.naturalHeight);
+                    
+                    // 应用现有的变形状态（如果存在）
+                    if (mediaData.currentWarpTransform && mediaData.currentWarpTransform.trim()) {
+                        console.log('Applying existing warp transform:', mediaData.currentWarpTransform);
+                        mediaElement.style.transform = mediaData.currentWarpTransform;
+                    }
+                    
+                    setTimeout(() => {
+                        initMoveable();
+                    }, 100);
+                };
+                mediaElement.onerror = (e) => {
+                    console.error('Image load error:', e);
+                };
+            } else {
+                mediaElement = document.createElement('video');
+                mediaElement.src = mediaData.src;
+                mediaElement.className = 'target video';
+                mediaElement.setAttribute('data-croffle-ref', 'targetRef');
+                mediaElement.controls = false;
+                mediaElement.muted = true;
+                mediaElement.loop = true;
+                mediaElement.onloadeddata = () => {
+                    console.log('Video loaded successfully');
+                    console.log('Video natural size:', mediaElement.videoWidth, 'x', mediaElement.videoHeight);
+                    
+                    // 应用现有的变形状态（如果存在）
+                    if (mediaData.currentWarpTransform && mediaData.currentWarpTransform.trim()) {
+                        console.log('Applying existing warp transform:', mediaData.currentWarpTransform);
+                        mediaElement.style.transform = mediaData.currentWarpTransform;
+                    }
+                    
+                    mediaElement.play().catch(e => console.log('Video play failed:', e));
+                    setTimeout(() => {
+                        initMoveable();
+                    }, 100);
+                };
+                mediaElement.onerror = (e) => {
+                    console.error('Video load error:', e);
+                };
+            }
+
+            container.appendChild(mediaElement);
+        }
+
+        function initMoveable() {
+            if (moveable) {
+                moveable.destroy();
+            }
+
+            const warpable = true;
+            const renderDirections = ["nw","n","ne","w","e","sw","s","se"];
+            let targetRef = null;
+            
+            const element$0 = document.querySelector(`[data-croffle-ref="element$0"]`);
+            targetRef = document.querySelector(`[data-croffle-ref="targetRef"]`);
+            
+            if (!element$0 || !targetRef) {
+                console.error('Container or target element not found');
+                return;
+            }
+
+            const moveable$0 = new Moveable(element$0, {
+                target: targetRef,
+                warpable: warpable,
+                renderDirections: renderDirections
+            });
+            
+            moveable$0.on("warp", e => {
+                e.target.style.transform = e.transform;
+            });
+            
+            moveable = moveable$0;
+            
+            // 如果有现有的变形状态，强制 Moveable 更新以显示正确的控制点位置
+            if (targetRef.style.transform && targetRef.style.transform.trim()) {
+                setTimeout(() => {
+                    moveable.updateRect();
+                    console.log('Updated Moveable rect to reflect existing transform');
+                }, 200);
+            }
+            
+            console.log('Moveable initialized successfully');
+        }
+
+        function resetTransform() {
+            if (mediaElement) {
+                mediaElement.style.transform = '';
+                if (moveable) {
+                    setTimeout(() => {
+                        moveable.updateRect();
+                    }, 50);
+                }
+            }
+        }
+
+        function applyTransform() {
+            const transform = mediaElement ? mediaElement.style.transform : '';
+            ipcRenderer.send('apply-warp-transform', {
+                index: currentMediaData.index,
+                transform: transform
+            });
+        }
+
+        function cancelTransform() {
+            ipcRenderer.send('cancel-warp-transform');
+        }
+
+        // 窗口关闭时清理
+        window.addEventListener('beforeunload', () => {
+            if (moveable) {
+                moveable.destroy();
+            }
+        });
+    </script>
+</body>
+</html> 
