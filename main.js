@@ -8,7 +8,7 @@ const DcrawCodecManager = require('./public/script/codec/dcraw_codec_manager.js'
 const fs = require('fs');
 
 // 控制是否使用单实例模式 - 修改这个值来切换模式
-const USE_SINGLE_INSTANCE = false; // true: 单实例模式, false: 多实例模式
+const USE_SINGLE_INSTANCE = true; // true: 单实例模式, false: 多实例模式
 
 let transcodeWindow = null;
 let mainWindow = null;
