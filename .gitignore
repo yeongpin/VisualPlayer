@@ -3,6 +3,10 @@ node_modules
 external
 dist
 
+# 保留build目錄中的安裝腳本，但忽略其他構建文件
+build/*
+!build/installer.nsh
+
 # 忽略单个文件
 package-lock.json
 public/script_copy.js

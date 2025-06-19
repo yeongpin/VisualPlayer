@@ -1,6 +1,32 @@
 {
     "versions": [
         {
+            "version": "v1.4.6-Beta", 
+            "date": "2025-06-26",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixJavaScriptError",
+                    "description": "修復JavaScript錯誤：isTranscoding未定義"
+                },
+                {
+                    "key": "settings.changelog.fixCommandLineTranscode",
+                    "description": "修復右鍵打開文件不觸發轉碼檢測問題"
+                },
+                {
+                    "key": "settings.changelog.unifyRegistryGUID",
+                    "description": "統一註冊表GUID，解決多版本衝突"
+                },
+                {
+                    "key": "settings.changelog.improveUpdateDetection",
+                    "description": "改進安裝程序更新檢測邏輯"
+                },
+                {
+                    "key": "settings.changelog.addRegistryCleanup",
+                    "description": "添加註冊表清理工具和故障排除文檔"
+                }
+            ]
+        },
+        {
             "version": "v1.4.5-Beta",
             "date": "2025-06-25",
             "changes": [

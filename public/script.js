@@ -331,6 +331,21 @@ class MainManager {
             }
         });
 
+        // 處理來自命令行參數的文件添加
+        ipcRenderer.on('add-files-from-args', (event, filePaths) => {
+            console.log('Adding files from command line arguments:', filePaths);
+            
+            // 隱藏 dropZone
+            if (this.dropZone) {
+                this.dropZone.style.display = 'none';
+            }
+            
+            // 處理每個文件
+            filePaths.forEach(filePath => {
+                this.addFileFromPath(filePath);
+            });
+        });
+
         ipcRenderer.on('toggle-play', async (event, index) => {
             const videoData = this.videos[index];
             if (videoData && !videoData.isImage) {
@@ -795,6 +810,96 @@ class MainManager {
             '.m2ts': 'video/mp2t'
         };
         return mimeTypes[ext] || 'video/mp4';
+    }
+
+    // 添加從文件路徑加載文件的方法
+    addFileFromPath(filePath) {
+        console.log('Adding file from path:', filePath);
+        
+        // 檢查文件是否存在
+        const fs = require('fs');
+        if (!fs.existsSync(filePath)) {
+            console.error('File does not exist:', filePath);
+            return;
+        }
+        
+        // 檢查是否為RAW圖片
+        if (this.isRawImage(filePath)) {
+            console.log('Processing RAW image:', filePath);
+            // 創建一個類似File對象的結構
+            const fileObj = {
+                path: filePath,
+                name: require('path').basename(filePath)
+            };
+            
+            // 使用與拖拽相同的邏輯處理RAW圖片
+            this.processRawImage(fileObj);
+            return;
+        }
+        
+        // 檢查是否為普通圖片
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'];
+        const ext = filePath.toLowerCase().match(/\.[^.]*$/)?.[0];
+        
+        if (imageExtensions.includes(ext)) {
+            console.log('Processing image:', filePath);
+            // 讀取文件並創建blob URL
+            const fs = require('fs');
+            const fileBuffer = fs.readFileSync(filePath);
+            const blob = new Blob([fileBuffer]);
+            const blobUrl = URL.createObjectURL(blob);
+            this.imageManager.addImage(blobUrl, require('path').basename(filePath));
+            return;
+        }
+        
+        // 檢查是否為視頻
+        if (this.getVideoMimeType(filePath)) {
+            console.log('Processing video:', filePath);
+            // 創建文件信息對象，包含轉碼檢測所需的信息
+            const fileInfo = {
+                path: filePath,
+                name: require('path').basename(filePath),
+                type: this.getVideoMimeType(filePath),
+                isFromPath: true  // 標記這是從文件路徑來的
+            };
+            this.videoManager.addVideo(fileInfo);
+            return;
+        }
+        
+        console.warn('Unsupported file type:', filePath);
+    }
+
+    // 處理RAW圖片的輔助方法
+    async processRawImage(fileObj) {
+        try {
+            const { ipcRenderer } = require('electron');
+            
+            // 獲取RAW處理選項
+            const optionResult = await ipcRenderer.invoke('get-raw-options', fileObj.path);
+            
+            if (!optionResult.success) {
+                console.error('Failed to get RAW options:', optionResult.error);
+                return;
+            }
+
+            // 確保發送的數據是可序列化的
+            const result = await ipcRenderer.invoke('process-raw-image', {
+                path: fileObj.path.toString(),
+                options: JSON.parse(JSON.stringify(optionResult.options))
+            });
+
+            if (result.success) {
+                // 確保數據是正確的格式
+                const buffer = Buffer.from(result.data);
+                const blob = new Blob([buffer], { type: 'image/jpeg' });
+                const blobUrl = URL.createObjectURL(blob);
+                this.imageManager.addImage(blobUrl, fileObj.name);
+            } else {
+                console.error('RAW image processing failed:', result.error);
+            }
+        } catch (error) {
+            console.error('Error processing RAW image:', error);
+        }
     }
 }
 
