@@ -1,6 +1,28 @@
 {
     "versions": [
         {
+            "version": "v1.4.7-Beta", 
+            "date": "2025-01-15",
+            "changes": [
+                {
+                    "key": "settings.changelog.enableMultiInstance",
+                    "description": "恢復多實例模式，每個影片文件獨立開啟新視窗"
+                },
+                {
+                    "key": "settings.changelog.commentSingleInstance",
+                    "description": "保留單實例代碼註釋，便於未來切換模式"
+                },
+                {
+                    "key": "settings.changelog.improveInstanceManagement",
+                    "description": "改進實例管理邏輯，提升用戶體驗"
+                },
+                {
+                    "key": "settings.changelog.fixInstanceSyntax",
+                    "description": "修復實例切換時的語法錯誤"
+                }
+            ]
+        },
+        {
             "version": "v1.4.6-Beta", 
             "date": "2025-06-26",
             "changes": [

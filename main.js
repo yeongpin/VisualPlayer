@@ -417,42 +417,43 @@ app.on('before-quit', (event) => {
 });
 
 // 處理命令行參數
-let pendingFiles = [];
+// 注释掉单实例逻辑，允许每个影片单独开启一个新实例
+// let pendingFiles = [];
 
-// 處理第二個實例嘗試啟動
-app.on('second-instance', (event, commandLine, workingDirectory) => {
-    console.log('Second instance detected with args:', commandLine);
-    
-    // 如果主窗口存在，聚焦它
-    if (mainWindow) {
-        if (mainWindow.isMinimized()) mainWindow.restore();
-        mainWindow.focus();
-        
-        // 處理新的文件參數
-        const filesToAdd = commandLine.slice(1).filter(arg => 
-            !arg.startsWith('-') && (arg.includes('.') || fs.existsSync(arg))
-        );
-        
-        if (filesToAdd.length > 0) {
-            console.log('Adding files from second instance:', filesToAdd);
-            mainWindow.webContents.send('add-files-from-args', filesToAdd);
-        }
-    }
-});
+// // 處理第二個實例嘗試啟動
+// app.on('second-instance', (event, commandLine, workingDirectory) => {
+//     console.log('Second instance detected with args:', commandLine);
+//     
+//     // 如果主窗口存在，聚焦它
+//     if (mainWindow) {
+//         if (mainWindow.isMinimized()) mainWindow.restore();
+//         mainWindow.focus();
+//         
+//         // 處理新的文件參數
+//         const filesToAdd = commandLine.slice(1).filter(arg => 
+//             !arg.startsWith('-') && (arg.includes('.') || fs.existsSync(arg))
+//         );
+//         
+//         if (filesToAdd.length > 0) {
+//             console.log('Adding files from second instance:', filesToAdd);
+//             mainWindow.webContents.send('add-files-from-args', filesToAdd);
+//         }
+//     }
+// });
 
-// 確保單實例應用
-const gotTheLock = app.requestSingleInstanceLock();
+// // 確保單實例應用
+// const gotTheLock = app.requestSingleInstanceLock();
 
-if (!gotTheLock) {
-    app.quit();
-} else {
-    // 處理啟動時的命令行參數
-    if (process.argv.length > 1) {
-        pendingFiles = process.argv.slice(1).filter(arg => 
-            !arg.startsWith('-') && (arg.includes('.') || fs.existsSync(arg))
-        );
-        console.log('Startup files detected:', pendingFiles);
-    }
+// if (!gotTheLock) {
+//     app.quit();
+// } else {
+//     // 處理啟動時的命令行參數
+//     if (process.argv.length > 1) {
+//         pendingFiles = process.argv.slice(1).filter(arg => 
+//             !arg.startsWith('-') && (arg.includes('.') || fs.existsSync(arg))
+//         );
+//         console.log('Startup files detected:', pendingFiles);
+//     }
 
     // 初始化設置
     app.whenReady().then(() => {
@@ -464,13 +465,18 @@ if (!gotTheLock) {
         
         createWindow();
         
-        // 如果有待處理的文件，在窗口加載完成後發送
-        if (pendingFiles.length > 0) {
-            mainWindow.webContents.once('did-finish-load', () => {
-                console.log('Sending startup files to renderer:', pendingFiles);
-                mainWindow.webContents.send('add-files-from-args', pendingFiles);
-                pendingFiles = []; // 清空待處理文件
-            });
+        // 处理启动时的命令行参数（直接加载文件到新实例）
+        if (process.argv.length > 1) {
+            const filesToLoad = process.argv.slice(1).filter(arg => 
+                !arg.startsWith('-') && (arg.includes('.') || fs.existsSync(arg))
+            );
+            
+            if (filesToLoad.length > 0) {
+                console.log('Loading files in new instance:', filesToLoad);
+                mainWindow.webContents.once('did-finish-load', () => {
+                    mainWindow.webContents.send('add-files-from-args', filesToLoad);
+                });
+            }
         }
     
     // 初始化解碼管理器
@@ -500,7 +506,6 @@ if (!gotTheLock) {
         }
     });
     });
-}
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

@@ -177,7 +177,11 @@
             "optimizeThumbnailRefresh": "⚡ Optimize thumbnail refresh logic to avoid unnecessary reloading",
             "fixClosureIndexIssue": "🔒 Fix closure index fixation causing operation errors",
             "improveCardEventHandlers": "🎛️ Improve all card event handlers to use dynamic indexing",
-            "enhanceDeleteReliability": "🛡️ Enhance deletion operation reliability and accuracy"
+            "enhanceDeleteReliability": "🛡️ Enhance deletion operation reliability and accuracy",
+            "enableMultiInstance": "🪟 Enable multi-instance mode, each video file opens in independent window",
+            "commentSingleInstance": "💬 Preserve single-instance code as comments for future mode switching",
+            "improveInstanceManagement": "⚙️ Improve instance management logic for better user experience",
+            "fixInstanceSyntax": "🔧 Fix syntax errors during instance mode switching"
         },
         "keybinding": {
             "playPause": "Play/Pause",
