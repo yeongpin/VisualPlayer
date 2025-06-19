@@ -113,11 +113,24 @@ class VideoManager {
     }
 
     async handleFileFromPath(fileInfo) {
-        // 直接发送转码请求到主进程，不需要在渲染进程中处理文件
-        return new Promise((resolve, reject) => {
-            console.log('Start Transcoding from path:', fileInfo.path);
+        // 先尝试直接使用 file:// URL
+        const directUrl = `file://${fileInfo.path}`;
+        
+        try {
+            console.log('Testing direct playback for:', fileInfo.path);
+            const canPlayDirectly = await this.testDirectPlay(directUrl, fileInfo.type);
+            
+            if (canPlayDirectly) {
+                console.log('File can be played directly, no transcoding needed');
+                return directUrl;
+            }
+        } catch (error) {
+            console.log('Direct playback test failed, will need transcoding');
+        }
 
-            // 发送到主進程進行轉碼
+        // 只有确实需要转码时才发送转码请求
+        console.log('File needs transcoding:', fileInfo.path);
+        return new Promise((resolve, reject) => {
             const { ipcRenderer } = require('electron');
             ipcRenderer.send('transcode-video', {
                 path: fileInfo.path,
@@ -159,17 +172,8 @@ class VideoManager {
             try {
                 let videoUrl;
                 if (source.isFromPath) {
-                    // 对于从路径来的文件，先尝试直接播放
-                    const fileUrl = `file://${source.path}`;
-                    const canPlayDirectly = await this.testDirectPlay(fileUrl, source.type);
-                    
-                    if (canPlayDirectly) {
-                        console.log(`${source.name} can play directly with file:// URL`);
-                        videoUrl = fileUrl;
-                    } else {
-                        console.log(`${source.name} needs transcoding`);
-                        videoUrl = await this.handleFileFromPath(source);
-                    }
+                    // 对于从路径来的文件，使用改进的处理方法
+                    videoUrl = await this.handleFileFromPath(source);
                 } else {
                     videoUrl = await this.codecManager.handleVideoFile(source);
                 }

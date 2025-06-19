@@ -7,6 +7,9 @@ const CodecManager = require('./public/script/codec/codec_manager.js');
 const DcrawCodecManager = require('./public/script/codec/dcraw_codec_manager.js');
 const fs = require('fs');
 
+// 控制是否使用单实例模式 - 修改这个值来切换模式
+const USE_SINGLE_INSTANCE = false; // true: 单实例模式, false: 多实例模式
+
 let transcodeWindow = null;
 let mainWindow = null;
 
@@ -115,6 +118,7 @@ function createWindow() {
         height: 800,
         frame: false,
         backgroundColor: '#000000',
+        show: false, // 初始不显示窗口，等内容加载完再显示
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -172,6 +176,19 @@ function createWindow() {
     
     require('@electron/remote/main').enable(mainWindow.webContents)
     mainWindow.loadFile('public/index.html')
+
+    // 优化窗口显示时机，减少等待时间
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
+    });
+    
+    // 添加备用显示机制，防止长时间等待
+    setTimeout(() => {
+        if (mainWindow && !mainWindow.isVisible()) {
+            console.log('Fallback: Showing window after timeout');
+            mainWindow.show();
+        }
+    }, 2000); // 2秒后强制显示
 
     // 禁用限制器
     mainWindow.webContents.executeJavaScript(`
@@ -417,44 +434,105 @@ app.on('before-quit', (event) => {
 });
 
 // 處理命令行參數
-// 注释掉单实例逻辑，允许每个影片单独开启一个新实例
-// let pendingFiles = [];
+let pendingFiles = [];
 
-// // 處理第二個實例嘗試啟動
-// app.on('second-instance', (event, commandLine, workingDirectory) => {
-//     console.log('Second instance detected with args:', commandLine);
-//     
-//     // 如果主窗口存在，聚焦它
-//     if (mainWindow) {
-//         if (mainWindow.isMinimized()) mainWindow.restore();
-//         mainWindow.focus();
-//         
-//         // 處理新的文件參數
-//         const filesToAdd = commandLine.slice(1).filter(arg => 
-//             !arg.startsWith('-') && (arg.includes('.') || fs.existsSync(arg))
-//         );
-//         
-//         if (filesToAdd.length > 0) {
-//             console.log('Adding files from second instance:', filesToAdd);
-//             mainWindow.webContents.send('add-files-from-args', filesToAdd);
-//         }
-//     }
-// });
+if (USE_SINGLE_INSTANCE) {
+    // 單實例模式
+    // 處理第二個實例嘗試啟動
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+        console.log('Second instance detected with args:', commandLine);
+        
+        // 如果主窗口存在，聚焦它
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
+            
+            // 處理新的文件參數
+            const filesToAdd = commandLine.slice(1).filter(arg => {
+                // 过滤掉开发环境的参数和Electron本身的参数
+                if (arg.startsWith('-') || 
+                    arg.includes('electron') || 
+                    arg.includes('main.js') ||
+                    arg.includes('node_modules') ||
+                    arg.includes('.js') ||
+                    arg === '.' ||
+                    !fs.existsSync(arg)) {
+                    return false;
+                }
+                
+                // 只处理真正的媒体文件
+                const ext = arg.toLowerCase().match(/\.[^.]*$/)?.[0];
+                const mediaExtensions = [
+                    '.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts', '.mts', '.m2ts',
+                    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg',
+                    '.arw', '.cr2', '.cr3', '.dng', '.nef', '.orf', '.raf', '.rw2', '.pef', '.srw'
+                ];
+                
+                return ext && mediaExtensions.includes(ext);
+            });
+            
+            if (filesToAdd.length > 0) {
+                console.log('Adding files from second instance:', filesToAdd);
+                mainWindow.webContents.send('add-files-from-args', filesToAdd);
+            }
+        }
+    });
 
-// // 確保單實例應用
-// const gotTheLock = app.requestSingleInstanceLock();
+    // 確保單實例應用
+    const gotTheLock = app.requestSingleInstanceLock();
 
-// if (!gotTheLock) {
-//     app.quit();
-// } else {
-//     // 處理啟動時的命令行參數
-//     if (process.argv.length > 1) {
-//         pendingFiles = process.argv.slice(1).filter(arg => 
-//             !arg.startsWith('-') && (arg.includes('.') || fs.existsSync(arg))
-//         );
-//         console.log('Startup files detected:', pendingFiles);
-//     }
+    if (!gotTheLock) {
+        app.quit();
+    } else {
+        // 處理啟動時的命令行參數
+        if (process.argv.length > 1) {
+            pendingFiles = process.argv.slice(1).filter(arg => {
+                // 过滤掉开发环境的参数和Electron本身的参数
+                if (arg.startsWith('-') || 
+                    arg.includes('electron') || 
+                    arg.includes('main.js') ||
+                    arg.includes('node_modules') ||
+                    arg.includes('.js') ||
+                    arg === '.' ||
+                    !fs.existsSync(arg)) {
+                    return false;
+                }
+                
+                // 只处理真正的媒体文件
+                const ext = arg.toLowerCase().match(/\.[^.]*$/)?.[0];
+                const mediaExtensions = [
+                    '.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts', '.mts', '.m2ts',
+                    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg',
+                    '.arw', '.cr2', '.cr3', '.dng', '.nef', '.orf', '.raf', '.rw2', '.pef', '.srw'
+                ];
+                
+                return ext && mediaExtensions.includes(ext);
+            });
+            console.log('Startup files detected:', pendingFiles);
+        }
 
+        // 初始化設置
+        app.whenReady().then(() => {
+            // 設置高性能模式
+            if (process.platform === 'win32') {
+                app.commandLine.appendSwitch('high-dpi-support', '1');
+                app.commandLine.appendSwitch('force-device-scale-factor', '1');
+            }
+            
+            createWindow();
+            
+                         // 如果有待處理的文件，在窗口加載完成後發送
+             if (pendingFiles.length > 0) {
+                 mainWindow.webContents.once('did-finish-load', () => {
+                     console.log('Sending startup files to renderer:', pendingFiles);
+                     mainWindow.webContents.send('add-files-from-args', pendingFiles);
+                     pendingFiles = []; // 清空待處理文件
+                 });
+             }
+        });
+    }
+} else {
+    // 多實例模式
     // 初始化設置
     app.whenReady().then(() => {
         // 設置高性能模式
@@ -466,18 +544,48 @@ app.on('before-quit', (event) => {
         createWindow();
         
         // 处理启动时的命令行参数（直接加载文件到新实例）
+        console.log('Process arguments:', process.argv);
         if (process.argv.length > 1) {
-            const filesToLoad = process.argv.slice(1).filter(arg => 
-                !arg.startsWith('-') && (arg.includes('.') || fs.existsSync(arg))
-            );
+            const filesToLoad = process.argv.slice(1).filter(arg => {
+                console.log('Checking argument:', arg);
+                
+                // 过滤掉开发环境的参数和Electron本身的参数
+                if (arg.startsWith('-') || 
+                    arg.includes('electron') || 
+                    arg.includes('main.js') ||
+                    arg.includes('node_modules') ||
+                    arg.includes('.js') ||
+                    arg === '.' ||
+                    !fs.existsSync(arg)) {
+                    console.log('Filtered out:', arg);
+                    return false;
+                }
+                
+                // 只处理真正的媒体文件
+                const ext = arg.toLowerCase().match(/\.[^.]*$/)?.[0];
+                const mediaExtensions = [
+                    '.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts', '.mts', '.m2ts',
+                    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg',
+                    '.arw', '.cr2', '.cr3', '.dng', '.nef', '.orf', '.raf', '.rw2', '.pef', '.srw'
+                ];
+                
+                const isMediaFile = ext && mediaExtensions.includes(ext);
+                console.log('Is media file:', isMediaFile, 'Extension:', ext);
+                return isMediaFile;
+            });
             
+            console.log('Final files to load:', filesToLoad);
             if (filesToLoad.length > 0) {
                 console.log('Loading files in new instance:', filesToLoad);
                 mainWindow.webContents.once('did-finish-load', () => {
                     mainWindow.webContents.send('add-files-from-args', filesToLoad);
                 });
+            } else {
+                console.log('No media files found in command line arguments');
             }
         }
+    });
+}
     
     // 初始化解碼管理器
     const codecManager = new CodecManager();
@@ -504,7 +612,6 @@ app.on('before-quit', (event) => {
             console.error('視頻解碼錯誤:', error);
             return { success: false, error: error.message };
         }
-    });
     });
 
 app.on('window-all-closed', () => {

@@ -1,8 +1,30 @@
 {
     "versions": [
         {
+            "version": "v1.4.8-Beta", 
+            "date": "2025-06-27",
+            "changes": [
+                {
+                    "key": "settings.changelog.addInstanceControl",
+                    "description": "添加實例模式控制變量，可輕鬆切換單實例/多實例模式"
+                },
+                {
+                    "key": "settings.changelog.improveWindowDisplay",
+                    "description": "優化窗口顯示時機，減少新實例黑屏等待時間"
+                },
+                {
+                    "key": "settings.changelog.enhanceFileFilter",
+                    "description": "增強文件過濾邏輯，避免開發環境參數誤觸發"
+                },
+                {
+                    "key": "settings.changelog.unifyInstanceLogic",
+                    "description": "統一實例管理邏輯，提供更穩定的切換體驗"
+                }
+            ]
+        },
+        {
             "version": "v1.4.7-Beta", 
-            "date": "2025-01-15",
+            "date": "2025-06-26",
             "changes": [
                 {
                     "key": "settings.changelog.enableMultiInstance",
