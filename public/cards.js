@@ -1488,6 +1488,15 @@ function initDropZone() {
     document.addEventListener('dragover', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        
+        // 檢查是否是內部卡片拖動
+        const hasInternalData = e.dataTransfer.types.includes('text/plain');
+        if (hasInternalData) {
+            // 這是內部卡片拖動，不顯示 dropzone
+            return;
+        }
+        
+        // 只有外部文件拖入時才顯示 dropzone
         dropZone.classList.remove('hidden');
     });
     
@@ -1504,8 +1513,23 @@ function initDropZone() {
         e.preventDefault();
         e.stopPropagation();
         
+        // 檢查是否是內部卡片拖動（如果 dataTransfer 中有 'text/plain' 數據，說明是內部拖動）
+        const hasInternalData = e.dataTransfer.types.includes('text/plain');
+        if (hasInternalData) {
+            // 這是內部卡片拖動，不處理文件添加
+            console.log('Internal card drag detected, skipping file processing');
+            updateDropZoneVisibility();
+            return;
+        }
+        
         const files = Array.from(e.dataTransfer.files);
         console.log('Files dropped in cards window:', files.length);
+        
+        // 只有當確實有文件時才處理
+        if (files.length === 0) {
+            updateDropZoneVisibility();
+            return;
+        }
         
         for (const file of files) {
             if (file.type.startsWith('video/')) {

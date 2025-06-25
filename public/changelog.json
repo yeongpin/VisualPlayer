@@ -27,6 +27,14 @@
                 {
                     "key": "settings.changelog.fixCardsDataListener",
                     "description": "修復卡片窗口事件監聽器，確保從主進程轉發的數據正確處理"
+                },
+                {
+                    "key": "settings.changelog.fixDragDropInterference",
+                    "description": "修復卡片拖動時錯誤顯示 dropzone 和重複添加媒體的問題"
+                },
+                {
+                    "key": "settings.changelog.improveDragDetection",
+                    "description": "改進拖動事件檢測機制，正確區分內部拖動和外部文件拖入"
                 }
             ]
         },

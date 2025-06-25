@@ -203,7 +203,9 @@
             "addExistingCardsUpdate": "✨ Add existing cards data update mechanism to ensure real-time sync of scale and other properties",
             "fixAltClickScaleUpdate": "🐛 Fix issue where card scale values weren't updated after Alt+click fit-to-screen",
             "optimizeScaleSync": "⚡ Optimize scale synchronization mechanism for better data consistency between main and cards windows",
-            "fixCardsDataListener": "🔧 Fix cards window event listeners to properly handle data forwarded from main process"
+            "fixCardsDataListener": "🔧 Fix cards window event listeners to ensure proper handling of data forwarded from main process",
+            "fixDragDropInterference": "🐛 Fix incorrect dropzone display and duplicate media addition during card dragging",
+            "improveDragDetection": "⚡ Improve drag event detection mechanism to correctly distinguish internal dragging from external file drops"
         },
         "keybinding": {
             "playPause": "Play/Pause",

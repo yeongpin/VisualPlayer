@@ -203,7 +203,9 @@
             "addExistingCardsUpdate": "✨ 新增現有卡片數據更新機制，確保 scale 等屬性即時同步",
             "fixAltClickScaleUpdate": "🐛 修復 Alt+左鍵適應屏幕後卡片 scale 數值未更新的問題",
             "optimizeScaleSync": "⚡ 優化 scale 同步機制，提升主窗口與卡片窗口的數據一致性",
-            "fixCardsDataListener": "🔧 修復卡片窗口事件監聽器，確保從主進程轉發的數據正確處理"
+            "fixCardsDataListener": "🔧 修復卡片窗口事件監聽器，確保從主進程轉發的數據正確處理",
+            "fixDragDropInterference": "🐛 修復卡片拖動時錯誤顯示 dropzone 和重複添加媒體的問題",
+            "improveDragDetection": "⚡ 改進拖動事件檢測機制，正確區分內部拖動和外部文件拖入"
         },
         "keybinding": {
             "playPause": "播放/暫停",

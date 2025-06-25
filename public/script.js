@@ -663,13 +663,52 @@ class MainManager {
         document.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            
+            // 檢查是否是來自 cards 窗口的內部拖動
+            const hasInternalData = e.dataTransfer.types.includes('text/plain');
+            if (hasInternalData) {
+                // 這是內部拖動，不顯示 dropzone
+                return;
+            }
+            
+            // 只有外部文件拖入時才顯示 dropzone
+            if (e.dataTransfer.types.includes('Files')) {
+                this.dropZone.style.display = 'block';
+            }
+        });
+        
+        document.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // 檢查是否真的離開了窗口（避免在子元素間移動時誤觸發）
+            if (e.clientX === 0 && e.clientY === 0) {
+                // 只有在有視頻時才隱藏 dropzone
+                if (this.videos.length > 0) {
+                    this.dropZone.style.display = 'none';
+                }
+            }
         });
         
         document.addEventListener('drop', async (e) => {
             e.preventDefault();
             e.stopPropagation();
             
+            // 檢查是否是來自 cards 窗口的內部拖動
+            const hasInternalData = e.dataTransfer.types.includes('text/plain');
+            if (hasInternalData) {
+                // 這是來自 cards 窗口的內部拖動，不處理
+                console.log('Internal card drag from cards window detected, ignoring');
+                return;
+            }
+            
             const files = Array.from(e.dataTransfer.files);
+            
+            // 只有當確實有文件時才處理
+            if (files.length === 0) {
+                return;
+            }
+            
             for (const file of files) {
                 if (file.type.startsWith('video/')) {
                     await this.videoManager.addVideo(file, file.name);
