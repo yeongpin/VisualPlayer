@@ -165,20 +165,10 @@ ipcRenderer.on('receive-filter-values', (event, { index, filterValues }) => {
 
 // 接收主進程發送的數據
 ipcRenderer.on('cards-data', (event, { videos: videoData }) => {
-    console.log('Received cards data:', videoData); // 調試用
+    console.log('Updating cards from main process:', videoData); // 調試用
     
-    // 检查是否是首次加载
-    if (cardsContainer.children.length === 0) {
-        // 首次加载，创建所有卡片
-        preloadThumbnails(videoData);
-        videos = videoData;
-        videoData.forEach((data, index) => {
-            createCard(data, index);
-        });
-    } else {
-        // 非首次加载，使用智能更新
-        updateCardsList(videoData);
-    }
+    // 智能更新卡片列表，而不是完全重建
+    updateCardsList(videoData);
     
     // 更新 dropZone 可见性
     updateDropZoneVisibility();
@@ -283,6 +273,8 @@ function updateCardsList(videoData) {
         
         if (!hasOrderChanged) {
             console.log('视频顺序未变化，跳过更新');
+            // 但仍需要更新卡片的 scale、rotation 等屬性
+            updateExistingCardsData(videoData);
             return;
         }
         
@@ -639,8 +631,8 @@ function createCard(videoData, index) {
     scaleInput.min = '0.1';
     scaleInput.max = '10';
     scaleInput.step = '0.1';
-    // 獲取當前實際的scale值，如果沒有則默認為1.0
-    const currentScale = videoData.scale || 1.8;
+    // 獲取當前實際的scale值，首先從 dataset 中查找，然後是直接屬性，如果沒有則默認為1.0
+    const currentScale = videoData.video?.dataset?.scale || videoData.scale || 1.0;
     scaleInput.value = currentScale.toFixed(1);
     scaleInput.dataset.currentScale = currentScale.toFixed(1);
     scaleInput.title = '縮放比例 (0.1-10.0)';
@@ -1352,16 +1344,13 @@ ipcRenderer.on('batch-delete-completed', (event, { successCount, failCount, erro
 
 // 監聽scale更新事件
 ipcRenderer.on('media-scale-updated', (event, { index, scale }) => {
-    console.log('Scale updated for index:', index, 'scale:', scale);
+    console.log(`Updating card ${index} scale to:`, scale);
     
-    const card = Array.from(cardsContainer.children).find(c => 
-        parseInt(c.dataset.index) === index
-    );
-    
+    const card = cardsContainer.children[index];
     if (card && card.scaleInput) {
-        // 更新輸入框顯示
-        card.scaleInput.value = scale.toFixed(1);
-        card.scaleInput.dataset.currentScale = scale.toFixed(1);
+        // 更新 scale 輸入框的值
+        card.scaleInput.value = parseFloat(scale).toFixed(1);
+        card.scaleInput.dataset.currentScale = parseFloat(scale).toFixed(1);
     }
 });
 
@@ -1580,4 +1569,21 @@ initDropZone();
 function openWarpEditor(index, video) {
     // 请求主窗口提供完整的视频数据（包括当前的变形状态）
     ipcRenderer.send('request-warp-editor-data', { index });
+}
+
+// 更新現有卡片的數據（scale、rotation 等）
+function updateExistingCardsData(videoData) {
+    for (let i = 0; i < videoData.length; i++) {
+        const card = cardsContainer.children[i];
+        if (card && card.scaleInput) {
+            // 獲取最新的 scale 值，首先從 dataset 中查找，然後是直接屬性
+            const newScale = videoData[i].video?.dataset?.scale || videoData[i].scale || 1.0;
+            
+            // 更新 scale 輸入框的值
+            card.scaleInput.value = parseFloat(newScale).toFixed(1);
+            card.scaleInput.dataset.currentScale = parseFloat(newScale).toFixed(1);
+            
+            console.log(`Updated card ${i} scale to:`, newScale);
+        }
+    }
 } 

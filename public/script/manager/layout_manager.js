@@ -109,6 +109,23 @@ class LayoutManager {
                             Object.assign(targetElement.filterValues, videoLayout.filterValues);
                             const { updateVideoFilter } = require('../../filter_utils.js');
                             updateVideoFilter(targetElement);
+
+                            const { ipcRenderer } = require('electron');
+                            ipcRenderer.send('update-cards', {
+                                videos: this.mainManager.videos.map(v => ({
+                                    isImage: v.isImage,
+                                    video: {
+                                        src: v.video.src,
+                                        dataset: {
+                                            originalFileName: v.video.dataset.originalFileName,
+                                            scale: v.scale,
+                                            rotation: v.rotation,
+                                            flipX: v.flipX,
+                                            flipY: v.flipY
+                                        }
+                                    }
+                                }))
+                            });
                         }
                     }
                 });

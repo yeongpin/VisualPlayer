@@ -516,7 +516,11 @@ class VideoManager {
                         video: {
                             src: v.video.src,
                             dataset: {
-                                originalFileName: v.video.dataset.originalFileName
+                                originalFileName: v.video.dataset.originalFileName,
+                                scale: v.scale,
+                                rotation: v.rotation,
+                                flipX: v.flipX,
+                                flipY: v.flipY
                             }
                         }
                     }))
@@ -758,7 +762,11 @@ class VideoManager {
                     video: {
                         src: v.video.src,
                         dataset: {
-                            originalFileName: v.video.dataset.originalFileName
+                            originalFileName: v.video.dataset.originalFileName,
+                            scale: v.scale,
+                            rotation: v.rotation,
+                            flipX: v.flipX,
+                            flipY: v.flipY
                         }
                     }
                 }))

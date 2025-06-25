@@ -197,7 +197,13 @@
             "addWarpTransformManager": "🔧 新增變形變換管理器，智能組合多種變換效果",
             "fixWarpImageSizing": "🐛 修復變形編輯器圖片尺寸問題，保持原始比例顯示",
             "addWarpControls": "🎮 新增變形控制按鈕：重置、取消、應用變形",
-            "integrateMoveable": "🔗 整合Moveable.js庫，提供專業級8點變形功能"
+            "integrateMoveable": "🔗 整合Moveable.js庫，提供專業級8點變形功能",
+            "fixScaleDataRetrieval": "🐛 修復卡片中 scale 數值獲取錯誤問題，現在能正確顯示實際縮放比例",
+            "unifyUpdateCardsFormat": "🔧 統一所有文件中 update-cards 事件的數據格式，確保數據傳輸一致性",
+            "addExistingCardsUpdate": "✨ 新增現有卡片數據更新機制，確保 scale 等屬性即時同步",
+            "fixAltClickScaleUpdate": "🐛 修復 Alt+左鍵適應屏幕後卡片 scale 數值未更新的問題",
+            "optimizeScaleSync": "⚡ 優化 scale 同步機制，提升主窗口與卡片窗口的數據一致性",
+            "fixCardsDataListener": "🔧 修復卡片窗口事件監聽器，確保從主進程轉發的數據正確處理"
         },
         "keybinding": {
             "playPause": "播放/暫停",

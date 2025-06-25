@@ -197,7 +197,13 @@
             "addWarpTransformManager": "🔧 Add warp transform manager for intelligent transform combination",
             "fixWarpImageSizing": "🐛 Fix warp editor image sizing issues, maintain original aspect ratio",
             "addWarpControls": "🎮 Add warp control buttons: reset, cancel, apply transform",
-            "integrateMoveable": "🔗 Integrate Moveable.js library for professional 8-point warping"
+            "integrateMoveable": "🔗 Integrate Moveable.js library for professional 8-point warping",
+            "fixScaleDataRetrieval": "🐛 Fix incorrect scale data retrieval in cards, now correctly displays actual scaling ratio",
+            "unifyUpdateCardsFormat": "🔧 Unify update-cards event data format across all files for consistent data transmission",
+            "addExistingCardsUpdate": "✨ Add existing cards data update mechanism to ensure real-time sync of scale and other properties",
+            "fixAltClickScaleUpdate": "🐛 Fix issue where card scale values weren't updated after Alt+click fit-to-screen",
+            "optimizeScaleSync": "⚡ Optimize scale synchronization mechanism for better data consistency between main and cards windows",
+            "fixCardsDataListener": "🔧 Fix cards window event listeners to properly handle data forwarded from main process"
         },
         "keybinding": {
             "playPause": "Play/Pause",

@@ -1,6 +1,36 @@
 {
     "versions": [
         {
+            "version": "v1.5.0-Beta", 
+            "date": "2025-01-19",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixScaleDataRetrieval",
+                    "description": "修復卡片中 scale 數值獲取錯誤問題，現在能正確顯示實際縮放比例"
+                },
+                {
+                    "key": "settings.changelog.unifyUpdateCardsFormat",
+                    "description": "統一所有文件中 update-cards 事件的數據格式，確保數據傳輸一致性"
+                },
+                {
+                    "key": "settings.changelog.addExistingCardsUpdate",
+                    "description": "新增現有卡片數據更新機制，確保 scale 等屬性即時同步"
+                },
+                {
+                    "key": "settings.changelog.fixAltClickScaleUpdate",
+                    "description": "修復 Alt+左鍵適應屏幕後卡片 scale 數值未更新的問題"
+                },
+                {
+                    "key": "settings.changelog.optimizeScaleSync",
+                    "description": "優化 scale 同步機制，提升主窗口與卡片窗口的數據一致性"
+                },
+                {
+                    "key": "settings.changelog.fixCardsDataListener",
+                    "description": "修復卡片窗口事件監聽器，確保從主進程轉發的數據正確處理"
+                }
+            ]
+        },
+        {
             "version": "v1.4.9-Beta", 
             "date": "2025-06-30",
             "changes": [

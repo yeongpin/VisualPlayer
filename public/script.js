@@ -251,14 +251,14 @@ class MainManager {
             ipcRenderer.send('update-cards', {
                 videos: this.videos.map(v => ({
                     isImage: v.isImage,
-                    scale: v.scale || 1.0,
-                    rotation: v.rotation || 0,
-                    flipX: v.flipX || false,
-                    flipY: v.flipY || false,
                     video: {
                         src: v.video.src,
                         dataset: {
-                            originalFileName: v.video.dataset.originalFileName
+                            originalFileName: v.video.dataset.originalFileName,
+                            scale: v.scale || 1.0,
+                            rotation: v.rotation || 0,
+                            flipX: v.flipX || false,
+                            flipY: v.flipY || false
                         },
                         filterValues: v.video.filterValues,
                         currentTime: v.video.currentTime,
