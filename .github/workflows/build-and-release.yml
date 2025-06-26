@@ -268,7 +268,7 @@ jobs:
           body: ${{ steps.changelog.outputs.CHANGELOG }}
           files: artifacts/**/*
           draft: false
-          prerelease: true
+          prerelease: false
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
