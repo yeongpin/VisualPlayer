@@ -1,6 +1,52 @@
 {
     "versions": [
         {
+            "version": "v1.5.4-Beta", 
+            "date": "2025-07-04",
+            "changes": [
+                {
+                    "key": "settings.changelog.addVersionUpdateSystem",
+                    "description": "新增版本更新系統，支援自動檢查、下載和安裝最新版本"
+                },
+                {
+                    "key": "settings.changelog.addVersionUpdateUI",
+                    "description": "新增現代化版本更新界面，包含進度顯示和多種狀態"
+                },
+                {
+                    "key": "settings.changelog.addGitHubAPIIntegration",
+                    "description": "整合 GitHub API，自動獲取最新版本資訊和下載連結"
+                },
+                {
+                    "key": "settings.changelog.addDownloadProgressTracking",
+                    "description": "新增實時下載進度追蹤，包含圓形進度條和速度顯示"
+                },
+                {
+                    "key": "settings.changelog.addSmartFileHandling",
+                    "description": "智能文件處理機制，避免文件名衝突和下載進程鎖定問題"
+                },
+                {
+                    "key": "settings.changelog.addVersionComparison",
+                    "description": "新增版本比較邏輯，支援 BETA 版本後綴處理"
+                },
+                {
+                    "key": "settings.changelog.addMultiLanguageUpdater",
+                    "description": "版本更新系統支援多語言（繁體中文、英文）"
+                },
+                {
+                    "key": "settings.changelog.addAutoInstallDetection",
+                    "description": "自動檢測已下載的安裝文件，避免重複下載"
+                },
+                {
+                    "key": "settings.changelog.fixWindowParentRelation",
+                    "description": "修復版本更新窗口與主窗口的父子關係，確保同步關閉"
+                },
+                {
+                    "key": "settings.changelog.addDraggableUpdateWindow",
+                    "description": "版本更新窗口支援拖動功能，改善用戶體驗"
+                }
+            ]
+        },
+        {
             "version": "v1.5.3-Beta", 
             "date": "2025-07-03",
             "changes": [

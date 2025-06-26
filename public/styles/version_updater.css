@@ -1,0 +1,374 @@
+/* Version Updater Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.updater-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    width: 480px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.updater-header {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    -webkit-app-region: drag;
+}
+
+.updater-icon {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.updater-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    flex: 1;
+}
+
+.close-button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    -webkit-app-region: no-drag;
+}
+
+.close-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.updater-content {
+    padding: 24px;
+    min-height: 340px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.update-state {
+    width: 100%;
+    text-align: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.update-state.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading spinner */
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4CAF50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Icons */
+.success-icon, .update-icon, .error-icon {
+    margin-bottom: 16px;
+    animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Typography */
+.update-state h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #333;
+}
+
+.update-state p {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+/* Version info */
+.version-info {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 20px 0;
+    border-left: 4px solid #4CAF50;
+}
+
+.version-info p {
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+/* Compact version info for update available state */
+.version-info-compact {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 16px 0;
+    border-left: 4px solid #4CAF50;
+}
+
+.version-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 14px;
+    gap: 8px;
+}
+
+.version-row:last-child {
+    margin-bottom: 0;
+}
+
+.version-row span:first-child {
+    color: #666;
+    font-weight: 500;
+    text-align: right;
+}
+
+.version-row span:last-child {
+    color: #333;
+    font-weight: 600;
+    text-align: left;
+}
+
+.version-row .colon {
+    color: #666;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Buttons */
+.primary-btn, .secondary-btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    margin: 0 8px;
+    -webkit-app-region: no-drag;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.secondary-btn {
+    background: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.secondary-btn:hover {
+    background: #e9e9e9;
+    border-color: #ccc;
+}
+
+.update-actions, .install-actions {
+    margin-top: 20px;
+}
+
+/* Download progress */
+.download-progress {
+    margin-bottom: 24px;
+}
+
+.progress-circle {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 16px;
+}
+
+.progress-circle svg {
+    transform: rotate(-90deg);
+    transition: stroke-dashoffset 0.3s ease;
+}
+
+.progress-circle span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    font-weight: 600;
+    color: #4CAF50;
+}
+
+.download-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Settings button styles */
+.check-update-btn {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.2s;
+}
+
+.check-update-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 500px) {
+    .updater-container {
+        margin: 20px;
+        width: calc(100% - 40px);
+    }
+    
+    .updater-content {
+        padding: 24px;
+    }
+    
+    .update-state h3 {
+        font-size: 20px;
+    }
+    
+    .primary-btn, .secondary-btn {
+        display: block;
+        width: 100%;
+        margin: 8px 0;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .updater-container {
+        background: #2d2d2d;
+        color: #fff;
+    }
+    
+    .update-state h3 {
+        color: #fff;
+    }
+    
+    .update-state p {
+        color: #ccc;
+    }
+    
+    .version-info {
+        background: #3a3a3a;
+        color: #fff;
+    }
+    
+    .version-info-compact {
+        background: #3a3a3a;
+        color: #fff;
+    }
+    
+    .version-row span:first-child {
+        color: #ccc;
+    }
+    
+    .version-row span:last-child {
+        color: #fff;
+    }
+    
+    .version-row .colon {
+        color: #ccc;
+    }
+    
+    .secondary-btn {
+        background: #3a3a3a;
+        color: #ccc;
+        border-color: #555;
+    }
+    
+    .secondary-btn:hover {
+        background: #444;
+        border-color: #666;
+    }
+} 

@@ -99,7 +99,8 @@
         "about": {
             "version": "版本",
             "author": "作者",
-            "description": "開發中……只有一個人很難開發"
+            "description": "開發中……只有一個人很難開發",
+            "checkUpdate": "檢查更新"
         },
         "changelog": {
             "version": "版本",
@@ -219,7 +220,17 @@
             "improveCardsDragDrop": "🔧 改進卡片拖拽排序功能，修復拖拽到頂部位置的檢測問題",
             "enhanceDragDetection": "🔍 增強拖拽檢測邏輯，添加詳細調試信息和位置計算優化",
             "addZIndexManualControl": "🎛️ 新增手動 Z-Index 控制選項，提供拖拽和按鈕兩種排序方式",
-            "optimizeDragOverLogic": "⚡ 優化 dragover 事件處理邏輯，確保元素正確移動到目標位置"
+            "optimizeDragOverLogic": "⚡ 優化 dragover 事件處理邏輯，確保元素正確移動到目標位置",
+            "addVersionUpdateSystem": "🔄 新增版本更新系統，支援自動檢查、下載和安裝最新版本",
+            "addVersionUpdateUI": "✨ 新增現代化版本更新界面，包含進度顯示和多種狀態",
+            "addGitHubAPIIntegration": "🔗 整合 GitHub API，自動獲取最新版本資訊和下載連結",
+            "addDownloadProgressTracking": "📊 新增實時下載進度追蹤，包含圓形進度條和速度顯示",
+            "addSmartFileHandling": "🛡️ 智能文件處理機制，避免文件名衝突和下載進程鎖定問題",
+            "addVersionComparison": "🔍 新增版本比較邏輯，支援 BETA 版本後綴處理",
+            "addMultiLanguageUpdater": "🌐 版本更新系統支援多語言（繁體中文、英文）",
+            "addAutoInstallDetection": "🔍 自動檢測已下載的安裝文件，避免重複下載",
+            "fixWindowParentRelation": "🐛 修復版本更新窗口與主窗口的父子關係，確保同步關閉",
+            "addDraggableUpdateWindow": "🎨 版本更新窗口支援拖動功能，改善用戶體驗"
         },
         "keybinding": {
             "playPause": "播放/暫停",
@@ -291,5 +302,26 @@
         "apply": "應用變形",
         "instructions": "拖拽8個控制點來變形圖片或視頻",
         "tips": "提示：可以創建透視、扭曲等專業效果"
+    },
+    "updater": {
+        "title": "版本更新",
+        "checking": "正在檢查更新...",
+        "checkingDesc": "請稍候，我們正在檢查最新版本。",
+        "upToDate": "已是最新版本！",
+        "currentVersion": "當前版本",
+        "latestVersion": "您已經是最新版本的 Visual Player。",
+        "updateAvailable": "發現新版本",
+        "newVersion": "新版本",
+        "download": "下載更新",
+        "later": "稍後",
+        "downloading": "正在下載更新...",
+        "downloadingDesc": "正在下載最新版本...",
+        "downloadComplete": "下載完成",
+        "readyToInstall": "更新已下載完成，準備安裝。",
+        "installNow": "立即安裝",
+        "installLater": "稍後安裝",
+        "error": "更新錯誤",
+        "errorDesc": "檢查更新時發生錯誤。",
+        "retry": "重試"
     }
 } 

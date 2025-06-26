@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Version Updater</title>
+    <link rel="stylesheet" href="../../styles/version_updater.css">
+</head>
+<body>
+    <div class="updater-container">
+        <div class="updater-header">
+            <div class="updater-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z" fill="#4CAF50"/>
+                </svg>
+            </div>
+            <h2 id="updaterTitle" data-i18n="updater.title">Version Update</h2>
+            <button class="close-button" id="closeBtn">×</button>
+        </div>
+
+        <div class="updater-content">
+            <!-- Checking for updates state -->
+            <div id="checkingState" class="update-state">
+                <div class="loading-spinner"></div>
+                <h3 data-i18n="updater.checking">Checking for updates...</h3>
+                <p data-i18n="updater.checkingDesc">Please wait while we check for the latest version.</p>
+            </div>
+
+            <!-- Up to date state -->
+            <div id="upToDateState" class="update-state hidden">
+                <div class="success-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z" fill="#4CAF50"/>
+                    </svg>
+                </div>
+                <h3 data-i18n="updater.upToDate">You're up to date!</h3>
+                <p><span data-i18n="updater.currentVersion">Current version</span>: <span id="currentVersionText"></span></p>
+                <p data-i18n="updater.latestVersion">You have the latest version of Visual Player.</p>
+            </div>
+
+            <!-- Update available state -->
+            <div id="updateAvailableState" class="update-state hidden">
+                <div class="update-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z" fill="#FF9800"/>
+                    </svg>
+                </div>
+                <h3 data-i18n="updater.updateAvailable">Update Available</h3>
+                <div class="version-info-compact">
+                    <div class="version-row">
+                        <span data-i18n="updater.currentVersion">Current</span>
+                        <span class="colon">:</span>
+                        <span id="currentVersionUpdate"></span>
+                    </div>
+                    <div class="version-row">
+                        <span data-i18n="updater.newVersion">Newest</span>
+                        <span class="colon">:</span>
+                        <span id="newVersionText"></span>
+                    </div>
+                </div>
+                <div class="update-actions">
+                    <button id="downloadBtn" class="primary-btn" data-i18n="updater.download">Download Update</button>
+                    <button id="laterBtn" class="secondary-btn" data-i18n="updater.later">Later</button>
+                </div>
+            </div>
+
+            <!-- Downloading state -->
+            <div id="downloadingState" class="update-state hidden">
+                <div class="download-progress">
+                    <div class="progress-circle">
+                        <svg width="80" height="80" viewBox="0 0 80 80">
+                            <circle cx="40" cy="40" r="35" fill="none" stroke="#e0e0e0" stroke-width="4"/>
+                            <circle id="progressCircle" cx="40" cy="40" r="35" fill="none" stroke="#4CAF50" stroke-width="4" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220"/>
+                        </svg>
+                        <span id="progressText">0%</span>
+                    </div>
+                </div>
+                <h3 data-i18n="updater.downloading">Downloading Update...</h3>
+                <p id="downloadStatus" data-i18n="updater.downloadingDesc">Downloading the latest version...</p>
+                <div class="download-info">
+                    <span id="downloadSpeed">0 KB/s</span>
+                    <span id="downloadSize">0 MB / 0 MB</span>
+                </div>
+            </div>
+
+            <!-- Download complete state -->
+            <div id="downloadCompleteState" class="update-state hidden">
+                <div class="success-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z" fill="#4CAF50"/>
+                    </svg>
+                </div>
+                <h3 data-i18n="updater.downloadComplete">Download Complete</h3>
+                <p data-i18n="updater.readyToInstall">The update has been downloaded and is ready to install.</p>
+                <div class="install-actions">
+                    <button id="installBtn" class="primary-btn" data-i18n="updater.installNow">Install Now</button>
+                    <button id="installLaterBtn" class="secondary-btn" data-i18n="updater.installLater">Install Later</button>
+                </div>
+            </div>
+
+            <!-- Error state -->
+            <div id="errorState" class="update-state hidden">
+                <div class="error-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="#F44336"/>
+                    </svg>
+                </div>
+                <h3 data-i18n="updater.error">Update Error</h3>
+                <p id="errorMessage" data-i18n="updater.errorDesc">An error occurred while checking for updates.</p>
+                <button id="retryBtn" class="primary-btn" data-i18n="updater.retry">Retry</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="version_updater.js"></script>
+</body>
+</html> 

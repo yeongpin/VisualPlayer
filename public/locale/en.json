@@ -99,7 +99,8 @@
         "about": {
             "version": "Version",
             "author": "Author",
-            "description": "In development... it's hard to develop alone"
+            "description": "In development... it's hard to develop alone",
+            "checkUpdate": "Check for Updates"
         },
         "changelog": {
             "version": "Version",
@@ -219,7 +220,17 @@
             "improveCardsDragDrop": "🔧 Improve card drag-and-drop sorting functionality, fix drag-to-top position detection issues",
             "enhanceDragDetection": "🔍 Enhance drag detection logic with detailed debugging information and position calculation optimization",
             "addZIndexManualControl": "🎛️ Add manual Z-Index control options, providing both drag and button sorting methods",
-            "optimizeDragOverLogic": "⚡ Optimize dragover event handling logic to ensure elements move correctly to target positions"
+            "optimizeDragOverLogic": "⚡ Optimize dragover event handling logic to ensure elements move correctly to target positions",
+            "addVersionUpdateSystem": "🔄 Add version update system with automatic check, download and install latest version",
+            "addVersionUpdateUI": "✨ Add modern version update interface with progress display and multiple states",
+            "addGitHubAPIIntegration": "🔗 Integrate GitHub API for automatic latest version info and download link retrieval",
+            "addDownloadProgressTracking": "📊 Add real-time download progress tracking with circular progress bar and speed display",
+            "addSmartFileHandling": "🛡️ Smart file handling mechanism to avoid filename conflicts and download process locking",
+            "addVersionComparison": "🔍 Add version comparison logic with BETA version suffix support",
+            "addMultiLanguageUpdater": "🌐 Version update system supports multiple languages (Traditional Chinese, English)",
+            "addAutoInstallDetection": "🔍 Automatically detect downloaded installation files to avoid duplicate downloads",
+            "fixWindowParentRelation": "🐛 Fix version update window parent-child relationship with main window for synchronized closing",
+            "addDraggableUpdateWindow": "🎨 Version update window supports dragging functionality for improved user experience"
         },
         "keybinding": {
             "playPause": "Play/Pause",
@@ -291,5 +302,26 @@
         "apply": "Apply Transform",
         "instructions": "Drag the 8 control points to warp the image or video",
         "tips": "Tip: Create perspective, distortion and other professional effects"
+    },
+    "updater": {
+        "title": "Version Update",
+        "checking": "Checking for updates...",
+        "checkingDesc": "Please wait while we check for the latest version.",
+        "upToDate": "You're up to date!",
+        "currentVersion": "Current version",
+        "latestVersion": "You have the latest version of Visual Player.",
+        "updateAvailable": "Update Available",
+        "newVersion": "New version",
+        "download": "Download Update",
+        "later": "Later",
+        "downloading": "Downloading Update...",
+        "downloadingDesc": "Downloading the latest version...",
+        "downloadComplete": "Download Complete",
+        "readyToInstall": "The update has been downloaded and is ready to install.",
+        "installNow": "Install Now",
+        "installLater": "Install Later",
+        "error": "Update Error",
+        "errorDesc": "An error occurred while checking for updates.",
+        "retry": "Retry"
     }
 } 

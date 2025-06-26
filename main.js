@@ -247,6 +247,38 @@ const filterWindows = new Map();
 let settingsWindow = null;
 
 // 創建設置窗口的函數
+function createVersionUpdaterWindow() {
+    const updaterWindow = new BrowserWindow({
+        width: 500,
+        height: 480,
+        parent: mainWindow,
+        modal: true,
+        resizable: false,
+        minimizable: false,
+        maximizable: false,
+        alwaysOnTop: true,
+        show: false,
+        frame: false,
+        transparent: true,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true
+        }
+    });
+
+    //updaterWindow.webContents.openDevTools();
+
+    require('@electron/remote/main').enable(updaterWindow.webContents);
+    updaterWindow.loadFile('public/script/updater/version_updater.html');
+
+    updaterWindow.once('ready-to-show', () => {
+        updaterWindow.show();
+    });
+
+    return updaterWindow;
+}
+
 function createSettingsWindow() {
     console.log('Creating settings window...'); // 添加調試日誌
 
@@ -409,6 +441,12 @@ ipcMain.on('filter-update', (event, filterValues) => {
 ipcMain.on('open-settings', () => {
     console.log('Received open-settings request'); // 添加調試日誌
     createSettingsWindow();
+});
+
+// 處理打開版本更新窗口
+ipcMain.on('open-version-updater', () => {
+    console.log('Received open-version-updater request');
+    createVersionUpdaterWindow();
 });
 
 ipcMain.on('save-settings', (event, settings) => {

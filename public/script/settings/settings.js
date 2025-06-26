@@ -124,7 +124,26 @@ document.addEventListener('DOMContentLoaded', () => {
             icon.innerHTML = createSvgIcon(iconName);
         }
     });
+
+    // 初始化檢查更新按鈕
+    initCheckUpdateButton();
 });
+
+// 初始化檢查更新按鈕
+function initCheckUpdateButton() {
+    const checkUpdateBtn = document.getElementById('checkUpdateBtn');
+    if (checkUpdateBtn) {
+        checkUpdateBtn.addEventListener('click', () => {
+            openVersionUpdater();
+        });
+    }
+}
+
+// 打開版本更新窗口
+function openVersionUpdater() {
+    // 使用 IPC 發送請求到主進程
+    ipcRenderer.send('open-version-updater');
+}
 
 // 監聽語言變更事件
 window.addEventListener('languagechange', updateUIText);
