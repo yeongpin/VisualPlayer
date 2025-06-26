@@ -125,6 +125,8 @@ class EventHandlers {
                     this.mainManager.transformManager.updateVideoTransform(videoData);
 
                     const { ipcRenderer } = require('electron');
+                    
+                    // 發送完整的卡片數據更新
                     ipcRenderer.send('update-cards', {
                         videos: this.mainManager.videos.map(v => ({
                             isImage: v.isImage,
@@ -142,6 +144,22 @@ class EventHandlers {
                             zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                         }))
                     });
+                    
+                    // 發送 scale 更新事件到 cards 窗口
+                    const cardsWindows = require('@electron/remote').BrowserWindow.getAllWindows().filter(win => 
+                        win.webContents.getURL().includes('cards.html')
+                    );
+                    
+                    cardsWindows.forEach(win => {
+                        if (!win.isDestroyed()) {
+                            win.webContents.send('media-scale-updated', { 
+                                videoSrc: videoData.video.src, // 使用視頻源路徑
+                                scale: newScale
+                            });
+                        }
+                    });
+                    
+                    console.log(`Alt+Click: Updated scale to ${newScale} for video: ${videoData.video.src}`);
                 }
                 return;
             }
@@ -209,25 +227,23 @@ class EventHandlers {
                 
                 this.mainManager.transformManager.updateVideoTransform(videoData);
                 
-                // 找到對應的視頻索引
-                const videoIndex = this.mainManager.videos.findIndex(v => v === videoData);
+                // 使用視頻源路徑而不是數組索引來識別視頻
+                const videoSrc = videoData.video.src;
                 
                 // 通知卡片窗口更新scale顯示
-                if (videoIndex !== -1) {
-                    const { ipcRenderer } = require('electron');
-                    const cardsWindows = require('@electron/remote').BrowserWindow.getAllWindows().filter(win => 
-                        win.webContents.getURL().includes('cards.html')
-                    );
-                    
-                    cardsWindows.forEach(win => {
-                        if (!win.isDestroyed()) {
-                            win.webContents.send('media-scale-updated', { 
-                                index: videoIndex, 
-                                scale: videoData.scale 
-                            });
-                        }
-                    });
-                }
+                const { ipcRenderer } = require('electron');
+                const cardsWindows = require('@electron/remote').BrowserWindow.getAllWindows().filter(win => 
+                    win.webContents.getURL().includes('cards.html')
+                );
+                
+                cardsWindows.forEach(win => {
+                    if (!win.isDestroyed()) {
+                        win.webContents.send('media-scale-updated', { 
+                            videoSrc: videoSrc, // 使用視頻源路徑而不是索引
+                            scale: videoData.scale 
+                        });
+                    }
+                });
             }
         }
     }

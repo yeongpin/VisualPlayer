@@ -1377,14 +1377,37 @@ ipcRenderer.on('batch-delete-completed', (event, { successCount, failCount, erro
 });
 
 // 監聽scale更新事件
-ipcRenderer.on('media-scale-updated', (event, { index, scale }) => {
-    console.log(`Updating card ${index} scale to:`, scale);
+ipcRenderer.on('media-scale-updated', (event, { videoSrc, scale, index }) => {
+    console.log(`Updating scale to ${scale} for video:`, videoSrc || `index ${index}`);
     
-    const card = cardsContainer.children[index];
-    if (card && card.scaleInput) {
+    let targetCard = null;
+    
+    if (videoSrc) {
+        // 使用 videoSrc 查找對應的卡片
+        const cards = Array.from(cardsContainer.querySelectorAll('.video-card'));
+        cards.forEach((card, visualIndex) => {
+            const cardIndex = parseInt(card.dataset.index);
+            if (cardIndex >= 0 && cardIndex < videos.length) {
+                const videoData = videos[cardIndex];
+                if (videoData && videoData.video.src === videoSrc) {
+                    targetCard = card;
+                    console.log(`Found target card at visual position ${visualIndex} (original index ${cardIndex})`);
+                }
+            }
+        });
+    } else if (typeof index === 'number') {
+        // 回退到使用索引（為了向後兼容）
+        targetCard = cardsContainer.children[index];
+        console.log(`Using fallback index method for card ${index}`);
+    }
+    
+    if (targetCard && targetCard.scaleInput) {
         // 更新 scale 輸入框的值
-        card.scaleInput.value = parseFloat(scale).toFixed(1);
-        card.scaleInput.dataset.currentScale = parseFloat(scale).toFixed(1);
+        targetCard.scaleInput.value = parseFloat(scale).toFixed(1);
+        targetCard.scaleInput.dataset.currentScale = parseFloat(scale).toFixed(1);
+        console.log(`Successfully updated scale input to ${scale}`);
+    } else {
+        console.warn(`Could not find target card for scale update. videoSrc: ${videoSrc}, index: ${index}`);
     }
 });
 

@@ -1,6 +1,54 @@
 {
     "versions": [
         {
+            "version": "v1.5.3-Beta", 
+            "date": "2025-07-03",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixAltClickScaleSync",
+                    "description": "修復 Alt+左鍵適應屏幕後卡片窗口 scale 輸入框不更新的問題"
+                },
+                {
+                    "key": "settings.changelog.addAltClickScaleNotification",
+                    "description": "添加 Alt+左鍵縮放通知機制，確保卡片窗口即時同步 scale 數值"
+                },
+                {
+                    "key": "settings.changelog.unifyScaleUpdateMechanism",
+                    "description": "統一所有縮放更新機制，使用視頻源路徑識別確保準確性"
+                },
+                {
+                    "key": "settings.changelog.improveAltClickDebugging",
+                    "description": "增強 Alt+左鍵操作的調試信息，便於追蹤縮放更新過程"
+                }
+            ]
+        },
+        {
+            "version": "v1.5.2-Beta", 
+            "date": "2025-07-03",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixCtrlClickZIndexUpdate",
+                    "description": "修復 Ctrl+左鍵置頂後卡片列表不更新的問題，改為直接移動對應卡片到列表底部"
+                },
+                {
+                    "key": "settings.changelog.fixScaleUpdateIndexMismatch",
+                    "description": "修復縮放更新時索引不匹配問題，使用視頻源路徑而非數組索引來識別目標卡片"
+                },
+                {
+                    "key": "settings.changelog.improveZIndexDetection",
+                    "description": "改進 Z-Index 檢測邏輯，自動識別最高層級元素並移動到正確位置"
+                },
+                {
+                    "key": "settings.changelog.enhanceCardsSyncMechanism",
+                    "description": "增強卡片窗口同步機制，添加視頻源路徑匹配和回退索引支持"
+                },
+                {
+                    "key": "settings.changelog.addDetailedDebugging",
+                    "description": "添加詳細的調試日誌，便於診斷 Z-Index 和縮放更新問題"
+                }
+            ]
+        },
+        {
             "version": "v1.5.1-Beta", 
             "date": "2025-07-02",
             "changes": [

@@ -367,7 +367,11 @@ class MainManager {
                 
                 cardsWindows.forEach(win => {
                     if (!win.isDestroyed()) {
-                        win.webContents.send('media-scale-updated', { index, scale });
+                        win.webContents.send('media-scale-updated', { 
+                            videoSrc: videoData.video.src, // 使用視頻源路徑
+                            scale: scale,
+                            index: index // 保留索引作為備用
+                        });
                     }
                 });
                 
