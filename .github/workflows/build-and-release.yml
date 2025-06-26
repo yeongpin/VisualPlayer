@@ -30,19 +30,48 @@ jobs:
           echo "version=v$VERSION" >> $GITHUB_OUTPUT
           echo "Version: v$VERSION"
       
-      - name: Check if tag exists
+      - name: Check if release exists and has assets
         id: check_tag
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+          
+          # Check if release exists and has assets
+          RELEASE_EXISTS=false
+          HAS_ASSETS=false
+          
+          # Try to get release info
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            RELEASE_EXISTS=true
+            echo "Release $VERSION exists"
+            
+            # Check if release has assets
+            ASSET_COUNT=$(gh release view "$VERSION" --json assets --jq '.assets | length')
+            if [ "$ASSET_COUNT" -gt 0 ]; then
+              HAS_ASSETS=true
+              echo "Release $VERSION has $ASSET_COUNT assets"
+            else
+              echo "Release $VERSION exists but has no assets"
+            fi
+          else
+            echo "Release $VERSION does not exist"
+          fi
+          
+          # Decide whether to build
+          if [ "$RELEASE_EXISTS" = true ] && [ "$HAS_ASSETS" = true ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "should_build=false" >> $GITHUB_OUTPUT
-            echo "Tag $VERSION already exists, skipping build"
+            echo "Release $VERSION already exists with assets, skipping build"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
             echo "should_build=true" >> $GITHUB_OUTPUT
-            echo "Tag $VERSION does not exist, will create and build"
+            if [ "$RELEASE_EXISTS" = true ]; then
+              echo "Release $VERSION exists but has no assets, will rebuild"
+            else
+              echo "Release $VERSION does not exist, will create and build"
+            fi
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   create-tag:
     needs: check-version
@@ -60,9 +89,15 @@ jobs:
           VERSION="${{ needs.check-version.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin "$VERSION"
-          echo "Created and pushed tag: $VERSION"
+          
+          # Check if tag already exists
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "Tag $VERSION already exists, skipping tag creation"
+          else
+            git tag -a "$VERSION" -m "Release $VERSION"
+            git push origin "$VERSION"
+            echo "Created and pushed tag: $VERSION"
+          fi
 
   build:
     needs: [check-version, create-tag]
