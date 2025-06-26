@@ -133,6 +133,11 @@ jobs:
       - name: Install Dependencies
         run: npm ci
         
+      # Install dmg-license for macOS builds
+      - name: Install dmg-license for macOS
+        if: matrix.os == 'macos-latest'
+        run: npm install -g dmg-license
+        
       # Build the application
       - name: Build Application
         run: npm run build
