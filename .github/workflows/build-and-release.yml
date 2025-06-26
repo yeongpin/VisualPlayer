@@ -166,10 +166,16 @@ jobs:
           
       # List dist directory contents for debugging
       - name: List dist directory
-        shell: bash
+        shell: cmd
         run: |
-          echo "Dist directory contents:"
-          ls -la dist/ || echo "No dist directory found"
+          echo Dist directory contents:
+          dir dist\ || echo "No dist directory found"
+          echo.
+          echo External directory size:
+          dir external\ /s || echo "No external directory found"
+          echo.
+          echo Total project size before build:
+          dir . /s | findstr "bytes"
         
       # Rename and organize artifacts (Windows only)
       - name: Process Artifacts
