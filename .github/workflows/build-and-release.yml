@@ -2,10 +2,8 @@ name: Build and Release
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -17,185 +15,108 @@ jobs:
     
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
-        arch: [x64]
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        arch: [x64, arm64]
+        exclude:
+          - os: windows-latest
+            arch: arm64
+          - os: ubuntu-latest
+            arch: arm64
         node-version: [18.x]
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-      
-    - name: Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        architecture: ${{ matrix.arch }}
-        cache: 'npm'
-        
-    - name: Get package version
-      id: package-version
-      shell: bash
-      run: |
-        VERSION=$(node -p "require('./package.json').version")
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-        echo "VERSION=v$VERSION" >> $GITHUB_ENV
-        
-    - name: Install dependencies
-      run: npm ci
-        
-    - name: Install macOS build dependencies
-      if: matrix.os == 'macos-latest'
-      run: |
-        # Install required tools for macOS builds
-        brew install python-setuptools
-        # Install dmg-license for DMG creation
-        npm install --no-save dmg-license
-      
-    - name: Debug build environment
-      shell: bash
-      run: |
-        echo "Node version: $(node --version)"
-        echo "NPM version: $(npm --version)"
-        echo "Current directory: $(pwd)"
-        echo "Package.json exists: $(test -f package.json && echo 'yes' || echo 'no')"
-        echo "Architecture: ${{ matrix.arch }}"
-        
-    - name: Build Application
-      run: |
-        if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          npm run build:win
-        else
-          npm run build:mac
-        fi
-      shell: bash
-      env:
-        ARCH: ${{ matrix.arch }}
-        DEBUG: electron-builder
-      
-    - name: List build output
-      shell: bash
-      run: |
-        echo "Listing dist directory contents:"
-        ls -la dist/ || echo "dist directory not found"
-        find . -name "*.exe" -o -name "*.msi" -o -name "*.dmg" -o -name "*.zip" -o -name "*.app" || echo "No build artifacts found"
-        
-    - name: Process Artifacts
-      shell: bash
-      run: |
-        mkdir -p ./artifacts
-        if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          # 處理 Windows 文件
-          find dist -name "*.exe" -exec cp {} "./artifacts/VisualPlayer-${{ env.VERSION }}-win-setup.exe" \; || true
-          find dist -name "*.msi" -exec cp {} "./artifacts/VisualPlayer-${{ env.VERSION }}-win-setup.msi" \; || true
-        elif [ "${{ matrix.os }}" = "macos-latest" ]; then
-          # 處理 macOS 文件
-          find dist -name "*.dmg" -exec cp {} "./artifacts/VisualPlayer-${{ env.VERSION }}-mac.dmg" \; || true
-        fi
-        
-        # 顯示 artifacts 目錄內容以驗證
-        echo "Artifacts directory contents:"
-        ls -la ./artifacts/ || echo "No artifacts created"
-        
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ runner.os }}-${{ matrix.arch }}
-        path: artifacts/*
-        retention-days: 7
-        if-no-files-found: warn
 
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          architecture: ${{ matrix.arch }}
+          cache: 'npm'
+          
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        shell: bash
+
+      # Clean install dependencies
+      - name: Install Dependencies
+        run: npm ci
+        
+      # Build the application
+      - name: Build Application
+        run: npm run build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARCH: ${{ matrix.arch }}
+          # macOS signing and notarization
+          CSC_LINK: ${{ secrets.MAC_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          DEBUG: electron-builder
+          
+      # List dist directory contents
+      - name: List dist directory
+        shell: bash
+        run: |
+          echo "Dist directory contents:"
+          ls -la dist/
+        
+      # Rename and organize artifacts
+      - name: Process Artifacts
+        shell: bash
+        run: |
+          mkdir -p ./artifacts
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            find dist -name "*.exe" -exec cp {} "./artifacts/VisualPlayer_${{ env.VERSION }}_win_setup.exe" \; || true
+          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+            if [ "${{ matrix.arch }}" = "arm64" ]; then
+              find dist -name "*-arm64.dmg" -exec cp {} "./artifacts/VisualPlayer_${{ env.VERSION }}_mac_arm64.dmg" \; || true
+            else
+              find dist -name "*.dmg" -not -name "*-arm64.dmg" -exec cp {} "./artifacts/VisualPlayer_${{ env.VERSION }}_mac.dmg" \; || true
+            fi
+          else
+            find dist -name "*.AppImage" -exec cp {} "./artifacts/VisualPlayer_${{ env.VERSION }}_linux.AppImage" \; || true
+          fi
+          
+          # 显示artifacts目录内容以验证
+          echo "Artifacts directory contents:"
+          ls -la ./artifacts/
+        
+      # Upload build artifacts
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-${{ matrix.arch }}
+          path: artifacts/*
+          retention-days: 1
+          
   release:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     permissions:
       contents: write
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Get package version
-      id: package-version
-      run: |
-        VERSION=$(node -p "require('./package.json').version")
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-        echo "VERSION=v$VERSION" >> $GITHUB_ENV
-        
-    - name: Check if tag exists
-      id: check-tag
-      run: |
-        if git rev-parse "refs/tags/v${{ steps.package-version.outputs.version }}" >/dev/null 2>&1; then
-          echo "exists=true" >> $GITHUB_OUTPUT
-          echo "Tag v${{ steps.package-version.outputs.version }} already exists"
-        else
-          echo "exists=false" >> $GITHUB_OUTPUT
-          echo "Tag v${{ steps.package-version.outputs.version }} does not exist"
-        fi
-        
-    - name: Create tag
-      if: steps.check-tag.outputs.exists == 'false'
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git tag -a "v${{ steps.package-version.outputs.version }}" -m "Release v${{ steps.package-version.outputs.version }}"
-        git push origin "v${{ steps.package-version.outputs.version }}"
-        
-    - name: Download Artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
-        
-    - name: List Files
-      run: ls -R
-      working-directory: artifacts
-        
-    - name: Check if release exists and delete if needed
-      id: check-release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/v${{ steps.package-version.outputs.version }} --jq '.id' 2>/dev/null || echo "")
-        if [ -n "$RELEASE_ID" ]; then
-          echo "Release exists with ID: $RELEASE_ID"
-          echo "Deleting existing release..."
-          gh api -X DELETE repos/${{ github.repository }}/releases/$RELEASE_ID
-          echo "exists=true" >> $GITHUB_OUTPUT
-        else
-          echo "Release does not exist"
-          echo "exists=false" >> $GITHUB_OUTPUT
-        fi
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
           
-    - name: Create Release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ steps.package-version.outputs.version }}
-        name: Visual Player ${{ steps.package-version.outputs.version }}
-        files: artifacts/**/*
-        body: |
-          ## 🎉 Release v${{ steps.package-version.outputs.version }}
-          
-          ### 📦 Downloads
-          - **Windows**: Download the `.exe` or `.msi` file
-          - **macOS**: Download the `.dmg` file
-          
-          ### 📋 Changelog
-          See the changelog for detailed changes in this release.
-          
-          ### 🐛 Bug Reports
-          If you encounter any issues, please report them in the Issues section.
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      - name: List Files
+        run: ls -R
+        working-directory: artifacts
+        
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Visual Player ${{ github.ref_name }}
+          files: artifacts/**/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

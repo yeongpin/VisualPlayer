@@ -135,7 +135,14 @@
           "description": "Visual Player Video File",
           "icon": "Logo.png",
           "role": "Editor"
-        },
+        }
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "notarize": false
+    },
+    "linux": {
+      "target": [
         {
           "ext": [
             "jpg",
@@ -168,21 +175,6 @@
           "description": "Visual Player RAW Image File",
           "icon": "Logo.png",
           "role": "Editor"
-        }
-      ]
-    },
-    "dmg": {
-      "sign": false,
-      "contents": [
-        {
-          "x": 130,
-          "y": 220
-        },
-        {
-          "x": 410,
-          "y": 220,
-          "type": "link",
-          "path": "/Applications"
         }
       ]
     },
