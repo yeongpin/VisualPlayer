@@ -7,22 +7,32 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
+    
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
-    
-    runs-on: ${{ matrix.os }}
+        arch: [x64]
+        node-version: [18.x]
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
       
-    - name: Setup Node.js
+    - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: ${{ matrix.node-version }}
+        architecture: ${{ matrix.arch }}
+        cache: 'npm'
         
     - name: Get package version
       id: package-version
@@ -31,13 +41,11 @@ jobs:
         VERSION=$(node -p "require('./package.json').version")
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+        echo "VERSION=v$VERSION" >> $GITHUB_ENV
         
     - name: Install dependencies
-      run: |
-        echo "Installing dependencies..."
-        npm install
-        echo "Dependencies installed successfully"
-      
+      run: npm ci
+        
     - name: Install macOS build dependencies
       if: matrix.os == 'macos-latest'
       run: |
@@ -45,55 +53,55 @@ jobs:
         brew install python-setuptools
       
     - name: Debug build environment
+      shell: bash
       run: |
         echo "Node version: $(node --version)"
         echo "NPM version: $(npm --version)"
         echo "Current directory: $(pwd)"
         echo "Package.json exists: $(test -f package.json && echo 'yes' || echo 'no')"
+        echo "Architecture: ${{ matrix.arch }}"
         
-    - name: Clean dist directory
+    - name: Build Application
+      run: |
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          npm run build:win
+        else
+          npm run build:mac
+        fi
       shell: bash
-      run: |
-        echo "Cleaning dist directory..."
-        rm -rf dist/
-        
-    - name: Build for Windows
-      if: matrix.os == 'windows-latest'
-      run: |
-        echo "Starting Windows build..."
-        npm run build:win
-        echo "Windows build completed"
-        
-    - name: Build for macOS
-      if: matrix.os == 'macos-latest'
-      run: |
-        echo "Starting macOS build..."
-        npm run build:mac
-        echo "macOS build completed"
+      env:
+        ARCH: ${{ matrix.arch }}
+        DEBUG: electron-builder
       
     - name: List build output
+      shell: bash
       run: |
         echo "Listing dist directory contents:"
         ls -la dist/ || echo "dist directory not found"
         find . -name "*.exe" -o -name "*.msi" -o -name "*.dmg" -o -name "*.zip" -o -name "*.app" || echo "No build artifacts found"
         
-    - name: Upload Windows artifacts
-      if: matrix.os == 'windows-latest'
+    - name: Process Artifacts
+      shell: bash
+      run: |
+        mkdir -p ./artifacts
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          # 處理 Windows 文件
+          find dist -name "*.exe" -exec cp {} "./artifacts/VisualPlayer-${{ env.VERSION }}-win-setup.exe" \; || true
+          find dist -name "*.msi" -exec cp {} "./artifacts/VisualPlayer-${{ env.VERSION }}-win-setup.msi" \; || true
+        elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+          # 處理 macOS 文件
+          find dist -name "*.dmg" -exec cp {} "./artifacts/VisualPlayer-${{ env.VERSION }}-mac.dmg" \; || true
+        fi
+        
+        # 顯示 artifacts 目錄內容以驗證
+        echo "Artifacts directory contents:"
+        ls -la ./artifacts/ || echo "No artifacts created"
+        
+    - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: windows-build
-        path: |
-          dist/
-        retention-days: 7
-        if-no-files-found: warn
-          
-    - name: Upload macOS artifacts
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: macos-build
-        path: |
-          dist/
+        name: ${{ runner.os }}-${{ matrix.arch }}
+        path: artifacts/*
         retention-days: 7
         if-no-files-found: warn
 
@@ -101,12 +109,14 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # 獲取完整的 git 歷史
+        fetch-depth: 0
       
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -119,6 +129,7 @@ jobs:
         VERSION=$(node -p "require('./package.json').version")
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+        echo "VERSION=v$VERSION" >> $GITHUB_ENV
         
     - name: Check if tag exists
       id: check-tag
@@ -139,24 +150,14 @@ jobs:
         git tag -a "v${{ steps.package-version.outputs.version }}" -m "Release v${{ steps.package-version.outputs.version }}"
         git push origin "v${{ steps.package-version.outputs.version }}"
         
-    - name: Download Windows artifacts
+    - name: Download Artifacts
       uses: actions/download-artifact@v4
       with:
-        name: windows-build
-        path: ./artifacts/windows/
+        path: artifacts
         
-    - name: Download macOS artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: macos-build
-        path: ./artifacts/macos/
-        
-    - name: List artifacts
-      run: |
-        echo "Windows artifacts:"
-        find ./artifacts/windows/ -type f || echo "No Windows artifacts found"
-        echo "macOS artifacts:"
-        find ./artifacts/macos/ -type f || echo "No macOS artifacts found"
+    - name: List Files
+      run: ls -R
+      working-directory: artifacts
         
     - name: Check if release exists and delete if needed
       id: check-release
@@ -175,79 +176,24 @@ jobs:
         fi
           
     - name: Create Release
-      id: create-release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ steps.package-version.outputs.version }}
+        name: Visual Player ${{ steps.package-version.outputs.version }}
+        files: artifacts/**/*
+        body: |
+          ## 🎉 Release v${{ steps.package-version.outputs.version }}
+          
+          ### 📦 Downloads
+          - **Windows**: Download the `.exe` or `.msi` file
+          - **macOS**: Download the `.dmg` file
+          
+          ### 📋 Changelog
+          See the changelog for detailed changes in this release.
+          
+          ### 🐛 Bug Reports
+          If you encounter any issues, please report them in the Issues section.
+        draft: false
+        prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        # 創建 release notes
-        cat > release_notes.md << 'EOF'
-        ## 🎉 Release v${{ steps.package-version.outputs.version }}
-        
-        ### 📦 Downloads
-        - **Windows**: Download the `.exe` or `.msi` file
-        - **macOS**: Download the `.dmg` file
-        
-        ### 📋 Changelog
-        See the changelog for detailed changes in this release.
-        
-        ### 🐛 Bug Reports
-        If you encounter any issues, please report them in the Issues section.
-        EOF
-        
-        # 創建 release
-        gh release create "v${{ steps.package-version.outputs.version }}" \
-          --title "Release v${{ steps.package-version.outputs.version }}" \
-          --notes-file release_notes.md \
-          --latest
-        
-    - name: Upload release assets
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        # 上傳 Windows 文件
-        for file in ./artifacts/windows/*; do
-          if [ -f "$file" ]; then
-            filename=$(basename "$file")
-            extension="${filename##*.}"
-            case $extension in
-              exe)
-                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-win.exe"
-                ;;
-              msi)
-                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-win.msi"
-                ;;
-              zip)
-                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-win.zip"
-                ;;
-              *)
-                new_name="$filename"
-                ;;
-            esac
-            echo "Uploading Windows file: $file as $new_name"
-            gh release upload "v${{ steps.package-version.outputs.version }}" "$file#$new_name"
-          fi
-        done
-        
-        # 上傳 macOS 文件
-        for file in ./artifacts/macos/*; do
-          if [ -f "$file" ]; then
-            filename=$(basename "$file")
-            extension="${filename##*.}"
-            case $extension in
-              dmg)
-                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-mac.dmg"
-                ;;
-              zip)
-                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-mac.zip"
-                ;;
-              app)
-                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-mac.app"
-                ;;
-              *)
-                new_name="$filename"
-                ;;
-            esac
-            echo "Uploading macOS file: $file as $new_name"
-            gh release upload "v${{ steps.package-version.outputs.version }}" "$file#$new_name"
-          fi
-        done 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
