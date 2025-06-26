@@ -51,13 +51,19 @@ jobs:
         echo "Current directory: $(pwd)"
         echo "Package.json exists: $(test -f package.json && echo 'yes' || echo 'no')"
         
+    - name: Clean dist directory
+      shell: bash
+      run: |
+        echo "Cleaning dist directory..."
+        rm -rf dist/
+        
     - name: Build for Windows
       if: matrix.os == 'windows-latest'
       run: |
         echo "Starting Windows build..."
         npm run build:win
         echo "Windows build completed"
-      
+        
     - name: Build for macOS
       if: matrix.os == 'macos-latest'
       run: |
