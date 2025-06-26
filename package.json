@@ -45,6 +45,7 @@
         }
       ],
       "icon": "Logo.ico",
+      "artifactName": "${productName}-${version}-win-${arch}.${ext}",
       "fileAssociations": [
         {
           "ext": [
@@ -113,6 +114,7 @@
       ],
       "icon": "Logo.png",
       "category": "public.app-category.video",
+      "artifactName": "${productName}-${version}-mac-${arch}.${ext}",
       "fileAssociations": [
         {
           "ext": [
@@ -166,6 +168,21 @@
           "description": "Visual Player RAW Image File",
           "icon": "Logo.png",
           "role": "Editor"
+        }
+      ]
+    },
+    "dmg": {
+      "sign": false,
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
         }
       ]
     },

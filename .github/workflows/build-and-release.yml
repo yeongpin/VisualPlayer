@@ -51,6 +51,8 @@ jobs:
       run: |
         # Install required tools for macOS builds
         brew install python-setuptools
+        # Install dmg-license for DMG creation
+        npm install --no-save dmg-license
       
     - name: Debug build environment
       shell: bash
