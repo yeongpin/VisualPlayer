@@ -159,9 +159,11 @@ class ImageManager {
                             scale: v.scale,
                             rotation: v.rotation,
                             flipX: v.flipX,
-                            flipY: v.flipY
+                            flipY: v.flipY,
+                            zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                         }
-                    }
+                    },
+                    zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                 }))
             });
             };
@@ -227,10 +229,20 @@ class ImageManager {
             wrapper.style.left = offset + 'px';
             wrapper.style.top = offset + 'px';
             
+            // 設置初始 z-index，按加入順序遞增
+            const initialZIndex = this.mainManager.videos.length;
+            wrapper.style.zIndex = initialZIndex;
+            
             wrapper.addEventListener('mousedown', (e) => this.mainManager.eventHandlers.handleMouseDown(e));
             wrapper.addEventListener('wheel', (e) => this.mainManager.eventHandlers.handleWheel(e));
             
             document.body.appendChild(wrapper);
+            
+            // 確保 img.dataset 存在並設置 z-index
+            if (!img.dataset) {
+                img.dataset = {};
+            }
+            img.dataset.zIndex = initialZIndex;
             
             const imageData = { 
                 wrapper, 
@@ -289,9 +301,11 @@ class ImageManager {
                             scale: v.scale,
                             rotation: v.rotation,
                             flipX: v.flipX,
-                            flipY: v.flipY
+                            flipY: v.flipY,
+                            zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                         }
-                    }
+                    },
+                    zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                 }))
             });
 

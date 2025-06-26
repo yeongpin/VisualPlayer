@@ -248,8 +248,15 @@ class MainManager {
 
         // 添加請求視頻數據的處理
         ipcRenderer.on('request-videos-data', () => {
-            ipcRenderer.send('update-cards', {
-                videos: this.videos.map(v => ({
+            console.log('Main window: Received request-videos-data, sending current data');
+            
+            const videoData = this.videos.map(v => {
+                const wrapperZIndex = parseInt(v.wrapper?.style?.zIndex) || 0;
+                const datasetZIndex = parseInt(v.video.dataset?.zIndex) || 0;
+                
+                console.log(`Video ${v.video.src}: wrapper z-index=${wrapperZIndex}, dataset z-index=${datasetZIndex}`);
+                
+                return {
                     isImage: v.isImage,
                     video: {
                         src: v.video.src,
@@ -258,13 +265,21 @@ class MainManager {
                             scale: v.scale || 1.0,
                             rotation: v.rotation || 0,
                             flipX: v.flipX || false,
-                            flipY: v.flipY || false
+                            flipY: v.flipY || false,
+                            zIndex: wrapperZIndex
                         },
                         filterValues: v.video.filterValues,
                         currentTime: v.video.currentTime,
                         paused: v.video.paused
-                    }
-                }))
+                    },
+                    zIndex: wrapperZIndex
+                };
+            });
+            
+            console.log('Main window: Sending video data with z-indices:', videoData.map(v => v.zIndex));
+            
+            ipcRenderer.send('update-cards', {
+                videos: videoData
             });
         });
 
@@ -601,6 +616,49 @@ class MainManager {
                     index, 
                     isLooping: video.loop 
                 });
+            }
+        });
+
+        // 處理 z-index 順序更新
+        ipcRenderer.on('update-zindex-order', (event, newZIndexOrder) => {
+            console.log('Received z-index order update in main window:', newZIndexOrder);
+            
+            // 更新每個視頻的 z-index
+            const updatedVideos = [];
+            newZIndexOrder.forEach(({ originalIndex, newZIndex }) => {
+                const videoData = this.videos[originalIndex];
+                if (videoData && videoData.wrapper) {
+                    const oldZIndex = parseInt(videoData.wrapper.style.zIndex) || 0;
+                    videoData.wrapper.style.zIndex = newZIndex;
+                    
+                    // 更新 dataset 中的 z-index 信息
+                    if (!videoData.video.dataset) {
+                        videoData.video.dataset = {};
+                    }
+                    videoData.video.dataset.zIndex = newZIndex;
+                    
+                    updatedVideos.push({
+                        index: originalIndex,
+                        zIndex: newZIndex
+                    });
+                    
+                    console.log(`Updated video ${originalIndex} z-index from ${oldZIndex} to ${newZIndex}`);
+                }
+            });
+            
+            // 通知 cards 窗口 z-index 已更新
+            if (updatedVideos.length > 0) {
+                const cardsWindows = require('@electron/remote').BrowserWindow.getAllWindows().filter(win => 
+                    win.webContents.getURL().includes('cards.html')
+                );
+                
+                cardsWindows.forEach(win => {
+                    if (!win.isDestroyed()) {
+                        win.webContents.send('zindex-updated', updatedVideos);
+                    }
+                });
+                
+                console.log('Notified cards window with updated z-index:', updatedVideos);
             }
         });
 

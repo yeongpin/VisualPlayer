@@ -22,6 +22,7 @@ let selectedCards = new Set(); // 保存選中的卡片索引
 
 // 添加刷新按鈕事件
 refreshButton.onclick = () => {
+    console.log('Refresh button clicked, requesting latest video data');
     ipcRenderer.send('request-videos-data');
 };
 
@@ -193,10 +194,45 @@ function updateCardsList(videoData) {
     // 更新视频数据引用
     videos = videoData;
     
+    // 按 z-index 排序 videoData（z-index 最高的在最下面）
+    const sortedVideoData = [...videoData].sort((a, b) => {
+        const aZIndex = parseInt(a.video?.dataset?.zIndex) || parseInt(a.zIndex) || 0;
+        const bZIndex = parseInt(b.video?.dataset?.zIndex) || parseInt(b.zIndex) || 0;
+        return aZIndex - bZIndex; // 升序排列，z-index 最高的在最下面
+    });
+    
     // 获取当前卡片数量
     const currentCards = cardsContainer.querySelectorAll('.video-card');
     const currentCount = currentCards.length;
-    const newCount = videoData.length;
+    const newCount = sortedVideoData.length;
+    
+    // 检查是否只是 z-index 顺序变化
+    const hasOnlyZIndexChange = newCount === currentCount && 
+        videoData.every(video => oldVideos.some(oldVideo => oldVideo.video.src === video.video.src));
+    
+    if (hasOnlyZIndexChange) {
+        console.log('Detected z-index order change, reordering cards');
+        
+        // 檢查是否真的有順序變化
+        const oldOrder = oldVideos.map(v => v.video.src);
+        const newOrder = sortedVideoData.map(v => v.video.src);
+        const hasOrderChange = !oldOrder.every((src, index) => src === newOrder[index]);
+        
+        if (hasOrderChange) {
+            console.log('Order has changed, rebuilding cards');
+            // 清空容器并按新顺序重新添加
+            cardsContainer.innerHTML = '';
+            sortedVideoData.forEach((video, index) => {
+                // 找到原始 videoData 中的索引
+                const originalIndex = videoData.findIndex(v => v.video.src === video.video.src);
+                createCard(video, originalIndex);
+            });
+            updateSelectionDisplay();
+        } else {
+            console.log('No actual order change detected');
+        }
+        return;
+    }
     
     // 检查是否只是添加了新视频
     const isJustAddingNewVideos = newCount > currentCount && 
@@ -219,18 +255,17 @@ function updateCardsList(videoData) {
     }
     
     if (newCount > currentCount) {
-        // 有新卡片添加，只預加載新卡片的縮略圖
+        // 有新卡片添加，需要重新按 z-index 排序
+        console.log('Adding new cards with z-index sorting');
+        // 清空容器并按 z-index 顺序重新创建所有卡片
+        cardsContainer.innerHTML = '';
         const newVideos = videoData.slice(currentCount);
         preloadThumbnails(newVideos);
-        // 只添加新卡片
-        for (let i = currentCount; i < newCount; i++) {
-            createCard(videoData[i], i);
-        }
         
-        // 更新现有卡片的索引和标题
-        currentCards.forEach((card, index) => {
-            card.dataset.index = index;
-            updateCardTitle(card, index, videoData[index].isImage);
+        sortedVideoData.forEach((video, sortedIndex) => {
+            // 找到原始 videoData 中的索引
+            const originalIndex = videoData.findIndex(v => v.video.src === video.video.src);
+            createCard(video, originalIndex);
         });
         
         // 更新選中狀態顯示
@@ -254,16 +289,12 @@ function updateCardsList(videoData) {
         });
         selectedCards = newSelectedCards;
         
-        // 更新剩余卡片（只更新索引和標題，不更新縮略圖）
-        for (let i = 0; i < newCount; i++) {
-            const card = cardsContainer.children[i];
-            if (card) {
-                card.dataset.index = i;
-                updateCardTitle(card, i, videoData[i].isImage);
-                // 刪除操作時不需要更新縮略圖，因為視頻源沒有改變
-                // updateCardThumbnail(card, videoData[i]);
-            }
-        }
+        // 重新按 z-index 排序并创建卡片
+        cardsContainer.innerHTML = '';
+        sortedVideoData.forEach((video, sortedIndex) => {
+            const originalIndex = videoData.findIndex(v => v.video.src === video.video.src);
+            createCard(video, originalIndex);
+        });
     } else {
         // 检查是否有顺序变化
         const hasOrderChanged = videoData.some((video, index) => {
@@ -288,14 +319,12 @@ function updateCardsList(videoData) {
             preloadThumbnails(newVideosToPreload);
         }
         
-        for (let i = 0; i < newCount; i++) {
-            const card = cardsContainer.children[i];
-            if (card) {
-                card.dataset.index = i;
-                updateCardTitle(card, i, videoData[i].isImage);
-                updateCardThumbnail(card, videoData[i]);
-            }
-        }
+        // 重新按 z-index 排序并创建卡片
+        cardsContainer.innerHTML = '';
+        sortedVideoData.forEach((video, sortedIndex) => {
+            const originalIndex = videoData.findIndex(v => v.video.src === video.video.src);
+            createCard(video, originalIndex);
+        });
         
         // 更新選中狀態顯示
         updateSelectionDisplay();
@@ -451,23 +480,27 @@ function createCard(videoData, index) {
     
     // 添加拖拽事件
     card.addEventListener('dragstart', (e) => {
-        console.log('Dragstart event on card', index);
+        // 使用當前的 dataset.index 而不是創建時的 index 參數
+        const currentIndex = parseInt(card.dataset.index);
+        console.log('Dragstart event on card with current index:', currentIndex);
+        
         // 确保拖拽事件能正常触发
         e.stopPropagation();
-        e.dataTransfer.setData('text/plain', index.toString());
+        e.dataTransfer.setData('text/plain', currentIndex.toString());
         // 设置拖拽效果
         e.dataTransfer.effectAllowed = 'move';
         
         // 添加延时，确保拖拽样式能被应用
         setTimeout(() => {
             card.classList.add('dragging');
-            console.log('Added dragging class');
+            console.log('Added dragging class to card with index:', currentIndex);
         }, 0);
     });
     
     card.addEventListener('dragend', () => {
+        const currentIndex = parseInt(card.dataset.index);
         card.classList.remove('dragging');
-        console.log('Removed dragging class');
+        console.log('Removed dragging class from card with index:', currentIndex);
     });
     
     // 創建縮略圖
@@ -1243,6 +1276,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // 初始化按鈕圖標
+document.querySelector('.apply-zindex-button').innerHTML = createSvgIcon('applyZIndex');
 document.querySelector('.saveLayout-button').innerHTML = createSvgIcon('save');
 document.querySelector('.loadLayout-button').innerHTML = createSvgIcon('load');
 document.querySelector('.refresh-button').innerHTML = createSvgIcon('refresh');
@@ -1357,65 +1391,169 @@ ipcRenderer.on('media-scale-updated', (event, { index, scale }) => {
 // 添加容器的拖拽事件
 cardsContainer.addEventListener('dragover', (e) => {
     e.preventDefault();
-    console.log('Dragover event');
     const afterElement = getDragAfterElement(cardsContainer, e.clientY);
     const draggable = document.querySelector('.dragging');
-    if (!draggable) {
-        console.log('No dragging element found');
-    }
+    
     if (draggable) {
+        const currentParent = draggable.parentNode;
+        const currentIndex = Array.from(currentParent.children).indexOf(draggable);
+        
         if (afterElement == null) {
+            // 拖拽到最下面
+            console.log('Moving dragging element to end');
             cardsContainer.appendChild(draggable);
         } else {
-            cardsContainer.insertBefore(draggable, afterElement);
+            // 拖拽到某個元素之前
+            const targetIndex = Array.from(cardsContainer.children).indexOf(afterElement);
+            console.log(`Moving dragging element from position ${currentIndex} to before position ${targetIndex}`);
+            
+            // 只有當位置真的不同時才移動
+            if (currentIndex !== targetIndex && currentIndex !== targetIndex - 1) {
+                cardsContainer.insertBefore(draggable, afterElement);
+                console.log('Element moved successfully');
+            }
         }
     }
 });
 
 cardsContainer.addEventListener('drop', (e) => {
     e.preventDefault();
-    console.log('Drop event');
+    console.log('=== Drop event started ===');
+    
     const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
     console.log('From index:', fromIndex);
+    
     const cards = Array.from(cardsContainer.querySelectorAll('.video-card'));
-    const toIndex = cards.indexOf(document.querySelector('.dragging'));
+    const draggingElement = document.querySelector('.dragging');
+    
+    console.log('Total cards:', cards.length);
+    console.log('Dragging element found:', !!draggingElement);
+    
+    if (!draggingElement) {
+        console.log('ERROR: No dragging element found in drop event');
+        return;
+    }
+    
+    const toIndex = cards.indexOf(draggingElement);
     console.log('To index:', toIndex);
     
-    if (fromIndex !== toIndex && toIndex !== -1) {
-        // 更新数据模型中的顺序
-        const movedItem = videos.splice(fromIndex, 1)[0];
-        videos.splice(toIndex, 0, movedItem);
+    // 驗證 fromIndex 和 toIndex 的有效性
+    if (isNaN(fromIndex)) {
+        console.log('ERROR: fromIndex is NaN:', fromIndex);
+        return;
+    }
+    
+    if (toIndex === -1) {
+        console.log('ERROR: dragging element not found in cards array');
+        return;
+    }
+    
+    // 添加更詳細的調試信息
+    cards.forEach((card, index) => {
+        const originalIndex = parseInt(card.dataset.index);
+        const isDragging = card.classList.contains('dragging');
+        console.log(`Visual position ${index}: original index ${originalIndex}, dragging: ${isDragging}`);
+    });
+    
+    if (fromIndex !== toIndex) {
+        console.log('Valid drop detected, processing z-index update');
         
-        // 更新卡片标题
-        cards.forEach((card, index) => {
-            card.dataset.index = index;
-            const title = card.querySelector('.card-title');
-            if (title) {
-                title.textContent = title.textContent.includes('圖片') 
-                    ? `Image ${index + 1}` 
-                    : `Video ${index + 1}`;
+        // 根據新的卡片順序重新分配 z-index
+        // 卡片順序：索引 0 對應 z-index 0，索引 1 對應 z-index 1，以此類推
+        const newZIndexOrder = [];
+        cards.forEach((card, visualIndex) => {
+            const originalIndex = parseInt(card.dataset.index);
+            if (!isNaN(originalIndex)) {
+                newZIndexOrder.push({
+                    originalIndex: originalIndex,
+                    newZIndex: visualIndex
+                });
             }
         });
         
-        // 通知主进程更新顺序
-        ipcRenderer.send('update-video-order', { fromIndex, toIndex });
+        console.log('New z-index order:', newZIndexOrder);
+        
+        // 檢查是否有實際的 z-index 變化
+        const hasZIndexChange = newZIndexOrder.some(({ originalIndex, newZIndex }) => {
+            const currentZIndex = parseInt(videos[originalIndex]?.video?.dataset?.zIndex) || parseInt(videos[originalIndex]?.zIndex) || 0;
+            const hasChange = currentZIndex !== newZIndex;
+            if (hasChange) {
+                console.log(`Z-index change detected: video ${originalIndex} from ${currentZIndex} to ${newZIndex}`);
+            }
+            return hasChange;
+        });
+        
+        console.log('Has z-index change:', hasZIndexChange);
+        console.log('From index !== to index:', fromIndex !== toIndex);
+        
+        // 即使沒有 z-index 變化，也要發送更新（可能是視覺順序變化）
+        if (hasZIndexChange || fromIndex !== toIndex) {
+            console.log('Sending update-zindex-order to main process');
+            // 通知主进程更新 z-index 順序
+            ipcRenderer.send('update-zindex-order', newZIndexOrder);
+        } else {
+            console.log('No update needed');
+        }
+        
+        // 更新卡片标题（保持原始索引）
+        cards.forEach((card, visualIndex) => {
+            const originalIndex = parseInt(card.dataset.index);
+            const videoData = videos[originalIndex];
+            if (videoData) {
+                updateCardTitle(card, originalIndex, videoData.isImage);
+            }
+        });
+    } else {
+        console.log('Drop cancelled - same position:');
+        console.log('  fromIndex:', fromIndex);
+        console.log('  toIndex:', toIndex);
     }
+    
+    console.log('=== Drop event ended ===');
 });
 
 // 辅助函数：获取拖拽后的位置
 function getDragAfterElement(container, y) {
     const draggableElements = [...container.querySelectorAll('.video-card:not(.dragging)')];
     
-    return draggableElements.reduce((closest, child) => {
+    if (draggableElements.length === 0) {
+        console.log('No draggable elements found (excluding .dragging)');
+        return null;
+    }
+    
+    console.log(`Checking ${draggableElements.length} elements for drop position at y=${y}`);
+    
+    // 檢查是否拖拽到第一個元素之前（頂部）
+    const firstElement = draggableElements[0];
+    const firstBox = firstElement.getBoundingClientRect();
+    const firstMidpoint = firstBox.top + firstBox.height / 2;
+    
+    console.log(`First element: top=${firstBox.top}, midpoint=${firstMidpoint}, drag y=${y}`);
+    
+    if (y < firstMidpoint) {
+        console.log('getDragAfterElement result: First element (drag to top)');
+        return firstElement;
+    }
+    
+    // 對於其他位置，找到最接近的元素
+    const result = draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
         
+        console.log(`Element at top=${box.top}, height=${box.height}, offset=${offset}`);
+        
         if (offset < 0 && offset > closest.offset) {
+            console.log('New closest element found');
             return { offset: offset, element: child };
         } else {
             return closest;
         }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }, { offset: Number.NEGATIVE_INFINITY });
+    
+    const afterElement = result.element;
+    console.log('getDragAfterElement result:', afterElement ? 'Element found' : 'null (will append to end)');
+    
+    return afterElement;
 }
 
 // 生成并缓存缩略图
@@ -1610,4 +1748,112 @@ function updateExistingCardsData(videoData) {
             console.log(`Updated card ${i} scale to:`, newScale);
         }
     }
-} 
+}
+
+// 監聽 z-index 更新事件
+ipcRenderer.on('zindex-updated', (event, updatedVideos) => {
+    console.log('Received z-index update:', updatedVideos);
+    
+    // 找到 z-index 最高的元素（剛被 Ctrl+左鍵置頂的元素）
+    let maxZIndex = -1;
+    let maxZIndexIndex = -1;
+    
+    updatedVideos.forEach(({ index, zIndex }) => {
+        if (zIndex > maxZIndex) {
+            maxZIndex = zIndex;
+            maxZIndexIndex = index;
+        }
+    });
+    
+    console.log(`Detected highest z-index: ${maxZIndex} at index ${maxZIndexIndex}`);
+    
+    if (maxZIndexIndex >= 0 && maxZIndexIndex < videos.length) {
+        // 更新本地數據的 z-index
+        updatedVideos.forEach(({ index, zIndex }) => {
+            if (index >= 0 && index < videos.length && videos[index]) {
+                if (!videos[index].video.dataset) {
+                    videos[index].video.dataset = {};
+                }
+                videos[index].video.dataset.zIndex = zIndex;
+                videos[index].zIndex = zIndex;
+            }
+        });
+        
+        // 強制將最高 z-index 的卡片移動到列表最下面
+        moveCardToBottom(maxZIndexIndex);
+    } else {
+        console.warn('Invalid max z-index index, falling back to full update');
+        // 如果找不到有效的最高 z-index，回退到完整更新
+        updateCardsList(videos);
+    }
+});
+
+// 將指定索引的卡片移動到列表最下面
+function moveCardToBottom(targetIndex) {
+    console.log(`Moving card at index ${targetIndex} to bottom of list`);
+    
+    const cards = Array.from(cardsContainer.querySelectorAll('.video-card'));
+    let targetCard = null;
+    
+    // 找到目標卡片
+    cards.forEach(card => {
+        const cardIndex = parseInt(card.dataset.index);
+        if (cardIndex === targetIndex) {
+            targetCard = card;
+        }
+    });
+    
+    if (targetCard) {
+        // 將目標卡片移動到容器的最後
+        cardsContainer.appendChild(targetCard);
+        console.log(`Successfully moved card ${targetIndex} to bottom`);
+        
+        // 更新所有卡片的視覺索引（保持原始 dataset.index 不變）
+        const allCards = Array.from(cardsContainer.querySelectorAll('.video-card'));
+        allCards.forEach((card, visualIndex) => {
+            // 不改變 dataset.index，只更新視覺順序
+            console.log(`Card with original index ${card.dataset.index} is now at visual position ${visualIndex}`);
+        });
+    } else {
+        console.warn(`Could not find card with index ${targetIndex}`);
+        // 如果找不到目標卡片，回退到完整更新
+        updateCardsList(videos);
+    }
+}
+
+// 添加應用 Z-Index 按鈕事件監聽器
+document.querySelector('.apply-zindex-button').addEventListener('click', () => {
+    console.log('Apply Z-Index button clicked');
+    
+    // 獲取當前卡片的視覺順序
+    const cards = Array.from(cardsContainer.querySelectorAll('.video-card'));
+    const newZIndexOrder = [];
+    
+    cards.forEach((card, visualIndex) => {
+        const originalIndex = parseInt(card.dataset.index);
+        if (!isNaN(originalIndex)) {
+            newZIndexOrder.push({
+                originalIndex: originalIndex,
+                newZIndex: visualIndex
+            });
+        }
+    });
+    
+    console.log('Applying z-index order based on current visual order:', newZIndexOrder);
+    
+    if (newZIndexOrder.length > 0) {
+        // 發送到主進程更新 z-index
+        ipcRenderer.send('update-zindex-order', newZIndexOrder);
+        
+        // 顯示反饋
+        const button = document.querySelector('.apply-zindex-button');
+        const originalColor = button.style.color;
+        button.style.color = '#4CAF50';
+        
+        setTimeout(() => {
+            button.style.color = originalColor;
+        }, 300);
+    } else {
+        console.log('No cards found to apply z-index');
+    }
+}); 

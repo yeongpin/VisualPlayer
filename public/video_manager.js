@@ -520,9 +520,11 @@ class VideoManager {
                                 scale: v.scale,
                                 rotation: v.rotation,
                                 flipX: v.flipX,
-                                flipY: v.flipY
+                                flipY: v.flipY,
+                                zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                             }
-                        }
+                        },
+                        zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                     }))
                 });
             };
@@ -707,10 +709,21 @@ class VideoManager {
             wrapper.style.left = offset + 'px';
             wrapper.style.top = offset + 'px';
             
+            // 設置初始 z-index，按加入順序遞增
+            const initialZIndex = this.mainManager.videos.length;
+            wrapper.style.zIndex = initialZIndex;
+            
             wrapper.addEventListener('mousedown', (e) => this.mainManager.eventHandlers.handleMouseDown(e));
             wrapper.addEventListener('wheel', (e) => this.mainManager.eventHandlers.handleWheel(e));
             
             document.body.appendChild(wrapper);
+            
+            // 確保 video.dataset 存在並設置 z-index
+            if (!video.dataset) {
+                video.dataset = {};
+            }
+            video.dataset.zIndex = initialZIndex;
+            
             this.mainManager.videos.push({ 
                 wrapper, 
                 video, 
@@ -766,9 +779,11 @@ class VideoManager {
                             scale: v.scale,
                             rotation: v.rotation,
                             flipX: v.flipX,
-                            flipY: v.flipY
+                            flipY: v.flipY,
+                            zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                         }
-                    }
+                    },
+                    zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                 }))
             });
 

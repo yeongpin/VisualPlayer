@@ -1,6 +1,32 @@
 {
     "versions": [
         {
+            "version": "v1.5.1-Beta", 
+            "date": "2025-07-02",
+            "changes": [
+                {
+                    "key": "settings.changelog.addZIndexApplyButton",
+                    "description": "新增應用當前順序到圖層按鈕，可一鍵將卡片視覺順序應用到 Z-Index"
+                },
+                {
+                    "key": "settings.changelog.improveCardsDragDrop",
+                    "description": "改進卡片拖拽排序功能，修復拖拽到頂部位置的檢測問題"
+                },
+                {
+                    "key": "settings.changelog.enhanceDragDetection",
+                    "description": "增強拖拽檢測邏輯，添加詳細調試信息和位置計算優化"
+                },
+                {
+                    "key": "settings.changelog.addZIndexManualControl",
+                    "description": "新增手動 Z-Index 控制選項，提供拖拽和按鈕兩種排序方式"
+                },
+                {
+                    "key": "settings.changelog.optimizeDragOverLogic",
+                    "description": "優化 dragover 事件處理邏輯，確保元素正確移動到目標位置"
+                }
+            ]
+        },
+        {
             "version": "v1.5.0-Beta", 
             "date": "2025-07-01",
             "changes": [

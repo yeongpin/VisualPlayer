@@ -205,7 +205,12 @@
             "optimizeScaleSync": "⚡ 優化 scale 同步機制，提升主窗口與卡片窗口的數據一致性",
             "fixCardsDataListener": "🔧 修復卡片窗口事件監聽器，確保從主進程轉發的數據正確處理",
             "fixDragDropInterference": "🐛 修復卡片拖動時錯誤顯示 dropzone 和重複添加媒體的問題",
-            "improveDragDetection": "⚡ 改進拖動事件檢測機制，正確區分內部拖動和外部文件拖入"
+            "improveDragDetection": "⚡ 改進拖動事件檢測機制，正確區分內部拖動和外部文件拖入",
+            "addZIndexApplyButton": "✅ 新增應用當前順序到圖層按鈕，可一鍵將卡片視覺順序應用到 Z-Index",
+            "improveCardsDragDrop": "🔧 改進卡片拖拽排序功能，修復拖拽到頂部位置的檢測問題",
+            "enhanceDragDetection": "🔍 增強拖拽檢測邏輯，添加詳細調試信息和位置計算優化",
+            "addZIndexManualControl": "🎛️ 新增手動 Z-Index 控制選項，提供拖拽和按鈕兩種排序方式",
+            "optimizeDragOverLogic": "⚡ 優化 dragover 事件處理邏輯，確保元素正確移動到目標位置"
         },
         "keybinding": {
             "playPause": "播放/暫停",
@@ -263,6 +268,7 @@
         },
         "cards": {
             "title": "視頻卡片列表",
+            "applyZIndex": "應用當前順序到圖層",
             "saveLayout": "保存佈局",
             "loadLayout": "加載佈局",
             "refresh": "刷新列表",

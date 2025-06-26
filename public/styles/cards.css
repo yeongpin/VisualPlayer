@@ -320,6 +320,16 @@ body {
     transition: transform 0.2s;
 }
 
+/* 應用 Z-Index 按鈕特效 */
+.apply-zindex-button:hover svg {
+    transform: scale(1.1);
+    color: #4CAF50;
+}
+
+.apply-zindex-button:active svg {
+    transform: scale(0.95);
+}
+
 /* 保存布局按鈕特效 */
 .saveLayout-button:hover svg {
     transform: scale(1.1);

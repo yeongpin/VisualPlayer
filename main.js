@@ -772,6 +772,19 @@ ipcMain.on('update-cards', (event, data) => {
     }
 });
 
+// 處理卡片窗口請求刷新數據
+ipcMain.on('request-cards-refresh', (event) => {
+    console.log('Cards window requested data refresh');
+    
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        // 請求主窗口發送最新的完整視頻數據
+        mainWindow.webContents.send('request-videos-data');
+    }
+});
+
 // 處理請求 filterValues 的事件
 ipcMain.on('request-filter-values', (event, index) => {
     // 轉發窗口
@@ -1841,6 +1854,19 @@ ipcMain.on('update-video-order', (event, { fromIndex, toIndex }) => {
             win.webContents.send('video-order-updated', { fromIndex, toIndex });
         }
     });
+});
+
+// 處理 z-index 順序更新
+ipcMain.on('update-zindex-order', (event, newZIndexOrder) => {
+    console.log('Received z-index order update:', newZIndexOrder);
+    
+    // 通知主窗口更新 z-index
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        mainWindow.webContents.send('update-zindex-order', newZIndexOrder);
+    }
 });
 
 // 處理來自 cards 窗口的文件拖拽

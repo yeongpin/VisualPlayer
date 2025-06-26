@@ -205,7 +205,12 @@
             "optimizeScaleSync": "⚡ Optimize scale synchronization mechanism for better data consistency between main and cards windows",
             "fixCardsDataListener": "🔧 Fix cards window event listeners to ensure proper handling of data forwarded from main process",
             "fixDragDropInterference": "🐛 Fix incorrect dropzone display and duplicate media addition during card dragging",
-            "improveDragDetection": "⚡ Improve drag event detection mechanism to correctly distinguish internal dragging from external file drops"
+            "improveDragDetection": "⚡ Improve drag event detection mechanism to correctly distinguish internal dragging from external file drops",
+            "addZIndexApplyButton": "✅ Add apply current order to Z-Index button for one-click card visual order application",
+            "improveCardsDragDrop": "🔧 Improve card drag-and-drop sorting functionality, fix drag-to-top position detection issues",
+            "enhanceDragDetection": "🔍 Enhance drag detection logic with detailed debugging information and position calculation optimization",
+            "addZIndexManualControl": "🎛️ Add manual Z-Index control options, providing both drag and button sorting methods",
+            "optimizeDragOverLogic": "⚡ Optimize dragover event handling logic to ensure elements move correctly to target positions"
         },
         "keybinding": {
             "playPause": "Play/Pause",
@@ -263,6 +268,7 @@
         },
         "cards": {
             "title": "Video Card List",
+            "applyZIndex": "Apply Current Order to Z-Index",
             "saveLayout": "Save Layout",
             "loadLayout": "Load Layout",
             "refresh": "Refresh List",

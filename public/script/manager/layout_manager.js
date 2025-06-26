@@ -121,9 +121,11 @@ class LayoutManager {
                                             scale: v.scale,
                                             rotation: v.rotation,
                                             flipX: v.flipX,
-                                            flipY: v.flipY
+                                            flipY: v.flipY,
+                                            zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                                         }
-                                    }
+                                    },
+                                    zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                                 }))
                             });
                         }

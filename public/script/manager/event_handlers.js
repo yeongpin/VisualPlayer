@@ -14,12 +14,74 @@ class EventHandlers {
         const wrapper = e.target.closest('.video-wrapper');
         if (wrapper) {
             if (e.ctrlKey && e.button === 0) {
-                // 獲取所有 .video-wrapper 的 zIndex 值，並找到最高值
-                const highestZIndex = Array.from(document.querySelectorAll('.video-wrapper'))
-                    .map(w => parseInt(w.style.zIndex) || 0)
-                    .reduce((max, current) => Math.max(max, current), 0);
-        
-                wrapper.style.zIndex = highestZIndex + 3;
+                // 重新排序 z-index，將當前元素置頂，其他元素依序下移
+                const allWrappers = Array.from(document.querySelectorAll('.video-wrapper'));
+                const currentZIndex = parseInt(wrapper.style.zIndex) || 0;
+                const maxZIndex = allWrappers.length - 1;
+                
+                // 將所有 z-index 大於當前值的元素減 1
+                allWrappers.forEach(w => {
+                    const wZIndex = parseInt(w.style.zIndex) || 0;
+                    if (wZIndex > currentZIndex) {
+                        w.style.zIndex = wZIndex - 1;
+                    }
+                });
+                
+                // 將當前元素設為最高層
+                wrapper.style.zIndex = maxZIndex;
+                
+                // 更新對應 videoData 中的 dataset.zIndex
+                const videoData = this.mainManager.videos.find(v => v.wrapper === wrapper);
+                if (videoData) {
+                    const oldZIndex = parseInt(videoData.video.dataset?.zIndex) || 0;
+                    if (!videoData.video.dataset) {
+                        videoData.video.dataset = {};
+                    }
+                    videoData.video.dataset.zIndex = maxZIndex;
+                    console.log(`Ctrl+Click: Updated video z-index from ${oldZIndex} to ${maxZIndex}, wrapper z-index: ${wrapper.style.zIndex}`);
+                } else {
+                    console.warn('Ctrl+Click: Could not find videoData for wrapper');
+                }
+                
+                // 通知 cards 窗口更新完整數據（包括 z-index）
+                const { ipcRenderer } = require('electron');
+                
+                // 發送完整的 update-cards 事件，確保數據同步
+                ipcRenderer.send('update-cards', {
+                    videos: this.mainManager.videos.map(v => ({
+                        isImage: v.isImage,
+                        video: {
+                            src: v.video.src,
+                            dataset: {
+                                originalFileName: v.video.dataset.originalFileName,
+                                scale: v.scale || 1.0,
+                                rotation: v.rotation || 0,
+                                flipX: v.flipX || false,
+                                flipY: v.flipY || false,
+                                zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
+                            }
+                        },
+                        zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
+                    }))
+                });
+                
+                // 同時發送 z-index 專用更新事件（保持向後兼容）
+                const updatedVideos = this.mainManager.videos.map((v, index) => ({
+                    index: index,
+                    zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
+                }));
+                
+                const cardsWindows = require('@electron/remote').BrowserWindow.getAllWindows().filter(win => 
+                    win.webContents.getURL().includes('cards.html')
+                );
+                
+                cardsWindows.forEach(win => {
+                    if (!win.isDestroyed()) {
+                        win.webContents.send('zindex-updated', updatedVideos);
+                    }
+                });
+                
+                console.log('Z-index updated after Ctrl+click, notified cards window with full data update');
                 e.preventDefault();
                 return;
             }
@@ -73,9 +135,11 @@ class EventHandlers {
                                     scale: v.scale,
                                     rotation: v.rotation,
                                     flipX: v.flipX,
-                                    flipY: v.flipY
+                                    flipY: v.flipY,
+                                    zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                                 }
-                            }
+                            },
+                            zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                         }))
                     });
                 }
@@ -89,9 +153,7 @@ class EventHandlers {
                 y: e.clientY - rect.top
             };
             
-            if (e.ctrlKey) {
-                this.dragTarget.style.zIndex = this.mainManager.getTopZIndex() + 1;
-            }
+            // 置頂邏輯已在 mousedown 事件中處理
         } else if (e.button === 2 && e.shiftKey) {
             e.preventDefault();
             this.dragTarget = e.currentTarget;
@@ -194,9 +256,11 @@ class EventHandlers {
                                 scale: v.scale || 1.0,
                                 rotation: v.rotation || 0,
                                 flipX: v.flipX || false,
-                                flipY: v.flipY || false
+                                flipY: v.flipY || false,
+                                zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                             }
-                        }
+                        },
+                        zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                     }))
                 });
             }
