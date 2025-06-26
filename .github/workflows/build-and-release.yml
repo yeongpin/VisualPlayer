@@ -1,0 +1,222 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Get package version
+      id: package-version
+      shell: bash
+      run: |
+        VERSION=$(node -p "require('./package.json').version")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build for Windows
+      if: matrix.os == 'windows-latest'
+      run: npm run build:win
+      
+    - name: Build for macOS
+      if: matrix.os == 'macos-latest'
+      run: npm run build:mac
+      
+    - name: Upload Windows artifacts
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-build
+        path: |
+          dist/*.exe
+          dist/*.msi
+          dist/*.zip
+        retention-days: 7
+          
+    - name: Upload macOS artifacts
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-build
+        path: |
+          dist/*.dmg
+          dist/*.zip
+          dist/*.app
+        retention-days: 7
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 獲取完整的 git 歷史
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Get package version
+      id: package-version
+      run: |
+        VERSION=$(node -p "require('./package.json').version")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+        
+    - name: Check if tag exists
+      id: check-tag
+      run: |
+        if git rev-parse "refs/tags/v${{ steps.package-version.outputs.version }}" >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "Tag v${{ steps.package-version.outputs.version }} already exists"
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "Tag v${{ steps.package-version.outputs.version }} does not exist"
+        fi
+        
+    - name: Create tag
+      if: steps.check-tag.outputs.exists == 'false'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git tag -a "v${{ steps.package-version.outputs.version }}" -m "Release v${{ steps.package-version.outputs.version }}"
+        git push origin "v${{ steps.package-version.outputs.version }}"
+        
+    - name: Download Windows artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-build
+        path: ./artifacts/windows/
+        
+    - name: Download macOS artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: macos-build
+        path: ./artifacts/macos/
+        
+    - name: List artifacts
+      run: |
+        echo "Windows artifacts:"
+        find ./artifacts/windows/ -type f || echo "No Windows artifacts found"
+        echo "macOS artifacts:"
+        find ./artifacts/macos/ -type f || echo "No macOS artifacts found"
+        
+    - name: Check if release exists and delete if needed
+      id: check-release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/v${{ steps.package-version.outputs.version }} --jq '.id' 2>/dev/null || echo "")
+        if [ -n "$RELEASE_ID" ]; then
+          echo "Release exists with ID: $RELEASE_ID"
+          echo "Deleting existing release..."
+          gh api -X DELETE repos/${{ github.repository }}/releases/$RELEASE_ID
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "Release does not exist"
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+          
+    - name: Create Release
+      id: create-release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # 創建 release notes
+        cat > release_notes.md << 'EOF'
+        ## 🎉 Release v${{ steps.package-version.outputs.version }}
+        
+        ### 📦 Downloads
+        - **Windows**: Download the `.exe` or `.msi` file
+        - **macOS**: Download the `.dmg` file
+        
+        ### 📋 Changelog
+        See the changelog for detailed changes in this release.
+        
+        ### 🐛 Bug Reports
+        If you encounter any issues, please report them in the Issues section.
+        EOF
+        
+        # 創建 release
+        gh release create "v${{ steps.package-version.outputs.version }}" \
+          --title "Release v${{ steps.package-version.outputs.version }}" \
+          --notes-file release_notes.md \
+          --latest
+        
+    - name: Upload release assets
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # 上傳 Windows 文件
+        for file in ./artifacts/windows/*; do
+          if [ -f "$file" ]; then
+            filename=$(basename "$file")
+            extension="${filename##*.}"
+            case $extension in
+              exe)
+                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-win.exe"
+                ;;
+              msi)
+                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-win.msi"
+                ;;
+              zip)
+                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-win.zip"
+                ;;
+              *)
+                new_name="$filename"
+                ;;
+            esac
+            echo "Uploading Windows file: $file as $new_name"
+            gh release upload "v${{ steps.package-version.outputs.version }}" "$file#$new_name"
+          fi
+        done
+        
+        # 上傳 macOS 文件
+        for file in ./artifacts/macos/*; do
+          if [ -f "$file" ]; then
+            filename=$(basename "$file")
+            extension="${filename##*.}"
+            case $extension in
+              dmg)
+                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-mac.dmg"
+                ;;
+              zip)
+                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-mac.zip"
+                ;;
+              app)
+                new_name="VisualPlayer-v${{ steps.package-version.outputs.version }}-mac.app"
+                ;;
+              *)
+                new_name="$filename"
+                ;;
+            esac
+            echo "Uploading macOS file: $file as $new_name"
+            gh release upload "v${{ steps.package-version.outputs.version }}" "$file#$new_name"
+          fi
+        done 
