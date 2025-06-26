@@ -129,6 +129,40 @@ jobs:
         run: echo "VERSION=${{ needs.check-version.outputs.version }}" >> $GITHUB_ENV
         shell: bash
 
+      # Download and extract FFmpeg files
+      - name: Download FFmpeg
+        run: |
+          echo "Downloading FFmpeg files..."
+          curl -L -o external.rar "https://github.com/yeongpin/VisualPlayer/releases/download/ffmpeg/external.rar"
+          echo "FFmpeg downloaded successfully"
+        shell: bash
+        
+      # Extract FFmpeg files
+      - name: Extract FFmpeg
+        run: |
+          echo "Extracting FFmpeg files..."
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            # Windows: Use built-in tar (supports rar in newer versions) or 7zip
+            powershell -command "Expand-Archive -Path external.rar -DestinationPath . -Force" || echo "Trying alternative extraction method..."
+            # Alternative: Use 7zip if available
+            if command -v 7z &> /dev/null; then
+              7z x external.rar -y
+            else
+              echo "Warning: Could not extract RAR file on Windows"
+            fi
+          else
+            # macOS/Linux: Install unrar and extract
+            if [ "${{ matrix.os }}" = "macos-latest" ]; then
+              brew install unrar
+            else
+              sudo apt-get update && sudo apt-get install -y unrar
+            fi
+            unrar x external.rar -y
+          fi
+          echo "FFmpeg extraction completed"
+          ls -la external/ || echo "External directory not found"
+        shell: bash
+
       # Install dependencies
       - name: Install Dependencies
         run: npm ci
