@@ -106,11 +106,8 @@ jobs:
     
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [windows-latest]
         arch: [x64]
-        include:
-          - os: macos-latest
-            arch: arm64
         node-version: [18.x]
 
     steps:
@@ -137,42 +134,21 @@ jobs:
           echo "FFmpeg downloaded successfully"
         shell: bash
         
-      # Extract FFmpeg files
+      # Extract FFmpeg files (Windows only)
       - name: Extract FFmpeg
         run: |
-          echo "Extracting FFmpeg files..."
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            # Windows: Use built-in tar (supports rar in newer versions) or 7zip
-            powershell -command "Expand-Archive -Path external.rar -DestinationPath . -Force" || echo "Trying alternative extraction method..."
-            # Alternative: Use 7zip if available
-            if command -v 7z &> /dev/null; then
-              7z x external.rar -y
-            else
-              echo "Warning: Could not extract RAR file on Windows"
-            fi
-          else
-            # macOS/Linux: Install unrar and extract
-            if [ "${{ matrix.os }}" = "macos-latest" ]; then
-              brew install unrar
-            else
-              sudo apt-get update && sudo apt-get install -y unrar
-            fi
-            unrar x external.rar -y
-          fi
+          echo "Extracting FFmpeg files for Windows..."
+          # Install 7zip via chocolatey
+          choco install 7zip -y
+          # Extract using 7zip
+          7z x external.rar -y
           echo "FFmpeg extraction completed"
-          ls -la external/ || echo "External directory not found"
-        shell: bash
+          dir external\ || echo "External directory not found"
+        shell: cmd
 
       # Install dependencies
       - name: Install Dependencies
         run: npm ci
-        
-      # Install dmg-license only for macOS builds
-      - name: Install dmg-license for macOS
-        if: matrix.os == 'macos-latest'
-        run: |
-          echo "Installing dmg-license for macOS DMG creation..."
-          npm install dmg-license --no-save
         
       # Build the application
       - name: Build Application
@@ -195,32 +171,21 @@ jobs:
           echo "Dist directory contents:"
           ls -la dist/ || echo "No dist directory found"
         
-      # Rename and organize artifacts
+      # Rename and organize artifacts (Windows only)
       - name: Process Artifacts
-        shell: bash
+        shell: cmd
         run: |
-          mkdir -p ./artifacts
-          VERSION_NUM=$(echo "${{ env.VERSION }}" | sed 's/^v//')
+          mkdir artifacts
+          set VERSION_NUM=%VERSION:~1%
           
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            # Windows artifacts
-            find dist -name "*.exe" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_win_x64_setup.exe" \; || true
-            find dist -name "*.msi" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_win_x64.msi" \; || true
-            find dist -name "*.zip" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_win_x64_portable.zip" \; || true
-          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
-            # macOS artifacts
-            if [ "${{ matrix.arch }}" = "arm64" ]; then
-              find dist -name "*arm64*.dmg" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_mac_arm64.dmg" \; || true
-              find dist -name "*arm64*.zip" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_mac_arm64.zip" \; || true
-            else
-              find dist -name "*.dmg" -not -name "*arm64*" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_mac_x64.dmg" \; || true
-              find dist -name "*.zip" -not -name "*arm64*" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_mac_x64.zip" \; || true
-            fi
-          fi
+          REM Windows artifacts
+          for %%f in (dist\*.exe) do copy "%%f" "artifacts\VisualPlayer_%VERSION_NUM%_win_x64_setup.exe"
+          for %%f in (dist\*.msi) do copy "%%f" "artifacts\VisualPlayer_%VERSION_NUM%_win_x64.msi"
+          for %%f in (dist\*.zip) do copy "%%f" "artifacts\VisualPlayer_%VERSION_NUM%_win_x64_portable.zip"
           
-          # Show artifacts directory contents for verification
-          echo "Artifacts directory contents:"
-          ls -la ./artifacts/ || echo "No artifacts created"
+          REM Show artifacts directory contents for verification
+          echo Artifacts directory contents:
+          dir artifacts\
         
       # Upload build artifacts
       - name: Upload Artifacts
