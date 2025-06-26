@@ -1,26 +1,80 @@
-name: Build and Release
+name: Build and Release VisualPlayer
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: write
   packages: write
 
 jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      tag_exists: ${{ steps.check_tag.outputs.exists }}
+      should_build: ${{ steps.check_tag.outputs.should_build }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get version from package.json
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=v$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: v$VERSION"
+      
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "should_build=false" >> $GITHUB_OUTPUT
+            echo "Tag $VERSION already exists, skipping build"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "Tag $VERSION does not exist, will create and build"
+          fi
+
+  create-tag:
+    needs: check-version
+    runs-on: ubuntu-latest
+    if: needs.check-version.outputs.should_build == 'true'
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create and push tag
+        run: |
+          VERSION="${{ needs.check-version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin "$VERSION"
+          echo "Created and pushed tag: $VERSION"
+
   build:
+    needs: [check-version, create-tag]
     runs-on: ${{ matrix.os }}
+    if: needs.check-version.outputs.should_build == 'true'
     
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-        arch: [x64, arm64]
-        exclude:
-          - os: windows-latest
-            arch: arm64
-          - os: ubuntu-latest
+        os: [windows-latest, macos-latest]
+        arch: [x64]
+        include:
+          - os: macos-latest
             arch: arm64
         node-version: [18.x]
 
@@ -35,13 +89,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
           architecture: ${{ matrix.arch }}
           cache: 'npm'
-          
-      - name: Get version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      
+      - name: Set version environment
+        run: echo "VERSION=${{ needs.check-version.outputs.version }}" >> $GITHUB_ENV
         shell: bash
 
-      # Clean install dependencies
+      # Install dependencies
       - name: Install Dependencies
         run: npm ci
         
@@ -51,7 +104,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARCH: ${{ matrix.arch }}
-          # macOS signing and notarization
+          # macOS signing and notarization (optional)
           CSC_LINK: ${{ secrets.MAC_CERTIFICATE }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -59,33 +112,39 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           DEBUG: electron-builder
           
-      # List dist directory contents
+      # List dist directory contents for debugging
       - name: List dist directory
         shell: bash
         run: |
           echo "Dist directory contents:"
-          ls -la dist/
+          ls -la dist/ || echo "No dist directory found"
         
       # Rename and organize artifacts
       - name: Process Artifacts
         shell: bash
         run: |
           mkdir -p ./artifacts
+          VERSION_NUM=$(echo "${{ env.VERSION }}" | sed 's/^v//')
+          
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            find dist -name "*.exe" -exec cp {} "./artifacts/VisualPlayer_${{ env.VERSION }}_win_setup.exe" \; || true
+            # Windows artifacts
+            find dist -name "*.exe" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_win_x64_setup.exe" \; || true
+            find dist -name "*.msi" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_win_x64.msi" \; || true
+            find dist -name "*.zip" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_win_x64_portable.zip" \; || true
           elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+            # macOS artifacts
             if [ "${{ matrix.arch }}" = "arm64" ]; then
-              find dist -name "*-arm64.dmg" -exec cp {} "./artifacts/VisualPlayer_${{ env.VERSION }}_mac_arm64.dmg" \; || true
+              find dist -name "*arm64*.dmg" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_mac_arm64.dmg" \; || true
+              find dist -name "*arm64*.zip" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_mac_arm64.zip" \; || true
             else
-              find dist -name "*.dmg" -not -name "*-arm64.dmg" -exec cp {} "./artifacts/VisualPlayer_${{ env.VERSION }}_mac.dmg" \; || true
+              find dist -name "*.dmg" -not -name "*arm64*" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_mac_x64.dmg" \; || true
+              find dist -name "*.zip" -not -name "*arm64*" -exec cp {} "./artifacts/VisualPlayer_${VERSION_NUM}_mac_x64.zip" \; || true
             fi
-          else
-            find dist -name "*.AppImage" -exec cp {} "./artifacts/VisualPlayer_${{ env.VERSION }}_linux.AppImage" \; || true
           fi
           
-          # 显示artifacts目录内容以验证
+          # Show artifacts directory contents for verification
           echo "Artifacts directory contents:"
-          ls -la ./artifacts/
+          ls -la ./artifacts/ || echo "No artifacts created"
         
       # Upload build artifacts
       - name: Upload Artifacts
@@ -96,27 +155,73 @@ jobs:
           retention-days: 1
           
   release:
-    needs: build
+    needs: [check-version, build]
     runs-on: ubuntu-latest
+    if: needs.check-version.outputs.should_build == 'true'
     permissions:
       contents: write
     
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
           
-      - name: List Files
-        run: ls -R
-        working-directory: artifacts
+      - name: List Downloaded Files
+        run: |
+          echo "Downloaded artifacts:"
+          ls -R artifacts/
         
-      - name: Create Release
+      - name: Get Changelog for Version
+        id: changelog
+        run: |
+          VERSION="${{ needs.check-version.outputs.version }}"
+          VERSION_NUM=$(echo "$VERSION" | sed 's/^v//')
+          
+          # Extract changelog for current version from changelog.json
+          if [ -f "public/changelog.json" ]; then
+            CHANGELOG=$(node -e "
+              const fs = require('fs');
+              const changelog = JSON.parse(fs.readFileSync('public/changelog.json', 'utf8'));
+              const version = changelog.versions.find(v => v.version === 'v${VERSION_NUM}-Beta');
+              if (version) {
+                let output = '## 🚀 ' + version.version + ' (' + version.date + ')\\n\\n';
+                version.changes.forEach(change => {
+                  output += '- ' + change.description + '\\n';
+                });
+                console.log(output);
+              } else {
+                console.log('## 🚀 ${VERSION}\\n\\nNew release of VisualPlayer');
+              }
+            ")
+            echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGELOG" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "CHANGELOG=## 🚀 $VERSION\n\nNew release of VisualPlayer" >> $GITHUB_OUTPUT
+          fi
+        
+      - name: Delete existing release if exists
+        run: |
+          VERSION="${{ needs.check-version.outputs.version }}"
+          # Try to delete existing release (will fail silently if not exists)
+          gh release delete "$VERSION" --yes || echo "Release $VERSION does not exist, proceeding with creation"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Create or Update Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Visual Player ${{ github.ref_name }}
+          tag_name: ${{ needs.check-version.outputs.version }}
+          name: VisualPlayer ${{ needs.check-version.outputs.version }}
+          body: ${{ steps.changelog.outputs.CHANGELOG }}
           files: artifacts/**/*
           draft: false
-          prerelease: false
+          prerelease: true
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

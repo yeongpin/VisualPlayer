@@ -6,9 +6,6 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
-    "build:win": "electron-builder --win",
-    "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux",
     "pack": "electron-builder --dir"
   },
   "author": {
@@ -45,7 +42,6 @@
         }
       ],
       "icon": "Logo.ico",
-      "artifactName": "${productName}-${version}-win-${arch}.${ext}",
       "fileAssociations": [
         {
           "ext": [
@@ -114,7 +110,6 @@
       ],
       "icon": "Logo.png",
       "category": "public.app-category.video",
-      "artifactName": "${productName}-${version}-mac-${arch}.${ext}",
       "fileAssociations": [
         {
           "ext": [
@@ -133,16 +128,8 @@
           ],
           "name": "Video File",
           "description": "Visual Player Video File",
-          "icon": "Logo.png",
           "role": "Editor"
-        }
-      ],
-      "hardenedRuntime": true,
-      "gatekeeperAssess": false,
-      "notarize": false
-    },
-    "linux": {
-      "target": [
+        },
         {
           "ext": [
             "jpg",
@@ -155,7 +142,6 @@
           ],
           "name": "Image File",
           "description": "Visual Player Image File",
-          "icon": "Logo.png",
           "role": "Editor"
         },
         {
@@ -173,7 +159,70 @@
           ],
           "name": "RAW Image File",
           "description": "Visual Player RAW Image File",
-          "icon": "Logo.png",
+          "role": "Editor"
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "Logo.png",
+      "category": "AudioVideo",
+      "fileAssociations": [
+        {
+          "ext": [
+            "mp4",
+            "avi",
+            "mkv",
+            "mov",
+            "wmv",
+            "flv",
+            "webm",
+            "m4v",
+            "3gp",
+            "ts",
+            "mts",
+            "m2ts"
+          ],
+          "name": "Video File",
+          "description": "Visual Player Video File",
+          "role": "Editor"
+        },
+        {
+          "ext": [
+            "jpg",
+            "jpeg",
+            "png",
+            "gif",
+            "bmp",
+            "webp",
+            "svg"
+          ],
+          "name": "Image File",
+          "description": "Visual Player Image File",
+          "role": "Editor"
+        },
+        {
+          "ext": [
+            "arw",
+            "cr2",
+            "cr3",
+            "dng",
+            "nef",
+            "orf",
+            "raf",
+            "rw2",
+            "pef",
+            "srw"
+          ],
+          "name": "RAW Image File",
+          "description": "Visual Player RAW Image File",
           "role": "Editor"
         }
       ]
