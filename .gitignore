@@ -6,6 +6,7 @@ dist
 # 保留build目錄中的安裝腳本，但忽略其他構建文件
 build/*
 !build/installer.nsh
+!build/entitlements.mac.plist
 
 # 忽略单个文件
 public/script_copy.js
