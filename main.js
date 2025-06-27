@@ -235,6 +235,11 @@ function createWindow() {
         if (cardsWindow && !cardsWindow.isDestroyed()) {
             cardsWindow.close();
         }
+
+        if (moveableWindow && !moveableWindow.isDestroyed()) {
+            moveableWindow.close();
+        }
+
         cardsWindow = null;
         mainWindow = null;
     });
@@ -915,6 +920,16 @@ ipcMain.on('apply-warp-transform', (event, { index, transform }) => {
     // 關閉 Moveable 窗口
     if (moveableWindow) {
         moveableWindow.close();
+    }
+});
+
+// 處理實時預覽變形的請求
+ipcMain.on('preview-warp-transform', (event, { index, transform }) => {
+    const mainWindow = BrowserWindow.getAllWindows().find(win => 
+        win.webContents.getURL().includes('index.html')
+    );
+    if (mainWindow) {
+        mainWindow.webContents.send('preview-warp-transform', { index, transform });
     }
 });
 

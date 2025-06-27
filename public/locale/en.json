@@ -230,7 +230,13 @@
             "addMultiLanguageUpdater": "🌐 Version update system supports multiple languages (Traditional Chinese, English)",
             "addAutoInstallDetection": "🔍 Automatically detect downloaded installation files to avoid duplicate downloads",
             "fixWindowParentRelation": "🐛 Fix version update window parent-child relationship with main window for synchronized closing",
-            "addDraggableUpdateWindow": "🎨 Version update window supports dragging functionality for improved user experience"
+            "addDraggableUpdateWindow": "🎨 Version update window supports dragging functionality for improved user experience",
+            "fixWarpEditorMatrixCalculation": "🐛 Fix Warp Editor matrix calculation issue, resolve entire image movement when dragging single control point",
+            "optimizeWrapperSizing": "⚡ Optimize wrapper sizing calculation logic, directly calculate correct display size during creation",
+            "improveMediaElementLayout": "🔧 Improve media element layout using auto sizing and flexbox centering for accurate transform calculations",
+            "unifyWarpTransformBehavior": "🔄 Unify warp transform behavior between main window and Warp Editor for consistent matrix3d calculations",
+            "removeComplexCoordinateConversion": "🧹 Remove complex coordinate conversion logic, adopt pre-calculated sizing approach for simplicity",
+            "enhanceWarpEditorAccuracy": "🎯 Significantly enhance Warp Editor transform accuracy, achieve pixel-perfect warp effects"
         },
         "keybinding": {
             "playPause": "Play/Pause",

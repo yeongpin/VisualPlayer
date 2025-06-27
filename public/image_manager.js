@@ -15,14 +15,36 @@ class ImageManager {
             const originalWidth = tempImg.width;
             const originalHeight = tempImg.height;
             
-            // 設置初始尺寸，保持原始比例
-            const maxInitialWidth = 520;  // 最大初始寬度
-            const scale = Math.min(1, maxInitialWidth / originalWidth);
-            wrapper.style.width = `${originalWidth * scale}px`;
-            wrapper.style.height = `${originalHeight * scale}px`;
+            // 計算適合窗口的尺寸，但保持原始比例
+            const winWidth = window.innerWidth;
+            const winHeight = window.innerHeight;
+            const availWidth = winWidth * 0.8;  // 80% 窗口寬度
+            const availHeight = winHeight * 0.8;  // 80% 窗口高度
+            
+            // 計算縮放比例以適應窗口
+            const scaleX = availWidth / originalWidth;
+            const scaleY = availHeight / originalHeight;
+            const scale = Math.min(scaleX, scaleY, 1); // 不放大，只縮小
+            
+            // 設置wrapper尺寸為縮放後的實際顯示尺寸
+            const displayWidth = originalWidth * scale;
+            const displayHeight = originalHeight * scale;
+            wrapper.style.width = `${displayWidth}px`;
+            wrapper.style.height = `${displayHeight}px`;
             
             const imageContainer = document.createElement('div');
             imageContainer.className = 'video-container';
+            imageContainer.style.cssText = `
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transform-origin: center;
+                transform-style: preserve-3d;
+                will-change: transform;
+                position: relative;
+            `;
             
             const img = document.createElement('img');
             img.src = source;
@@ -44,11 +66,16 @@ class ImageManager {
             img.dataset.originalFileName = finalFileName;
             
             img.style.cssText = `
-                width: 100%;
-                height: 100%;
-                object-fit: fill;
+                width: auto;
+                height: auto;
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
                 pointer-events: none;
             `;
+            
+            // 为变形编辑添加特殊处理
+            img.classList.add('warp-compatible-image');
             
             imageContainer.appendChild(img);
             wrapper.appendChild(imageContainer);
@@ -258,28 +285,15 @@ class ImageManager {
             this.mainManager.videos.push(imageData);
             this.mainManager.dropZone.style.display = 'none';
             
-            // 計算適合窗口的縮放比例
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
-            const availableWidth = windowWidth * 0.9;  // 留出 10% 邊距
-            const availableHeight = windowHeight * 0.9;
-
-            // 使用 wrapper 的實際尺寸來計算縮放比例
-            const wrapperWidth = wrapper.offsetWidth;
-            const wrapperHeight = wrapper.offsetHeight;
-            const fitScaleX = availableWidth / wrapperWidth;
-            const fitScaleY = availableHeight / wrapperHeight;
-            const fitScale = Math.min(fitScaleX, fitScaleY);
-
-            // 更新 imageData 的 scale
-            imageData.scale = fitScale;
+            // 设置imageData的初始缩放为1
+            imageData.scale = 1; // 使用1作为初始缩放，因为wrapper已经是正确的显示尺寸
 
             // 應用變換
             this.mainManager.transformManager.updateVideoTransform(imageData);
 
-            // 設置 wrapper 的中心位置（保持原始尺寸）
-            const centerX = (windowWidth - wrapperWidth) / 2;
-            const centerY = (windowHeight - wrapperHeight) / 2;
+            // 設置 wrapper 的中心位置
+            const centerX = (winWidth - displayWidth) / 2;
+            const centerY = (winHeight - displayHeight) / 2;
             wrapper.style.position = 'fixed';
             wrapper.style.left = `${centerX}px`;
             wrapper.style.top = `${centerY}px`;

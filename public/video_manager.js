@@ -220,15 +220,37 @@ class VideoManager {
             const originalWidth = tempVideo.videoWidth;
             const originalHeight = tempVideo.videoHeight;
             
-            // 設置初始尺寸，保持原始比例
-            const maxInitialWidth = 620;  // 最大初始寬度
-            const scale = Math.min(1, maxInitialWidth / originalWidth);
-            wrapper.style.width = `${originalWidth * scale}px`;
-            wrapper.style.height = `${originalHeight * scale}px`;
+            // 計算適合窗口的尺寸，但保持原始比例
+            const winWidth = window.innerWidth;
+            const winHeight = window.innerHeight;
+            const availWidth = winWidth * 0.8;  // 80% 窗口寬度
+            const availHeight = winHeight * 0.8;  // 80% 窗口高度
+            
+            // 計算縮放比例以適應窗口
+            const scaleX = availWidth / originalWidth;
+            const scaleY = availHeight / originalHeight;
+            const scale = Math.min(scaleX, scaleY, 1); // 不放大，只縮小
+            
+            // 設置wrapper尺寸為縮放後的實際顯示尺寸
+            const displayWidth = originalWidth * scale;
+            const displayHeight = originalHeight * scale;
+            wrapper.style.width = `${displayWidth}px`;
+            wrapper.style.height = `${displayHeight}px`;
             
             // 創建實際的視頻元素
             const videoContainer = document.createElement('div');
             videoContainer.className = 'video-container';
+            videoContainer.style.cssText = `
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transform-origin: center;
+                transform-style: preserve-3d;
+                will-change: transform;
+                position: relative;
+            `;
             
             const video = document.createElement('video');
             video.src = source;
@@ -252,11 +274,16 @@ class VideoManager {
             video.controls = false;
             video.muted = true;
             video.style.cssText = `
-                width: 100%;
-                height: 100%;
-                object-fit: fill;
+                width: auto;
+                height: auto;
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
                 pointer-events: none;
             `;
+            
+            // 为变形编辑添加特殊处理
+            video.classList.add('warp-compatible-video');
             
             videoContainer.appendChild(video);
             wrapper.appendChild(videoContainer);
@@ -734,29 +761,16 @@ class VideoManager {
                 flipY: false
             });
             
-            // 計算適合窗口的縮放比例
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
-            const availableWidth = windowWidth * 0.9;  // 留出 10% 邊距
-            const availableHeight = windowHeight * 0.9;
-
-            // 使用 wrapper 的實際尺寸來計算縮放比例
-            const wrapperWidth = wrapper.offsetWidth;
-            const wrapperHeight = wrapper.offsetHeight;
-            const fitScaleX = availableWidth / wrapperWidth;
-            const fitScaleY = availableHeight / wrapperHeight;
-            const fitScale = Math.min(fitScaleX, fitScaleY);
-
-            // 更新 videoData 的 scale
+            // 获取刚创建的videoData
             const videoData = this.mainManager.videos[this.mainManager.videos.length - 1];
-            videoData.scale = fitScale;
-
+            videoData.scale = 1; // 使用1作为初始缩放，因为wrapper已经是正确的显示尺寸
+            
             // 應用變換
             this.mainManager.transformManager.updateVideoTransform(videoData);
 
-            // 設置 wrapper 的中心位置（保持原始尺寸）
-            const centerX = (windowWidth - wrapperWidth) / 2;
-            const centerY = (windowHeight - wrapperHeight) / 2;
+            // 設置 wrapper 的中心位置
+            const centerX = (winWidth - displayWidth) / 2;
+            const centerY = (winHeight - displayHeight) / 2;
             wrapper.style.position = 'fixed';
             wrapper.style.left = `${centerX}px`;
             wrapper.style.top = `${centerY}px`;

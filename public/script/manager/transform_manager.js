@@ -46,6 +46,28 @@ class TransformManager {
         this.updateVideoTransform(videoData);
     }
     
+    // 实时预览 warp 变换（不保存到数据中）
+    previewWarpTransform(videoData, warpTransform) {
+        const scaleX = videoData.flipX ? -1 : 1;
+        const scaleY = videoData.flipY ? -1 : 1;
+        
+        // 构建媒体元素的变换（使用预览的 warp 变换）
+        let mediaTransforms = [];
+        
+        // 添加翻转变换
+        if (scaleX !== 1 || scaleY !== 1) {
+            mediaTransforms.push(`scale(${scaleX}, ${scaleY})`);
+        }
+        
+        // 添加预览的 warp 变换
+        if (warpTransform && warpTransform.trim()) {
+            mediaTransforms.push(warpTransform);
+        }
+        
+        // 应用组合的变换（不修改 videoData.warpTransform）
+        videoData.video.style.transform = mediaTransforms.join(' ');
+    }
+    
     // 重置 warp 变换
     resetWarpTransform(videoData) {
         // 清除保存的 warp 变换

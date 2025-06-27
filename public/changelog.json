@@ -1,6 +1,36 @@
 {
     "versions": [
         {
+            "version": "v1.5.5-Beta", 
+            "date": "2025-07-07",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixWarpEditorMatrixCalculation",
+                    "description": "修復Warp Editor變形計算問題，解決拖動單個控制點時整個圖像移動的錯誤"
+                },
+                {
+                    "key": "settings.changelog.optimizeWrapperSizing",
+                    "description": "優化wrapper尺寸計算邏輯，在創建時直接計算正確的顯示尺寸"
+                },
+                {
+                    "key": "settings.changelog.improveMediaElementLayout",
+                    "description": "改進媒體元素布局，使用auto尺寸和flexbox居中確保變形計算準確性"
+                },
+                {
+                    "key": "settings.changelog.unifyWarpTransformBehavior",
+                    "description": "統一主窗口和Warp Editor的變形行為，確保matrix3d計算完全一致"
+                },
+                {
+                    "key": "settings.changelog.removeComplexCoordinateConversion",
+                    "description": "移除複雜的坐標轉換邏輯，採用預先計算尺寸的簡潔方案"
+                },
+                {
+                    "key": "settings.changelog.enhanceWarpEditorAccuracy",
+                    "description": "大幅提升Warp Editor變形精度，實現像素級準確的變形效果"
+                }
+            ]
+        },
+        {
             "version": "v1.5.4-Beta", 
             "date": "2025-07-04",
             "changes": [

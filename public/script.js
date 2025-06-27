@@ -211,19 +211,39 @@ class MainManager {
             }
         });
 
+        // 处理实时预览变形的事件
+        ipcRenderer.on('preview-warp-transform', (event, { index, transform }) => {
+            const videoData = this.videos[index];
+            if (videoData) {
+                // 直接应用变形到元素，但不保存到数据中
+                this.transformManager.previewWarpTransform(videoData, transform);
+                console.log(`Previewing warp transform for media ${index}:`, transform);
+            }
+        });
+        
+
+
         // 处理获取变形编辑器数据的请求
         ipcRenderer.on('get-warp-editor-data', (event, { index, requestId }) => {
             const videoData = this.videos[index];
             if (videoData) {
+                const mediaElement = videoData.video;
+                const containerRect = mediaElement.getBoundingClientRect();
+                
                 const mediaData = {
                     index: index,
                     src: videoData.video.src,
                     isImage: videoData.isImage,
                     originalFileName: videoData.video.dataset.originalFileName,
-                    currentWarpTransform: videoData.warpTransform || '' // 包含当前的变形状态
+                    currentWarpTransform: videoData.warpTransform || '', // 包含当前的变形状态
+                    mainWindowSize: {
+                        width: Math.round(containerRect.width),
+                        height: Math.round(containerRect.height)
+                    }
                 };
                 
                 console.log('Sending warp editor data:', mediaData);
+                console.log('Main window media size:', mediaData.mainWindowSize);
                 
                 // 回应数据
                 ipcRenderer.send('warp-editor-data-response', { mediaData, requestId });

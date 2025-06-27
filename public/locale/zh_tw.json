@@ -230,7 +230,13 @@
             "addMultiLanguageUpdater": "🌐 版本更新系統支援多語言（繁體中文、英文）",
             "addAutoInstallDetection": "🔍 自動檢測已下載的安裝文件，避免重複下載",
             "fixWindowParentRelation": "🐛 修復版本更新窗口與主窗口的父子關係，確保同步關閉",
-            "addDraggableUpdateWindow": "🎨 版本更新窗口支援拖動功能，改善用戶體驗"
+            "addDraggableUpdateWindow": "🎨 版本更新窗口支援拖動功能，改善用戶體驗",
+            "fixWarpEditorMatrixCalculation": "🐛 修復Warp Editor變形計算問題，解決拖動單個控制點時整個圖像移動的錯誤",
+            "optimizeWrapperSizing": "⚡ 優化wrapper尺寸計算邏輯，在創建時直接計算正確的顯示尺寸",
+            "improveMediaElementLayout": "🔧 改進媒體元素布局，使用auto尺寸和flexbox居中確保變形計算準確性",
+            "unifyWarpTransformBehavior": "🔄 統一主窗口和Warp Editor的變形行為，確保matrix3d計算完全一致",
+            "removeComplexCoordinateConversion": "🧹 移除複雜的坐標轉換邏輯，採用預先計算尺寸的簡潔方案",
+            "enhanceWarpEditorAccuracy": "🎯 大幅提升Warp Editor變形精度，實現像素級準確的變形效果"
         },
         "keybinding": {
             "playPause": "播放/暫停",
