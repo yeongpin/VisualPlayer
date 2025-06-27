@@ -140,6 +140,18 @@ class VideoManager {
             // 監聽轉碼完成事件
             ipcRenderer.once('transcode-complete', (event, result) => {
                 if (result.success) {
+                    // 如果是串流，保存端口信息以便后续清理
+                    if (result.isStream && result.port) {
+                        console.log(`Stream started on port ${result.port}`);
+                        // 保存到全局变量用于清理
+                        if (!window.activeStreamPorts) {
+                            window.activeStreamPorts = new Set();
+                        }
+                        window.activeStreamPorts.add(result.port);
+                        
+                        // 显示串流提示
+                        this.showStreamNotification(result.url, result.port);
+                    }
                     resolve(result.url);
                 } else {
                     console.error('Transcode Failed:', result.error);
@@ -147,6 +159,37 @@ class VideoManager {
                 }
             });
         });
+    }
+    
+    // 显示串流通知
+    showStreamNotification(streamUrl, port) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 107, 53, 0.95);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            z-index: 10001;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        `;
+        notification.innerHTML = `
+            <div style="margin-bottom: 10px;">🎬 串流播放已启动</div>
+            <div style="font-size: 14px; opacity: 0.9;">端口: ${port}</div>
+            <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">正在边转边播，无需等待...</div>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 3000);
     }
 
     async addVideo(source, originalFileName) {

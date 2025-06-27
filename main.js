@@ -5,6 +5,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const os = require('os');
 const CodecManager = require('./public/script/codec/codec_manager.js');
 const DcrawCodecManager = require('./public/script/codec/dcraw_codec_manager.js');
+const StreamManager = require('./public/script/transcode/stream_manager.js');
 const fs = require('fs');
 
 // 控制是否使用单实例模式 - 修改这个值来切换模式
@@ -17,6 +18,9 @@ let moveableWindow = null;
 // 轉碼相關變量
 let isTranscoding = false;
 let currentFfmpegCommand = null;
+
+// 串流管理器
+let streamManager = new StreamManager();
 
 // 缩略图缓存路径
 const thumbnailCacheDir = path.join(os.tmpdir(), 'visualplayer-thumbnails');
@@ -471,11 +475,16 @@ app.on('before-quit', (event) => {
             currentFfmpegCommand.kill('SIGKILL');
             isTranscoding = false;
             currentFfmpegCommand = null;
+            // 清理所有串流
+            streamManager.cleanupAllStreams();
             app.quit();
         } catch (error) {
             console.error('Error during app quit:', error);
             app.exit(1);
         }
+    } else {
+        // 即使没有转码进程，也要清理串流
+        streamManager.cleanupAllStreams();
     }
 });
 
@@ -1203,6 +1212,47 @@ ipcMain.on('transcode-video', async (event, { path: videoPath, name }) => {
         // 讀取預設配置
         const presets = require('./public/transcode_presets.json');
         let selectedPreset = presets[optionResult.quality];
+        
+        // 检查是否为串流选项
+        if (selectedPreset && selectedPreset.type === 'stream') {
+            console.log('Starting stream playback for:', videoPath);
+            try {
+                const result = await streamManager.createStreamServer(
+                    videoPath, 
+                    selectedPreset,
+                    (progress) => {
+                        // 发送串流进度到主窗口
+                        if (mainWindow && !mainWindow.isDestroyed()) {
+                            mainWindow.webContents.send('stream-progress', progress);
+                        }
+                    },
+                    (error) => {
+                        console.error('Stream error:', error);
+                        event.reply('transcode-complete', {
+                            success: false,
+                            error: error.message
+                        });
+                    }
+                );
+                
+                console.log('Stream server created:', result.streamUrl);
+                event.reply('transcode-complete', {
+                    success: true,
+                    url: result.streamUrl,
+                    isStream: true,
+                    port: result.port
+                });
+                return;
+                
+            } catch (error) {
+                console.error('Failed to create stream:', error);
+                event.reply('transcode-complete', {
+                    success: false,
+                    error: error.message
+                });
+                return;
+            }
+        }
 
         // 如果選擇了GPU選項，檢查GPU兼容性
         if (optionResult.quality.startsWith('gpu_')) {
@@ -1654,6 +1704,8 @@ app.on('window-all-closed', () => {
         isTranscoding = false;
         currentFfmpegCommand = null;
     }
+    // 清理所有串流
+    streamManager.cleanupAllStreams();
     if (process.platform !== 'darwin') {
         app.quit();
     }
@@ -1897,6 +1949,20 @@ ipcMain.on('cancel-transcode', (event) => {
             console.error('Error killing ffmpeg process:', error);
         }
     }
+});
+
+// 處理清理串流請求
+ipcMain.on('cleanup-stream', (event, port) => {
+    if (port) {
+        streamManager.cleanupStream(port);
+        console.log(`Cleaned up stream on port ${port}`);
+    }
+});
+
+// 處理清理所有串流請求
+ipcMain.on('cleanup-all-streams', (event) => {
+    streamManager.cleanupAllStreams();
+    console.log('Cleaned up all streams');
 });
 
 // 處理視頻順序更新

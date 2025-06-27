@@ -504,24 +504,150 @@ function createCard(videoData, index) {
     });
     
     // 創建縮略圖
-    const thumbnail = document.createElement(videoData.isImage ? 'img' : 'video');
-    thumbnail.className = 'thumbnail';
-    if (!videoData.isImage) {
-        // 生成缓存键
-        const cacheKey = videoData.video.src || videoData.video.currentSrc;
+    let thumbnail; // 改为 let 以允许重新赋值
+    const cacheKey = videoData.video.src || videoData.video.currentSrc;
+    const isStreamVideo = cacheKey && cacheKey.startsWith('http://');
+    
+    if (videoData.isImage) {
+        // 图片直接创建 img 元素
+        thumbnail = document.createElement('img');
+        thumbnail.className = 'thumbnail';
+        thumbnail.src = videoData.video.src;
+    } else if (thumbnailCache.has(cacheKey)) {
+        // 使用缓存的缩略图
+        console.log('Using cached thumbnail for:', cacheKey);
+        thumbnail = document.createElement('img');
+        thumbnail.src = thumbnailCache.get(cacheKey);
+        thumbnail.className = 'thumbnail';
+        thumbnail.style.objectFit = 'cover';
+    } else if (isStreamVideo) {
+        // 对于串流视频，使用占位符图像
+        console.log('Creating placeholder for stream video:', cacheKey);
+        const placeholderImg = document.createElement('img');
+        placeholderImg.src = 'assets/placeholder.png';
+        placeholderImg.className = 'thumbnail stream-placeholder';
+        placeholderImg.style.objectFit = 'cover';
+        placeholderImg.style.background = 'linear-gradient(45deg, #1a1a1a, #333)';
         
-        // 检查缓存中是否有缩略图
-        if (thumbnailCache.has(cacheKey)) {
-            console.log('Using cached thumbnail for:', cacheKey);
-            // 创建图片元素代替视频元素作为缩略图
-            const cachedImg = document.createElement('img');
-            cachedImg.src = thumbnailCache.get(cacheKey);
-            cachedImg.className = 'thumbnail';
-            cachedImg.style.objectFit = 'cover';
-            
-            // 替换缩略图元素
-            thumbnail = cachedImg;
-        } else {
+        // 添加串流标识
+        const streamIndicator = document.createElement('div');
+        streamIndicator.className = 'stream-indicator';
+        streamIndicator.innerHTML = '📡 LIVE STREAM';
+        streamIndicator.style.cssText = `
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(255, 69, 0, 0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            z-index: 1;
+        `;
+        
+        // 创建容器来包含占位符和指示器
+        thumbnail = document.createElement('div');
+        thumbnail.className = 'thumbnail';
+        thumbnail.style.position = 'relative';
+        thumbnail.appendChild(placeholderImg);
+        thumbnail.appendChild(streamIndicator);
+    } else {
+        // 创建视频元素作为缩略图
+        thumbnail = document.createElement('video');
+        thumbnail.className = 'thumbnail';
+        thumbnail.src = videoData.video.src;
+        thumbnail.muted = true;
+        thumbnail.loop = false;
+        thumbnail.controls = false;
+        
+        // 对于串流视频，设置特殊的错误处理
+        if (isStreamVideo) {
+            thumbnail.addEventListener('error', () => {
+                console.log('Stream video loading failed, replacing with placeholder');
+                // 如果串流视频加载失败，替换为占位符
+                const placeholderImg = document.createElement('img');
+                placeholderImg.src = 'assets/placeholder.png';
+                placeholderImg.className = 'thumbnail stream-placeholder';
+                placeholderImg.style.objectFit = 'cover';
+                
+                // 添加串流标识
+                const streamIndicator = document.createElement('div');
+                streamIndicator.className = 'stream-indicator';
+                streamIndicator.innerHTML = '📡 STREAM (Offline)';
+                streamIndicator.style.cssText = `
+                    position: absolute;
+                    top: 5px;
+                    left: 5px;
+                    background: rgba(255, 69, 0, 0.8);
+                    color: white;
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    font-size: 10px;
+                    font-weight: bold;
+                    z-index: 1;
+                `;
+                
+                // 创建容器
+                const streamContainer = document.createElement('div');
+                streamContainer.className = 'thumbnail';
+                streamContainer.style.position = 'relative';
+                streamContainer.appendChild(placeholderImg);
+                streamContainer.appendChild(streamIndicator);
+                
+                // 替换原始视频元素
+                if (thumbnail.parentNode) {
+                    thumbnail.parentNode.replaceChild(streamContainer, thumbnail);
+                }
+            });
+        }
+        
+        // 等待視頻加載完成
+        thumbnail.addEventListener('loadedmetadata', () => {
+            // 初始化視頻屬性
+            videoData.video = {
+                ...videoData.video,
+                startTime: 0,
+                endTime: undefined,
+                duration: thumbnail.duration,
+                currentTime: 0
+            };
+        });
+        
+        // 对于串流视频，如果元数据加载失败，使用默认值
+        if (isStreamVideo) {
+            thumbnail.addEventListener('error', () => {
+                // 为串流视频设置默认值
+                videoData.video = {
+                    ...videoData.video,
+                    startTime: 0,
+                    endTime: undefined,
+                    duration: 0,
+                    currentTime: 0
+                };
+            });
+        }
+        
+        // 設置視頻時間到中間位置
+        thumbnail.addEventListener('loadedmetadata', () => {
+            thumbnail.currentTime = thumbnail.duration / 2;
+        });
+        
+        // 暫停在指定幀
+        thumbnail.addEventListener('seeked', () => {
+            thumbnail.pause();
+        });
+        
+        // 生成并缓存缩略图
+        thumbnail.addEventListener('loadeddata', () => {
+            if (thumbnail.readyState >= 2) {
+                generateAndCacheThumbnail(thumbnail, cacheKey);
+            }
+        });
+    }
+    
+    // 为非图片文件创建视频控制面板
+    if (!videoData.isImage) {
             // 创建所有控制元素
             const progress = document.createElement('div');
             progress.className = 'video-progress';
@@ -569,6 +695,47 @@ function createCard(videoData, index) {
             thumbnail.loop = false;
             thumbnail.controls = false;
             
+            // 对于串流视频，设置特殊的错误处理
+            if (isStreamVideo) {
+                thumbnail.addEventListener('error', () => {
+                    console.log('Stream video loading failed, replacing with placeholder');
+                    // 如果串流视频加载失败，替换为占位符
+                    const placeholderImg = document.createElement('img');
+                    placeholderImg.src = 'assets/placeholder.png';
+                    placeholderImg.className = 'thumbnail stream-placeholder';
+                    placeholderImg.style.objectFit = 'cover';
+                    
+                    // 添加串流标识
+                    const streamIndicator = document.createElement('div');
+                    streamIndicator.className = 'stream-indicator';
+                    streamIndicator.innerHTML = '📡 STREAM (Offline)';
+                    streamIndicator.style.cssText = `
+                        position: absolute;
+                        top: 5px;
+                        left: 5px;
+                        background: rgba(255, 69, 0, 0.8);
+                        color: white;
+                        padding: 2px 6px;
+                        border-radius: 3px;
+                        font-size: 10px;
+                        font-weight: bold;
+                        z-index: 1;
+                    `;
+                    
+                    // 创建容器
+                    const streamContainer = document.createElement('div');
+                    streamContainer.className = 'thumbnail';
+                    streamContainer.style.position = 'relative';
+                    streamContainer.appendChild(placeholderImg);
+                    streamContainer.appendChild(streamIndicator);
+                    
+                    // 替换原始视频元素
+                    if (thumbnail.parentNode) {
+                        thumbnail.parentNode.replaceChild(streamContainer, thumbnail);
+                    }
+                });
+            }
+            
             // 等待視頻加載完成
             thumbnail.addEventListener('loadedmetadata', () => {
                 // 初始化視頻屬性
@@ -587,6 +754,21 @@ function createCard(videoData, index) {
                 timeDisplay.textContent = `00:00 / ${formatTime(thumbnail.duration)}`;
             });
             
+            // 对于串流视频，如果元数据加载失败，使用默认值
+            if (isStreamVideo) {
+                thumbnail.addEventListener('error', () => {
+                    // 为串流视频设置默认值
+                    videoData.video = {
+                        ...videoData.video,
+                        startTime: 0,
+                        endTime: undefined,
+                        duration: 0,
+                        currentTime: 0
+                    };
+                    timeDisplay.textContent = `00:00 / 00:00 (Stream)`;
+                });
+            }
+            
             // 設置視頻時間到中間位置
             thumbnail.addEventListener('loadedmetadata', () => {
                 thumbnail.currentTime = thumbnail.duration / 2;
@@ -604,9 +786,6 @@ function createCard(videoData, index) {
                 }
             });
         }
-    } else {
-        thumbnail.src = videoData.video.src;
-    }
     
     // 創建選擇checkbox
     const checkbox = document.createElement('input');
@@ -641,7 +820,13 @@ function createCard(videoData, index) {
     
     const details = document.createElement('div');
     details.className = 'card-details';
-    details.textContent = videoData.video.dataset.originalFileName;
+    // 对于串流视频，显示特殊标识（重用之前声明的 isStreamVideo）
+    if (isStreamVideo) {
+        details.textContent = `${videoData.video.dataset.originalFileName} (Streaming)`;
+        details.style.color = '#ff4500'; // 橙色标识串流
+    } else {
+        details.textContent = videoData.video.dataset.originalFileName;
+    }
     
     info.appendChild(title);
     info.appendChild(details);
@@ -1085,9 +1270,17 @@ function createCard(videoData, index) {
         // 監聽時間更新
         const timeUpdateHandler = (event, { index: videoIndex, currentTime, duration }) => {
             if (videoIndex === index) {
-                const played = (currentTime / duration) * 100;
-                progressPlayed.style.width = `${played}%`;
-                timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+                // 重用之前声明的 isStreamVideo 变量
+                if (duration > 0) {
+                    const played = (currentTime / duration) * 100;
+                    progressPlayed.style.width = `${played}%`;
+                    timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}${isStreamVideo ? ' (Stream)' : ''}`;
+                } else {
+                    // 对于无有效时长的串流视频
+                    progressPlayed.style.width = '0%';
+                    timeDisplay.textContent = isStreamVideo ? 'Live Stream' : '00:00 / 00:00';
+                }
+                
                 // 更新時間範圍顯示
                 updateTimeRange();
             }

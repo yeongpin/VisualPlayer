@@ -17,6 +17,11 @@ Object.entries(presets).forEach(([key, preset]) => {
     option.className = `option ${key === selectedQuality ? 'selected' : ''}`;
     option.dataset.quality = key;
     
+    // 为串流选项添加特殊样式
+    if (preset.type === 'stream') {
+        option.classList.add('stream-option');
+    }
+    
     option.innerHTML = `
         <div class="option-name">${preset.name}</div>
         <div class="option-desc">${getQualityDescription(key)}</div>
@@ -64,7 +69,9 @@ function getQualityDescription(quality) {
         gpu_low: 'GPU硬件加速 - 低畫質，速度最快',
         gpu_medium: 'GPU硬件加速 - 中等畫質，平衡速度與質量',
         gpu_high: 'GPU硬件加速 - 高畫質，適合高清視頻',
-        gpu_ultra: 'GPU硬件加速 - 超高畫質，適合4K視頻'
+        gpu_ultra: 'GPU硬件加速 - 超高畫質，適合4K視頻',
+        stream_fast: '🎬 邊轉邊播，無需等待，適合快速預覽大型視頻文件',
+        stream_quality: '🎬 邊轉邊播，高質量輸出，適合正式觀看'
     };
     return descriptions[quality] || '';
 } 

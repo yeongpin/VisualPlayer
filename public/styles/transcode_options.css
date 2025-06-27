@@ -161,3 +161,24 @@ button.primary {
 button.primary:hover {
     background-color: #0077ee;
 }
+
+/* 串流选项特殊样式 */
+.option.stream-option {
+    border-left: 4px solid #ff6b35;
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 107, 53, 0.05) 100%);
+}
+
+.option.stream-option:hover {
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.2) 0%, rgba(255, 107, 53, 0.1) 100%);
+    border-color: #ff6b35;
+}
+
+.option.stream-option.selected {
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.3) 0%, rgba(255, 107, 53, 0.15) 100%);
+    border-color: #ff6b35;
+}
+
+.option.stream-option .option-name {
+    color: #ff6b35;
+    font-weight: 600;
+}

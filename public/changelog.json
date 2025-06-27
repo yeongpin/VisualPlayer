@@ -1,6 +1,36 @@
 {
     "versions": [
         {
+            "version": "v1.5.6-Beta", 
+            "date": "2025-07-09",
+            "changes": [
+                {
+                    "key": "settings.changelog.addStreamPlaybackSupport",
+                    "description": "新增直接播放功能，支援邊轉邊播無需等待完整轉碼"
+                },
+                {
+                    "key": "settings.changelog.addRealTimeStreamingOptions",
+                    "description": "新增三種串流選項：快速、高質量、GPU加速，滿足不同需求"
+                },
+                {
+                    "key": "settings.changelog.addAutomaticPortDetection",
+                    "description": "自動檢測可用端口（50000-59999），避免端口衝突問題"
+                },
+                {
+                    "key": "settings.changelog.addGPUAcceleratedStreaming",
+                    "description": "支援GPU硬件加速串流，提供最佳性能和質量平衡"
+                },
+                {
+                    "key": "settings.changelog.addStreamProgressMonitoring",
+                    "description": "新增串流進度監控，實時顯示FPS和轉碼速度"
+                },
+                {
+                    "key": "settings.changelog.addStreamResourceManagement",
+                    "description": "智能串流資源管理，自動清理閒置連接和進程"
+                }
+            ]
+        },
+        {
             "version": "v1.5.5-Beta", 
             "date": "2025-07-07",
             "changes": [

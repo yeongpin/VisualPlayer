@@ -125,6 +125,32 @@ body {
     flex-shrink: 0;
 }
 
+/* 串流视频缩略图样式 */
+.thumbnail.stream-placeholder {
+    background: linear-gradient(45deg, #1a1a1a, #333);
+    border: 2px solid #ff4500;
+}
+
+.stream-indicator {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: rgba(255, 69, 0, 0.9);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: bold;
+    z-index: 1;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
 .card-info {
     flex: 1;
     min-width: 0;

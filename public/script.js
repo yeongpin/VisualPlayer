@@ -1104,4 +1104,50 @@ ipcRenderer.on('focus-media', (event, index) => {
     }
 });
 
+// 添加串流进度监听器
+ipcRenderer.on('stream-progress', (event, progress) => {
+    console.log('Stream progress:', progress);
+    // 在页面上显示串流状态
+    const statusDiv = document.getElementById('stream-status') || createStreamStatusDiv();
+    if (progress.stage) {
+        statusDiv.textContent = `${progress.stage} - FPS: ${Math.round(progress.fps)} - 速度: ${progress.speed.toFixed(1)}x`;
+        statusDiv.style.display = 'block';
+        
+        // 3秒后自动隐藏状态
+        clearTimeout(window.streamStatusTimeout);
+        window.streamStatusTimeout = setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+    }
+});
+
+// 创建串流状态显示元素
+function createStreamStatusDiv() {
+    const statusDiv = document.createElement('div');
+    statusDiv.id = 'stream-status';
+    statusDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-size: 14px;
+        z-index: 10000;
+        display: none;
+    `;
+    document.body.appendChild(statusDiv);
+    return statusDiv;
+}
+
+// 页面卸载时清理所有串流
+window.addEventListener('beforeunload', () => {
+    if (window.activeStreamPorts && window.activeStreamPorts.size > 0) {
+        console.log('Cleaning up active streams before page unload');
+        const { ipcRenderer } = require('electron');
+        ipcRenderer.send('cleanup-all-streams');
+    }
+});
+
 

@@ -228,5 +228,37 @@
             "-ar 48000",
             "-ac 2"
         ]
+    },
+    "stream_fast": {
+        "name": "直接播放 - 快速（不建議使用）",
+        "type": "stream",
+        "options": [
+            "-c:v",
+            "libx264",
+            "-preset",
+            "ultrafast",
+            "-movflags",
+            "frag_keyframe+empty_moov+default_base_moof+faststart",
+            "-frag_duration",
+            "1000000",
+            "-f",
+            "mp4"
+        ]
+    },
+    "stream_quality": {
+        "name": "直接播放 - 高質量 (不建議使用)",
+        "type": "stream",
+        "options": [
+            "-c:v",
+            "libx264",
+            "-preset",
+            "fast",
+            "-movflags",
+            "frag_keyframe+empty_moov+default_base_moof+faststart",
+            "-frag_duration",
+            "1000000",
+            "-f",
+            "mp4"
+        ]
     }
 } 
