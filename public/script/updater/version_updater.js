@@ -71,7 +71,7 @@ class VersionUpdater {
             console.log('Current version:', this.currentVersion);
         } catch (error) {
             console.error('Error reading current version:', error);
-            this.currentVersion = '1.5.3-BETA'; // Fallback version
+            this.currentVersion = '1.0.0-BETA'; // Fallback version
         }
     }
 
@@ -173,26 +173,77 @@ class VersionUpdater {
             return true;
         }
         
-        // Remove 'BETA' suffix for comparison
-        const current = currentVersion.replace('-BETA', '');
-        const latest = latestVersion.replace('-BETA', '');
-        
-        // Simple version comparison (assumes semantic versioning)
-        const currentParts = current.split('.').map(Number);
-        const latestParts = latest.split('.').map(Number);
-        
-        for (let i = 0; i < Math.max(currentParts.length, latestParts.length); i++) {
-            const currentPart = currentParts[i] || 0;
-            const latestPart = latestParts[i] || 0;
+        // Parse version strings to extract numeric parts and suffixes
+        const parseVersion = (version) => {
+            // Match patterns like: 1.2.3, 1.2.3-Beta, 1.2.3.Preview, 1.2.3_Beta, etc.
+            // Also handles: v1.2.3, V1.2.3 (removes v/V prefix)
+            const cleanVersion = version.replace(/^[vV]/, ''); // Remove v/V prefix
+            const match = cleanVersion.match(/^(\d+(?:\.\d+)*)(?:[-._](.+))?$/);
+            if (!match) {
+                console.warn(`Invalid version format: ${version}`);
+                return { numeric: '0.0.0', suffix: null };
+            }
             
-            if (latestPart > currentPart) {
+            const numeric = match[1]; // e.g., "1.2.3"
+            const suffix = match[2] ? match[2].toLowerCase() : null; // e.g., "beta", "preview"
+            
+            return { numeric, suffix };
+        };
+        
+        const current = parseVersion(currentVersion);
+        const latest = parseVersion(latestVersion);
+        
+        console.log('Version comparison:');
+        console.log(`Current: ${currentVersion} -> numeric: ${current.numeric}, suffix: ${current.suffix}`);
+        console.log(`Latest: ${latestVersion} -> numeric: ${latest.numeric}, suffix: ${latest.suffix}`);
+        
+        // Compare numeric parts first
+        const currentParts = current.numeric.split('.').map(Number);
+        const latestParts = latest.numeric.split('.').map(Number);
+        
+        // Ensure both arrays have the same length
+        const maxLength = Math.max(currentParts.length, latestParts.length);
+        while (currentParts.length < maxLength) currentParts.push(0);
+        while (latestParts.length < maxLength) latestParts.push(0);
+        
+        for (let i = 0; i < maxLength; i++) {
+            if (latestParts[i] > currentParts[i]) {
+                console.log(`Latest version is newer (${latestParts[i]} > ${currentParts[i]} at position ${i})`);
                 return true;
-            } else if (latestPart < currentPart) {
-                // Current version is newer (development version)
+            } else if (latestParts[i] < currentParts[i]) {
+                console.log(`Current version is newer (${currentParts[i]} > ${latestParts[i]} at position ${i})`);
                 return false;
             }
         }
         
+        // If numeric parts are equal, compare suffixes
+        // Suffix priority: no suffix (stable) > rc > preview > beta > alpha
+        const getSuffixPriority = (suffix) => {
+            if (!suffix) return 100; // Stable release has highest priority
+            switch (suffix.toLowerCase()) {
+                case 'rc':
+                case 'release-candidate': return 80;
+                case 'preview': return 50;
+                case 'beta': return 30;
+                case 'alpha': return 10;
+                case 'dev':
+                case 'development': return 5;
+                default: return 20; // Unknown suffix gets medium priority
+            }
+        };
+        
+        const currentPriority = getSuffixPriority(current.suffix);
+        const latestPriority = getSuffixPriority(latest.suffix);
+        
+        if (latestPriority > currentPriority) {
+            console.log(`Latest version has higher suffix priority (${latestPriority} > ${currentPriority})`);
+            return true;
+        } else if (latestPriority < currentPriority) {
+            console.log(`Current version has higher suffix priority (${currentPriority} > ${latestPriority})`);
+            return false;
+        }
+        
+        console.log('Versions are equal');
         return false; // Versions are equal
     }
 
