@@ -237,12 +237,17 @@
             "unifyWarpTransformBehavior": "🔄 Unify warp transform behavior between main window and Warp Editor for consistent matrix3d calculations",
             "removeComplexCoordinateConversion": "🧹 Remove complex coordinate conversion logic, adopt pre-calculated sizing approach for simplicity",
             "enhanceWarpEditorAccuracy": "🎯 Significantly enhance Warp Editor transform accuracy, achieve pixel-perfect warp effects",
-        "addStreamPlaybackSupport": "🎬 Add direct playback feature, support real-time streaming without waiting for complete transcoding",
-        "addRealTimeStreamingOptions": "⚡ Add three streaming options: fast, high quality, GPU accelerated for different needs",
-        "addAutomaticPortDetection": "🔍 Automatic port detection (50000-59999), avoid port conflicts",
-        "addHLSStreamingSupport": "🚀 Support HLS streaming format, provide better network compatibility and mobile device support",
-        "addStreamProgressMonitoring": "📊 Add streaming progress monitoring, real-time display of FPS and transcoding speed",
-        "addStreamResourceManagement": "🧹 Smart streaming resource management, automatically cleanup idle connections and processes"
+            "addStreamPlaybackSupport": "🎬 Add direct playback feature, support real-time streaming without waiting for complete transcoding",
+            "addRealTimeStreamingOptions": "⚡ Add three streaming options: fast, high quality, GPU accelerated for different needs",
+            "addAutomaticPortDetection": "🔍 Automatic port detection (50000-59999), avoid port conflicts",
+            "addHLSStreamingSupport": "🚀 Support HLS streaming format, provide better network compatibility and mobile device support",
+            "addStreamProgressMonitoring": "📊 Add streaming progress monitoring, real-time display of FPS and transcoding speed",
+            "addStreamResourceManagement": "🧹 Smart streaming resource management, automatically cleanup idle connections and processes",
+            "fixNvidiaSurroundF11Issue": "🐛 Fix F11 fullscreen NVIDIA Surround 256MB VRAM limitation issue",
+            "optimizeUltraHighResolution": "⚡ Optimize GPU rendering for ultra-high resolution displays (NVIDIA Surround)",
+            "disableVizDisplayCompositor": "🔧 Disable VizDisplayCompositor to improve multi-screen configuration compatibility",
+            "optimizeTextureSize": "🎯 Limit maximum texture size to 4096 pixels to prevent VRAM overflow",
+            "disableGPUOptimizations": "🛡️ Disable certain GPU optimization features to improve NVIDIA Surround stability"
         },
         "keybinding": {
             "playPause": "Play/Pause",

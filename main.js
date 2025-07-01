@@ -141,45 +141,52 @@ function createWindow() {
     mainWindow.webContents.setFrameRate(0);
     
     // 禁用 V-Sync 和相關限制
-    app.commandLine.appendSwitch('disable-frame-rate-limit');
-    app.commandLine.appendSwitch('disable-gpu-vsync');
-    app.commandLine.appendSwitch('disable-software-rasterizer');
-    app.commandLine.appendSwitch('enable-begin-frame-scheduling');
+    //app.commandLine.appendSwitch('disable-frame-rate-limit');
+    //app.commandLine.appendSwitch('disable-gpu-vsync');
+    //app.commandLine.appendSwitch('disable-software-rasterizer');
+    //app.commandLine.appendSwitch('enable-begin-frame-scheduling');
+
+    // 針對超高解析度（NVIDIA Surround）的優化
+    app.commandLine.appendSwitch('disable-features', 'VizDisplayCompositor');
+    app.commandLine.appendSwitch('max-texture-size', '4096');
+    app.commandLine.appendSwitch('gpu-rasterization-msaa-sample-count', '0');
+    app.commandLine.appendSwitch('disable-partial-raster');
+    app.commandLine.appendSwitch('disable-skia-runtime-opts');
     
     // 啟用 GPU 加速和硬件加速
-    app.commandLine.appendSwitch('ignore-gpu-blacklist');
-    app.commandLine.appendSwitch('enable-gpu-rasterization');
-    app.commandLine.appendSwitch('enable-zero-copy');
-    app.commandLine.appendSwitch('enable-webgl');
-    app.commandLine.appendSwitch('enable-accelerated-video-decode');
-    app.commandLine.appendSwitch('enable-native-gpu-memory-buffers');
-    app.commandLine.appendSwitch('enable-accelerated-2d-canvas');
-    app.commandLine.appendSwitch('enable-accelerated-video');
-    app.commandLine.appendSwitch('enable-gpu-memory-buffer-compositor-resources');
-    app.commandLine.appendSwitch('enable-gpu-memory-buffer-video-frames');
-    app.commandLine.appendSwitch('enable-unsafe-webgpu');
-    app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder,VaapiVideoEncoder,CanvasOopRasterization');
-    app.commandLine.appendSwitch('canvas-oop-rasterization');
-    app.commandLine.appendSwitch('enable-hardware-overlays', 'single-fullscreen,single-video,single-on-top-video');
-    app.commandLine.appendSwitch('force-gpu-mem-available-mb', '1024');
-    app.commandLine.appendSwitch('enable-gpu-service-logging');
-    app.commandLine.appendSwitch('use-angle', 'gl');
-    app.commandLine.appendSwitch('enable-webgl-draft-extensions');
-    app.commandLine.appendSwitch('enable-webgl-image-chromium');
-    app.commandLine.appendSwitch('enable-gpu-shader-disk-cache');
+    //app.commandLine.appendSwitch('ignore-gpu-blacklist');
+    //app.commandLine.appendSwitch('enable-gpu-rasterization');
+    //app.commandLine.appendSwitch('enable-zero-copy');
+    //app.commandLine.appendSwitch('enable-webgl');
+    //app.commandLine.appendSwitch('enable-accelerated-video-decode');
+    //app.commandLine.appendSwitch('enable-native-gpu-memory-buffers');
+    //app.commandLine.appendSwitch('enable-accelerated-2d-canvas');
+    //app.commandLine.appendSwitch('enable-accelerated-video');
+    //app.commandLine.appendSwitch('enable-gpu-memory-buffer-compositor-resources');
+    //app.commandLine.appendSwitch('enable-gpu-memory-buffer-video-frames');
+    //app.commandLine.appendSwitch('enable-unsafe-webgpu');
+    //app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder,VaapiVideoEncoder,CanvasOopRasterization');
+    //app.commandLine.appendSwitch('canvas-oop-rasterization');
+    //app.commandLine.appendSwitch('enable-hardware-overlays', 'single-fullscreen,single-video,single-on-top-video');
+    //app.commandLine.appendSwitch('force-gpu-mem-available-mb', '1024');
+    //app.commandLine.appendSwitch('enable-gpu-service-logging');
+    //app.commandLine.appendSwitch('use-angle', 'gl');
+    //app.commandLine.appendSwitch('enable-webgl-draft-extensions');
+    //app.commandLine.appendSwitch('enable-webgl-image-chromium');
+    //app.commandLine.appendSwitch('enable-gpu-shader-disk-cache');
     
     // 禁用節能和限制
-    app.commandLine.appendSwitch('disable-background-timer-throttling');
-    app.commandLine.appendSwitch('disable-renderer-backgrounding');
-    app.commandLine.appendSwitch('disable-composited-antialiasing');
-    app.commandLine.appendSwitch('disable-gpu-driver-bug-workarounds');
-    app.commandLine.appendSwitch('disable-gpu-program-cache');
+    //app.commandLine.appendSwitch('disable-background-timer-throttling');
+    //app.commandLine.appendSwitch('disable-renderer-backgrounding');
+    //app.commandLine.appendSwitch('disable-composited-antialiasing');
+    //app.commandLine.appendSwitch('disable-gpu-driver-bug-workarounds');
+    //app.commandLine.appendSwitch('disable-gpu-program-cache');
     
     // 啟用高性能模式
-    app.commandLine.appendSwitch('force_high_performance_gpu');
-    app.commandLine.appendSwitch('enable-high-resolution-time');
-    app.commandLine.appendSwitch('high-dpi-support', '1');
-    app.commandLine.appendSwitch('force-device-scale-factor', '1');
+    //app.commandLine.appendSwitch('force_high_performance_gpu');
+    //app.commandLine.appendSwitch('enable-high-resolution-time');
+    //app.commandLine.appendSwitch('high-dpi-support', '1');
+    //app.commandLine.appendSwitch('force-device-scale-factor', '1');
     
     require('@electron/remote/main').enable(mainWindow.webContents)
     mainWindow.loadFile('public/index.html')

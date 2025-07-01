@@ -237,12 +237,17 @@
             "unifyWarpTransformBehavior": "🔄 統一主窗口和Warp Editor的變形行為，確保matrix3d計算完全一致",
             "removeComplexCoordinateConversion": "🧹 移除複雜的坐標轉換邏輯，採用預先計算尺寸的簡潔方案",
             "enhanceWarpEditorAccuracy": "🎯 大幅提升Warp Editor變形精度，實現像素級準確的變形效果",
-        "addStreamPlaybackSupport": "🎬 新增直接播放功能，支援邊轉邊播無需等待完整轉碼",
-        "addRealTimeStreamingOptions": "⚡ 新增三種串流選項：快速、高質量、GPU加速，滿足不同需求",
-        "addAutomaticPortDetection": "🔍 自動檢測可用端口（50000-59999），避免端口衝突問題",
-        "addHLSStreamingSupport": "🚀 支援HLS串流格式，提供更好的網絡兼容性和移動設備支持",
-        "addStreamProgressMonitoring": "📊 新增串流進度監控，實時顯示FPS和轉碼速度",
-        "addStreamResourceManagement": "🧹 智能串流資源管理，自動清理閒置連接和進程"
+            "addStreamPlaybackSupport": "🎬 新增直接播放功能，支援邊轉邊播無需等待完整轉碼",
+            "addRealTimeStreamingOptions": "⚡ 新增三種串流選項：快速、高質量、GPU加速，滿足不同需求",
+            "addAutomaticPortDetection": "🔍 自動檢測可用端口（50000-59999），避免端口衝突問題",
+            "addGPUAcceleratedStreaming": "🚀 支援GPU硬件加速串流，提供最佳性能和質量平衡",
+            "addStreamProgressMonitoring": "📊 新增串流進度監控，實時顯示FPS和轉碼速度",
+            "addStreamResourceManagement": "🧹 智能串流資源管理，自動清理閒置連接和進程",
+            "fixNvidiaSurroundF11Issue": "🐛 修復F11全屏時NVIDIA Surround配置下256MB顯存限制問題",
+            "optimizeUltraHighResolution": "⚡ 針對超高解析度顯示器（NVIDIA Surround）進行GPU渲染優化",
+            "disableVizDisplayCompositor": "🔧 禁用VizDisplayCompositor以提高多屏幕配置兼容性",
+            "optimizeTextureSize": "🎯 限制最大紋理尺寸為4096像素，避免顯存溢出",
+            "disableGPUOptimizations": "🛡️ 禁用部分GPU優化特性，提升NVIDIA Surround環境穩定性"
         },
         "keybinding": {
             "playPause": "播放/暫停",

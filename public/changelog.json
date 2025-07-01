@@ -1,6 +1,32 @@
 {
     "versions": [
         {
+            "version": "v1.5.7-Beta", 
+            "date": "2025-07-10",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixNvidiaSurroundF11Issue",
+                    "description": "修復F11全屏時NVIDIA Surround配置下256MB顯存限制問題"
+                },
+                {
+                    "key": "settings.changelog.optimizeUltraHighResolution",
+                    "description": "針對超高解析度顯示器（NVIDIA Surround）進行GPU渲染優化"
+                },
+                {
+                    "key": "settings.changelog.disableVizDisplayCompositor",
+                    "description": "禁用VizDisplayCompositor以提高多屏幕配置兼容性"
+                },
+                {
+                    "key": "settings.changelog.optimizeTextureSize",
+                    "description": "限制最大紋理尺寸為4096像素，避免顯存溢出"
+                },
+                {
+                    "key": "settings.changelog.disableGPUOptimizations",
+                    "description": "禁用部分GPU優化特性，提升NVIDIA Surround環境穩定性"
+                }
+            ]
+        },
+        {
             "version": "v1.5.6-Beta", 
             "date": "2025-07-09",
             "changes": [
