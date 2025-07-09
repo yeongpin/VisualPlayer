@@ -19,6 +19,8 @@ class LayoutManager {
                     rotation: videoData.rotation,
                     flipX: videoData.flipX,
                     flipY: videoData.flipY,
+                    translateX: videoData.translateX || 0,
+                    translateY: videoData.translateY || 0,
                     warpTransform: videoData.warpTransform || ''
                 },
                 filterValues: videoData.video.filterValues || {}
@@ -73,6 +75,8 @@ class LayoutManager {
                         existingVideo.rotation = videoLayout.transform.rotation;
                         existingVideo.flipX = videoLayout.transform.flipX;
                         existingVideo.flipY = videoLayout.transform.flipY;
+                        existingVideo.translateX = videoLayout.transform.translateX || 0;
+                        existingVideo.translateY = videoLayout.transform.translateY || 0;
                         
                         // 恢复 warp 变换
                         if (videoLayout.transform.warpTransform) {
@@ -122,6 +126,8 @@ class LayoutManager {
                                             rotation: v.rotation,
                                             flipX: v.flipX,
                                             flipY: v.flipY,
+                                            translateX: v.translateX || 0,
+                                            translateY: v.translateY || 0,
                                             zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                                         }
                                     },

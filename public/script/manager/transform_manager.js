@@ -23,9 +23,11 @@ class TransformManager {
         // 应用组合的变换
         videoData.video.style.transform = mediaTransforms.join(' ');
         
-        // 容器只应用缩放和旋转
-        videoData.container.style.transform = 
-            `scale(${videoData.scale}) rotate(${videoData.rotation}deg)`;
+        // wrapper应用位移、缩放和旋转
+        const translateX = videoData.translateX || 0;
+        const translateY = videoData.translateY || 0;
+        videoData.wrapper.style.transform = 
+            `translate(${translateX}px, ${translateY}px) scale(${videoData.scale}) rotate(${videoData.rotation}deg)`;
         
         const controls = videoData.container.querySelector('.video-controls');
         if (controls) {

@@ -71,7 +71,11 @@ function getQualityDescription(quality) {
         gpu_high: 'GPU硬件加速 - 高畫質，適合高清視頻',
         gpu_ultra: 'GPU硬件加速 - 超高畫質，適合4K視頻',
         stream_fast: '🎬 邊轉邊播，無需等待，適合快速預覽大型視頻文件',
-        stream_quality: '🎬 邊轉邊播，高質量輸出，適合正式觀看'
+        stream_quality: '🎬 邊轉邊播，高質量輸出，適合正式觀看',
+        alpha_webm_2m: '🎭 Alpha 2M，保留透明度，快速轉換，適合預覽',
+        alpha_webm_4m: '🎭 Alpha 4M，保留透明度，中等質量，平衡速度與品質',
+        alpha_webm_8m: '🎭 Alpha 8M，保留透明度，高質量，適合最終輸出',
+        alpha_webm_16m: '🎭 Alpha 16M，保留透明度，超高質量，適合4K視頻'
     };
     return descriptions[quality] || '';
 } 

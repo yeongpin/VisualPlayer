@@ -58,6 +58,8 @@ class EventHandlers {
                                 rotation: v.rotation || 0,
                                 flipX: v.flipX || false,
                                 flipY: v.flipY || false,
+                                translateX: v.translateX || 0,
+                                translateY: v.translateY || 0,
                                 zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                             }
                         },
@@ -109,17 +111,25 @@ class EventHandlers {
                     const scaleY = maxHeight / originalHeight;
                     const newScale = Math.min(scaleX, scaleY);
 
-                    // 計算 wrapper 的中心位置
-                    const wrapperWidth = videoData.wrapper.offsetWidth;
-                    const wrapperHeight = videoData.wrapper.offsetHeight;
-                    const newWrapperLeft = (windowWidth - wrapperWidth) / 2;
-                    const newWrapperTop = (windowHeight - wrapperHeight) / 2;
-                
-                    // 移動 wrapper 到屏幕中央
-                    videoData.wrapper.style.position = 'fixed';
-                    videoData.wrapper.style.left = `${newWrapperLeft}px`;
-                    videoData.wrapper.style.top = `${newWrapperTop}px`;
-                
+                    // 計算縮放後的實際顯示尺寸
+                    const scaledWidth = originalWidth * newScale;
+                    const scaledHeight = originalHeight * newScale;
+                    
+                    // 獲取wrapper的原始位置
+                    const originalLeft = parseFloat(videoData.wrapper.style.left) || 0;
+                    const originalTop = parseFloat(videoData.wrapper.style.top) || 0;
+                    
+                    // 計算因為縮放導致的左上角偏移（transform-origin: center的影響）
+                    const scaleOffsetX = (scaledWidth - originalWidth) / 2;
+                    const scaleOffsetY = (scaledHeight - originalHeight) / 2;
+                    
+                    // 計算屏幕居中的絕對位置
+                    const centerX = (windowWidth - scaledWidth) / 2;
+                    const centerY = (windowHeight - scaledHeight) / 2;
+                    
+                    // translate值 = 目標居中位置 - wrapper的原始left/top位置 + 縮放偏移
+                    videoData.translateX = centerX - originalLeft + scaleOffsetX;
+                    videoData.translateY = centerY - originalTop + scaleOffsetY;
                     videoData.scale = newScale;
                     videoData.rotation = 0;
                     this.mainManager.transformManager.updateVideoTransform(videoData);
@@ -138,6 +148,8 @@ class EventHandlers {
                                     rotation: v.rotation,
                                     flipX: v.flipX,
                                     flipY: v.flipY,
+                                    translateX: v.translateX || 0,
+                                    translateY: v.translateY || 0,
                                     zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                                 }
                             },
@@ -165,11 +177,14 @@ class EventHandlers {
             }
             
             this.dragTarget = e.currentTarget;
-            const rect = this.dragTarget.getBoundingClientRect();
-            this.dragOffset = {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            };
+            const videoData = this.mainManager.videos.find(v => v.wrapper === this.dragTarget);
+            if (videoData) {
+                // 记录当前的translate值和鼠标位置
+                this.dragOffset = {
+                    x: e.clientX - (videoData.translateX || 0),
+                    y: e.clientY - (videoData.translateY || 0)
+                };
+            }
             
             // 置頂邏輯已在 mousedown 事件中處理
         } else if (e.button === 2 && e.shiftKey) {
@@ -200,10 +215,13 @@ class EventHandlers {
                     this.mainManager.transformManager.updateVideoTransform(videoData);
                 }
             } else {
-                const x = e.clientX - this.dragOffset.x;
-                const y = e.clientY - this.dragOffset.y;
-                this.dragTarget.style.left = x + 'px';
-                this.dragTarget.style.top = y + 'px';
+                // 使用transform的translate而不是left/top
+                const videoData = this.mainManager.videos.find(v => v.wrapper === this.dragTarget);
+                if (videoData) {
+                    videoData.translateX = e.clientX - this.dragOffset.x;
+                    videoData.translateY = e.clientY - this.dragOffset.y;
+                    this.mainManager.transformManager.updateVideoTransform(videoData);
+                }
             }
         }
     }
@@ -273,6 +291,8 @@ class EventHandlers {
                                 rotation: v.rotation || 0,
                                 flipX: v.flipX || false,
                                 flipY: v.flipY || false,
+                                translateX: v.translateX || 0,
+                                translateY: v.translateY || 0,
                                 zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
                             }
                         },
@@ -355,7 +375,9 @@ class EventHandlers {
                             scale: v.scale || 1.0,
                             rotation: v.rotation || 0,
                             flipX: v.flipX || false,
-                            flipY: v.flipY || false
+                            flipY: v.flipY || false,
+                            translateX: v.translateX || 0,
+                            translateY: v.translateY || 0
                         },
                         filterValues: v.video.filterValues
                     }

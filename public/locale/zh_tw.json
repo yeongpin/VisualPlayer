@@ -247,7 +247,19 @@
             "optimizeUltraHighResolution": "⚡ 針對超高解析度顯示器（NVIDIA Surround）進行GPU渲染優化",
             "disableVizDisplayCompositor": "🔧 禁用VizDisplayCompositor以提高多屏幕配置兼容性",
             "optimizeTextureSize": "🎯 限制最大紋理尺寸為4096像素，避免顯存溢出",
-            "disableGPUOptimizations": "🛡️ 禁用部分GPU優化特性，提升NVIDIA Surround環境穩定性"
+            "disableGPUOptimizations": "🛡️ 禁用部分GPU優化特性，提升NVIDIA Surround環境穩定性",
+            "addWebMAlphaTranscoding": "✨ 新增WebM Alpha轉碼選項，支援保留透明度通道",
+            "addMultipleWebMAlphaQualities": "🎚️ 新增四種WebM Alpha質量選項：2M、4M、8M、16M，適合不同需求",
+            "fixTranscodingOutputFormat": "🔧 修復轉碼輸出格式選擇問題，現在會根據預設動態選擇正確的輸出格式",
+            "improveFFmpegOptionsCompatibility": "⚡ 改進FFmpeg選項相容性，避免MP4選項應用到WebM格式",
+            "optimizeWebMAlphaEncoding": "🎛️ 優化WebM Alpha編碼參數，使用VP8編碼器和Vorbis音頻",
+            "supportTransparentVideoTranscoding": "🎭 支援透明視頻轉碼，完美保留MOV等格式的Alpha通道",
+            "unifyTransformManagement": "🔄 統一變換管理系統，將縮放、旋轉、位移全部整合到wrapper的transform中",
+            "fixDraggingFrameSkipping": "🎮 修復拖動時跳幀問題，使用translate替代left/top實現流暢拖動",
+            "improveAltClickCentering": "🎯 改進Alt+左鍵適應屏幕功能，修復居中計算考慮transform-origin影響",
+            "fixLayoutSaveLoad": "💾 修復布局保存和加載問題，正確處理translateX/translateY數據",
+            "optimizeTransformOrder": "⚡ 優化transform順序為translate→scale→rotate，提升變換精確度",
+            "enhancePositionConsistency": "🔧 增強位置一致性，確保保存加載後元素出現在相同位置"
         },
         "keybinding": {
             "playPause": "播放/暫停",

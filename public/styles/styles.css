@@ -82,11 +82,11 @@ video {
     border-radius: 8px;
     z-index: 1;
     flex-shrink: 0;
-    
+    display: none;
 }
 
 .video-wrapper:hover .video-controls {
-    display: block;
+    display: none;
 }
 
 button {

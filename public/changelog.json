@@ -1,6 +1,66 @@
 {
     "versions": [
         {
+            "version": "v1.5.9-snapshot", 
+            "date": "2025-07-11",
+            "changes": [
+                {
+                    "key": "settings.changelog.unifyTransformManagement",
+                    "description": "統一變換管理系統，將縮放、旋轉、位移全部整合到wrapper的transform中"
+                },
+                {
+                    "key": "settings.changelog.fixDraggingFrameSkipping",
+                    "description": "修復拖動時跳幀問題，使用translate替代left/top實現流暢拖動"
+                },
+                {
+                    "key": "settings.changelog.improveAltClickCentering",
+                    "description": "改進Alt+左鍵適應屏幕功能，修復居中計算考慮transform-origin影響"
+                },
+                {
+                    "key": "settings.changelog.fixLayoutSaveLoad",
+                    "description": "修復布局保存和加載問題，正確處理translateX/translateY數據"
+                },
+                {
+                    "key": "settings.changelog.optimizeTransformOrder",
+                    "description": "優化transform順序為translate→scale→rotate，提升變換精確度"
+                },
+                {
+                    "key": "settings.changelog.enhancePositionConsistency",
+                    "description": "增強位置一致性，確保保存加載後元素出現在相同位置"
+                }
+            ]
+        },
+        {
+            "version": "v1.5.8-Beta", 
+            "date": "2025-07-11",
+            "changes": [
+                {
+                    "key": "settings.changelog.addWebMAlphaTranscoding",
+                    "description": "新增WebM Alpha轉碼選項，支援保留透明度通道"
+                },
+                {
+                    "key": "settings.changelog.addMultipleWebMAlphaQualities",
+                    "description": "新增四種WebM Alpha質量選項：2M、4M、8M、16M，適合不同需求"
+                },
+                {
+                    "key": "settings.changelog.fixTranscodingOutputFormat",
+                    "description": "修復轉碼輸出格式選擇問題，現在會根據預設動態選擇正確的輸出格式"
+                },
+                {
+                    "key": "settings.changelog.improveFFmpegOptionsCompatibility",
+                    "description": "改進FFmpeg選項相容性，避免MP4選項應用到WebM格式"
+                },
+                {
+                    "key": "settings.changelog.optimizeWebMAlphaEncoding",
+                    "description": "優化WebM Alpha編碼參數，使用VP8編碼器和Vorbis音頻"
+                },
+                {
+                    "key": "settings.changelog.supportTransparentVideoTranscoding",
+                    "description": "支援透明視頻轉碼，完美保留MOV等格式的Alpha通道"
+                }
+            ]
+        },
+        {
             "version": "v1.5.7-Beta", 
             "date": "2025-07-10",
             "changes": [

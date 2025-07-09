@@ -247,7 +247,19 @@
             "optimizeUltraHighResolution": "⚡ Optimize GPU rendering for ultra-high resolution displays (NVIDIA Surround)",
             "disableVizDisplayCompositor": "🔧 Disable VizDisplayCompositor to improve multi-screen configuration compatibility",
             "optimizeTextureSize": "🎯 Limit maximum texture size to 4096 pixels to prevent VRAM overflow",
-            "disableGPUOptimizations": "🛡️ Disable certain GPU optimization features to improve NVIDIA Surround stability"
+            "disableGPUOptimizations": "🛡️ Disable certain GPU optimization features to improve NVIDIA Surround stability",
+            "addWebMAlphaTranscoding": "✨ Add WebM Alpha transcoding options with alpha channel preservation support",
+            "addMultipleWebMAlphaQualities": "🎚️ Add four WebM Alpha quality options: 2M, 4M, 8M, 16M for different needs",
+            "fixTranscodingOutputFormat": "🔧 Fix transcoding output format selection issue, now dynamically chooses correct format based on preset",
+            "improveFFmpegOptionsCompatibility": "⚡ Improve FFmpeg options compatibility, avoid applying MP4 options to WebM format",
+            "optimizeWebMAlphaEncoding": "🎛️ Optimize WebM Alpha encoding parameters, using VP8 encoder and Vorbis audio",
+            "supportTransparentVideoTranscoding": "🎭 Support transparent video transcoding, perfectly preserve alpha channel from MOV and other formats",
+            "unifyTransformManagement": "🔄 Unify transform management system, integrate scaling, rotation, and translation into wrapper transform",
+            "fixDraggingFrameSkipping": "🎮 Fix frame skipping during dragging, use translate instead of left/top for smooth dragging",
+            "improveAltClickCentering": "🎯 Improve Alt+left-click fit-to-screen functionality, fix centering calculation considering transform-origin",
+            "fixLayoutSaveLoad": "💾 Fix layout save and load issues, correctly handle translateX/translateY data",
+            "optimizeTransformOrder": "⚡ Optimize transform order to translate→scale→rotate, improve transform accuracy",
+            "enhancePositionConsistency": "🔧 Enhance position consistency, ensure elements appear at same position after save/load"
         },
         "keybinding": {
             "playPause": "Play/Pause",

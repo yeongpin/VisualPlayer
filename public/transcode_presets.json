@@ -260,5 +260,69 @@
             "-f",
             "mp4"
         ]
+    },
+    "alpha_webm_2m": {
+        "name": "WebM Alpha 2M (低質量-快速)",
+        "options": [
+            "-c:v libvpx",
+            "-pix_fmt yuva420p",
+            "-auto-alt-ref 0",
+            "-b:v 2M",
+            "-speed 4",
+            "-cpu-used 4",
+            "-threads 4",
+            "-c:a libvorbis",
+            "-b:a 128k",
+            "-ar 44100",
+            "-ac 2"
+        ]
+    },
+    "alpha_webm_4m": {
+        "name": "WebM Alpha 4M (中等質量)",
+        "options": [
+            "-c:v libvpx",
+            "-pix_fmt yuva420p",
+            "-auto-alt-ref 0",
+            "-b:v 4M",
+            "-speed 2",
+            "-cpu-used 2",
+            "-threads 4",
+            "-c:a libvorbis",
+            "-b:a 192k",
+            "-ar 48000",
+            "-ac 2"
+        ]
+    },
+    "alpha_webm_8m": {
+        "name": "WebM Alpha 8M (高質量)",
+        "options": [
+            "-c:v libvpx",
+            "-pix_fmt yuva420p",
+            "-auto-alt-ref 0",
+            "-b:v 8M",
+            "-speed 1",
+            "-cpu-used 1",
+            "-threads 4",
+            "-c:a libvorbis",
+            "-b:a 256k",
+            "-ar 48000",
+            "-ac 2"
+        ]
+    },
+    "alpha_webm_16m": {
+        "name": "WebM Alpha 16M (超高質量)",
+        "options": [
+            "-c:v libvpx",
+            "-pix_fmt yuva420p",
+            "-auto-alt-ref 0",
+            "-b:v 16M",
+            "-speed 1",
+            "-cpu-used 1",
+            "-threads 4",
+            "-c:a libvorbis",
+            "-b:a 320k",
+            "-ar 48000",
+            "-ac 2"
+        ]
     }
 } 

@@ -135,7 +135,7 @@ function createWindow() {
         }
     })
 
-    //mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 
     // 禁用幀率限制
     mainWindow.webContents.setFrameRate(0);
@@ -1287,7 +1287,12 @@ ipcMain.on('transcode-video', async (event, { path: videoPath, name }) => {
 
         // 繼續原有的轉碼流程...
         console.log('Received transcoding request:', { videoPath, name });
-        const outputPath = path.join(os.tmpdir(), `transcoded-${Date.now()}.mp4`);
+        
+        // 根據預設選擇輸出格式和文件擴展名
+        const isWebmPreset = optionResult.quality.startsWith('alpha_webm_');
+        const outputFormat = isWebmPreset ? 'webm' : 'mp4';
+        const fileExtension = isWebmPreset ? 'webm' : 'mp4';
+        const outputPath = path.join(os.tmpdir(), `transcoded-${Date.now()}.${fileExtension}`);
         
         isTranscoding = true;
         const window = createTranscodeWindow();
@@ -1324,16 +1329,22 @@ ipcMain.on('transcode-video', async (event, { path: videoPath, name }) => {
             console.log('Video duration:', duration);
 
             // 創建 FFmpeg 命令
+            const baseOptions = [
+                '-threads 0',
+                '-y',
+                '-stats',
+                '-progress pipe:1'
+            ];
+            
+            // 根據輸出格式添加特定選項
+            if (outputFormat === 'mp4') {
+                baseOptions.push('-movflags +faststart');
+            }
+            
             currentFfmpegCommand = ffmpeg(videoPath)
-                .toFormat('mp4')
+                .toFormat(outputFormat)
                 .addOptions(selectedPreset.options)
-                .addOptions([
-                    '-threads 0',
-                    '-movflags +faststart',
-                    '-y',
-                    '-stats',
-                    '-progress pipe:1'
-                ])
+                .addOptions(baseOptions)
                 .on('start', (commandLine) => {
                     if (!isTranscoding) return;
                     console.log('FFmpeg Start Transcoding:', commandLine);
@@ -1441,16 +1452,22 @@ ipcMain.on('transcode-video', async (event, { path: videoPath, name }) => {
                         const fallbackPreset = presets[fallbackMap[optionResult.quality]] || presets['medium'];
                         
                         // 重新開始轉碼，使用CPU編碼
+                        const fallbackBaseOptions = [
+                            '-threads 0',
+                            '-y',
+                            '-stats',
+                            '-progress pipe:1'
+                        ];
+                        
+                        // 根據輸出格式添加特定選項
+                        if (outputFormat === 'mp4') {
+                            fallbackBaseOptions.push('-movflags +faststart');
+                        }
+                        
                         currentFfmpegCommand = ffmpeg(videoPath)
-                            .toFormat('mp4')
+                            .toFormat(outputFormat)
                             .addOptions(fallbackPreset.options)
-                            .addOptions([
-                                '-threads 0',
-                                '-movflags +faststart',
-                                '-y',
-                                '-stats',
-                                '-progress pipe:1'
-                            ])
+                            .addOptions(fallbackBaseOptions)
                             .on('start', (commandLine) => {
                                 if (!isTranscoding) return;
                                 console.log('FFmpeg CPU Fallback:', commandLine);
