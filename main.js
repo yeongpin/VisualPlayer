@@ -135,7 +135,7 @@ function createWindow() {
         }
     })
 
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
 
     // 禁用幀率限制
     mainWindow.webContents.setFrameRate(0);
