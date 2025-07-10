@@ -267,7 +267,13 @@
             "addLiveStreamCardIntegration": "🎯 整合直播流到卡片系統，支援統一管理和控制",
             "improveLiveStreamUI": "🎨 優化直播流用戶界面，提供現代化配置體驗",
             "addLiveStreamAutoScaling": "📐 新增直播流自動縮放功能，智能適應窗口大小",
-            "enhanceLiveStreamCompatibility": "🌐 增強直播流兼容性，支援RTMP、HTTP、WebRTC等多種協議"
+            "enhanceLiveStreamCompatibility": "🌐 增強直播流兼容性，支援RTMP、HTTP、WebRTC等多種協議",
+            "addLiveStreamDebugging": "🔍 新增直播流詳細調試功能，自動檢測可用視頻設備",
+            "improveOBSDetection": "🎥 改進OBS虛擬攝像頭檢測邏輯，自動識別並連接",
+            "enhanceErrorMessages": "💬 增強錯誤信息提示，提供詳細的故障排除指導",
+            "addDeviceEnumeration": "📋 新增設備枚舉功能，顯示所有可用的視頻輸入設備",
+            "fixLiveStreamCompatibility": "🔧 修復新電腦Live Stream兼容性問題，改善設備識別",
+            "addStreamStatusMonitoring": "📊 新增流狀態監控，實時顯示視頻軌道信息"
         },
         "keybinding": {
             "playPause": "播放/暫停",

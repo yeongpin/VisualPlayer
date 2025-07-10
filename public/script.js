@@ -1105,17 +1105,72 @@ class MainManager {
             if (streamData.type === 'webcam' || streamData.type === 'obs') {
                 // 使用 getUserMedia 获取摄像头或虚拟摄像头
                 try {
+                    // 先列出所有可用的视频设备
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                    
+                    console.log('Available video devices:');
+                    videoDevices.forEach((device, index) => {
+                        console.log(`${index}: ${device.label || 'Unknown Camera'} (${device.deviceId})`);
+                    });
+                    
+                    // 检查是否有OBS虚拟摄像头
+                    const obsDevice = videoDevices.find(device => 
+                        device.label.toLowerCase().includes('obs') || 
+                        device.label.toLowerCase().includes('virtual')
+                    );
+                    
+                    if (streamData.type === 'obs') {
+                        if (obsDevice) {
+                            console.log('Found OBS Virtual Camera:', obsDevice.label);
+                        } else {
+                            console.warn('OBS Virtual Camera not found! Available devices:', videoDevices.map(d => d.label));
+                            throw new Error('未找到OBS虚拟摄像头！请确认：\n1. OBS Studio已安装\n2. 在OBS中启动虚拟摄像头 (工具→虚拟摄像头→启动)\n3. 重启浏览器后再试');
+                        }
+                    }
+                    
                     let constraints = { video: true, audio: true };
                     
                     if (streamData.type === 'webcam' && streamData.deviceId) {
                         constraints.video = { deviceId: { exact: streamData.deviceId } };
+                    } else if (streamData.type === 'obs' && obsDevice) {
+                        // 尝试使用找到的OBS设备
+                        constraints.video = { deviceId: { exact: obsDevice.deviceId } };
                     }
+                    
+                    console.log('Requesting media with constraints:', constraints);
                     
                     const stream = await navigator.mediaDevices.getUserMedia(constraints);
                     video.srcObject = stream;
+                    
+                    // 检查stream的状态
+                    const videoTrack = stream.getVideoTracks()[0];
+                    if (videoTrack) {
+                        console.log('Video track info:', {
+                            label: videoTrack.label,
+                            enabled: videoTrack.enabled,
+                            readyState: videoTrack.readyState,
+                            settings: videoTrack.getSettings()
+                        });
+                    }
+                    
                 } catch (error) {
                     console.error('Error accessing media devices:', error);
-                    throw new Error(`无法访问${streamData.type === 'webcam' ? '摄像头' : 'OBS虚拟摄像头'}: ${error.message}`);
+                    
+                    // 提供更详细的错误信息
+                    let errorMessage = `无法访问${streamData.type === 'webcam' ? '摄像头' : 'OBS虚拟摄像头'}`;
+                    
+                    if (error.name === 'NotFoundError') {
+                        errorMessage += '\n\n设备未找到，请检查：\n• OBS Studio是否已安装\n• 虚拟摄像头是否已启动\n• 设备驱动是否正确安装';
+                    } else if (error.name === 'NotAllowedError') {
+                        errorMessage += '\n\n权限被拒绝，请：\n• 允许浏览器访问摄像头\n• 检查系统隐私设置';
+                    } else if (error.name === 'NotReadableError') {
+                        errorMessage += '\n\n设备正在被其他程序使用\n• 关闭其他使用摄像头的程序\n• 重启OBS Studio';
+                    } else {
+                        errorMessage += `\n\n错误详情: ${error.message}`;
+                    }
+                    
+                    throw new Error(errorMessage);
                 }
             } else if (streamData.type === 'custom') {
                 // 自定义URL流

@@ -1,6 +1,36 @@
 {
     "versions": [
         {
+            "version": "v1.6.1-snapshot", 
+            "date": "2025-07-12",
+            "changes": [
+                {
+                    "key": "settings.changelog.addLiveStreamDebugging",
+                    "description": "新增直播流詳細調試功能，自動檢測可用視頻設備"
+                },
+                {
+                    "key": "settings.changelog.improveOBSDetection",
+                    "description": "改進OBS虛擬攝像頭檢測邏輯，自動識別並連接"
+                },
+                {
+                    "key": "settings.changelog.enhanceErrorMessages",
+                    "description": "增強錯誤信息提示，提供詳細的故障排除指導"
+                },
+                {
+                    "key": "settings.changelog.addDeviceEnumeration",
+                    "description": "新增設備枚舉功能，顯示所有可用的視頻輸入設備"
+                },
+                {
+                    "key": "settings.changelog.fixLiveStreamCompatibility",
+                    "description": "修復新電腦Live Stream兼容性問題，改善設備識別"
+                },
+                {
+                    "key": "settings.changelog.addStreamStatusMonitoring",
+                    "description": "新增流狀態監控，實時顯示視頻軌道信息"
+                }
+            ]
+        },
+        {
             "version": "v1.6.0-snapshot", 
             "date": "2025-07-12",
             "changes": [

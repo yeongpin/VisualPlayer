@@ -267,7 +267,13 @@
             "addLiveStreamCardIntegration": "🎯 Integrate live streams into card system for unified management and control",
             "improveLiveStreamUI": "🎨 Improve live stream user interface with modern configuration experience",
             "addLiveStreamAutoScaling": "📐 Add live stream auto-scaling feature with intelligent window size adaptation",
-            "enhanceLiveStreamCompatibility": "🌐 Enhance live stream compatibility supporting RTMP, HTTP, WebRTC and other protocols"
+            "enhanceLiveStreamCompatibility": "🌐 Enhance live stream compatibility supporting RTMP, HTTP, WebRTC and other protocols",
+            "addLiveStreamDebugging": "🔍 Add detailed live stream debugging with automatic video device detection",
+            "improveOBSDetection": "🎥 Improve OBS Virtual Camera detection logic with automatic identification and connection",
+            "enhanceErrorMessages": "💬 Enhance error message prompts with detailed troubleshooting guidance",
+            "addDeviceEnumeration": "📋 Add device enumeration feature to display all available video input devices",
+            "fixLiveStreamCompatibility": "🔧 Fix new computer Live Stream compatibility issues, improve device recognition",
+            "addStreamStatusMonitoring": "📊 Add stream status monitoring with real-time video track information display"
         },
         "keybinding": {
             "playPause": "Play/Pause",
