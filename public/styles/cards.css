@@ -151,6 +151,15 @@ body {
     100% { opacity: 1; }
 }
 
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
 .card-info {
     flex: 1;
     min-width: 0;
@@ -768,5 +777,43 @@ body {
 .scale-btn:active {
     background: rgba(79, 175, 244, 0.3);
     border-color: rgba(79, 175, 244, 0.7);
+} 
+ 
+.weblivestream-button {
+    -webkit-app-region: no-drag;
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.weblivestream-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ff6b35;
+}
+
+.weblivestream-button:active {
+    background: rgba(255, 107, 53, 0.2);
+}
+
+.weblivestream-button svg {
+    width: 18px;
+    height: 18px;
+    transition: all 0.2s;
+}
+
+.weblivestream-button:hover svg {
+    transform: scale(1.1);
+}
+
+.weblivestream-button:active svg {
+    transform: scale(0.95);
 } 
  

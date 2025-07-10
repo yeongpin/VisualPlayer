@@ -259,7 +259,15 @@
             "improveAltClickCentering": "🎯 改進Alt+左鍵適應屏幕功能，修復居中計算考慮transform-origin影響",
             "fixLayoutSaveLoad": "💾 修復布局保存和加載問題，正確處理translateX/translateY數據",
             "optimizeTransformOrder": "⚡ 優化transform順序為translate→scale→rotate，提升變換精確度",
-            "enhancePositionConsistency": "🔧 增強位置一致性，確保保存加載後元素出現在相同位置"
+            "enhancePositionConsistency": "🔧 增強位置一致性，確保保存加載後元素出現在相同位置",
+            "addWebLiveStreamFeature": "✨ 新增網路直播流功能，支援多種流媒體源接入",
+            "addWebLiveStreamConfig": "🔧 新增直播流配置窗口，支援OBS虛擬攝像頭、攝像頭、自定義URL",
+            "addLiveStreamTransformSupport": "🎛️ 添加直播流完整變換支援，包括旋轉、縮放、置頂等功能",
+            "fixLiveStreamEventHandlers": "🐛 修復直播流缺少事件監聽器問題，現在支援所有標準操作",
+            "addLiveStreamCardIntegration": "🎯 整合直播流到卡片系統，支援統一管理和控制",
+            "improveLiveStreamUI": "🎨 優化直播流用戶界面，提供現代化配置體驗",
+            "addLiveStreamAutoScaling": "📐 新增直播流自動縮放功能，智能適應窗口大小",
+            "enhanceLiveStreamCompatibility": "🌐 增強直播流兼容性，支援RTMP、HTTP、WebRTC等多種協議"
         },
         "keybinding": {
             "playPause": "播放/暫停",
@@ -317,12 +325,30 @@
         },
         "cards": {
             "title": "視頻卡片列表",
-            "applyZIndex": "應用當前順序到圖層",
+            "applyZIndex": "應用當前順序到Z軸",
             "saveLayout": "保存佈局",
             "loadLayout": "加載佈局",
+            "webLiveStream": "網路直播流",
             "refresh": "刷新列表",
             "close": "關閉"
         }
+    },
+    "webLiveStream": {
+        "title": "網路直播流配置",
+        "url": "直播流URL",
+        "urlPlaceholder": "請輸入直播流URL (例: rtmp://..., http://...)",
+        "deviceName": "設備名稱",
+        "deviceNamePlaceholder": "為此直播流命名",
+        "useOBSVirtualCamera": "使用OBS虛擬攝像頭",
+        "useWebcam": "使用攝像頭",
+        "useCustomURL": "使用自定義URL",
+        "connect": "連接",
+        "cancel": "取消",
+        "connecting": "連接中...",
+        "connected": "已連接",
+        "disconnected": "已斷開",
+        "error": "連接錯誤",
+        "invalidURL": "無效的URL格式"
     },
     "warpEditor": {
         "title": "變形編輯器",

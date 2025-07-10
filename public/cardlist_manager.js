@@ -84,21 +84,72 @@ class CardListManager {
         `;
 
         // 創建縮略圖元素
-        const thumbnail = document.createElement(videoData.isImage ? 'img' : 'video');
+        let thumbnail;
         
-        // 設置縮略圖源
         if (videoData.isImage) {
+            // 图片处理
+            thumbnail = document.createElement('img');
             thumbnail.src = videoData.video.src;
+            thumbnail.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            `;
+        } else if (videoData.isLiveStream) {
+            // 直播流处理
+            if (videoData.video.srcObject === 'stream' || videoData.video.src) {
+                // 有有效的流源，创建video元素
+                thumbnail = document.createElement('video');
+                if (videoData.video.src) {
+                    thumbnail.src = videoData.video.src;
+                }
+                thumbnail.muted = true;
+                thumbnail.autoplay = true;
+                thumbnail.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                `;
+            } else {
+                // 没有有效流源，使用占位符
+                thumbnail = document.createElement('div');
+                thumbnail.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(135deg, #ff4500, #ff6b35);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 10px;
+                `;
+                
+                const iconElement = document.createElement('div');
+                iconElement.innerHTML = '📹';
+                iconElement.style.fontSize = '16px';
+                iconElement.style.marginBottom = '4px';
+                
+                const textElement = document.createElement('div');
+                textElement.innerHTML = 'LIVE';
+                textElement.style.fontWeight = 'bold';
+                textElement.style.letterSpacing = '1px';
+                
+                thumbnail.appendChild(iconElement);
+                thumbnail.appendChild(textElement);
+            }
         } else {
-            thumbnail.src = videoData.video.currentSrc;
+            // 普通视频处理
+            thumbnail = document.createElement('video');
+            thumbnail.src = videoData.video.currentSrc || videoData.video.src;
             thumbnail.muted = true;
+            thumbnail.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            `;
         }
-
-        thumbnail.style.cssText = `
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        `;
 
         card.appendChild(thumbnail);
 
@@ -114,7 +165,16 @@ class CardListManager {
             color: white;
             font-size: 12px;
         `;
-        title.textContent = videoData.isImage ? `圖片 ${index + 1}` : `視頻 ${index + 1}`;
+        
+        // 根据类型设置不同的标题
+        if (videoData.isImage) {
+            title.textContent = `圖片 ${index + 1}`;
+        } else if (videoData.isLiveStream) {
+            title.textContent = `🔴 ${videoData.streamData?.name || 'Live Stream'}`;
+        } else {
+            title.textContent = `視頻 ${index + 1}`;
+        }
+        
         card.appendChild(title);
 
         // 添加點擊事件

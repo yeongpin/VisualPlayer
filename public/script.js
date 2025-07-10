@@ -201,6 +201,18 @@ class MainManager {
             }
         });
 
+        // 處理添加直播流事件
+        ipcRenderer.on('add-live-stream', (event, streamData) => {
+            console.log('Adding live stream:', streamData);
+            this.addLiveStream(streamData);
+        });
+
+        // 處理移除直播流事件
+        ipcRenderer.on('remove-live-stream', (event, streamId) => {
+            console.log('Removing live stream:', streamId);
+            this.removeLiveStream(streamId);
+        });
+
         // 处理应用变形的事件
         ipcRenderer.on('apply-warp-transform', (event, { index, transform }) => {
             const videoData = this.videos[index];
@@ -388,9 +400,10 @@ class MainManager {
                 cardsWindows.forEach(win => {
                     if (!win.isDestroyed()) {
                         win.webContents.send('media-scale-updated', { 
-                            videoSrc: videoData.video.src, // 使用視頻源路徑
+                            videoSrc: videoData.video.src || `live-stream-${videoData.streamId}`, // 为直播流创建唯一标识
                             scale: scale,
-                            index: index // 保留索引作為備用
+                            index: index, // 保留索引作為備用
+                            isLiveStream: videoData.isLiveStream || false
                         });
                     }
                 });
@@ -1050,6 +1063,272 @@ class MainManager {
         } catch (error) {
             console.error('Error processing RAW image:', error);
         }
+    }
+
+    // 添加直播流支持
+    async addLiveStream(streamData) {
+        try {
+            console.log('Creating live stream element:', streamData);
+            
+            // 隐藏 dropZone
+            this.dropZone.style.display = 'none';
+            
+            // 创建视频元素
+            const video = document.createElement('video');
+            video.autoplay = true;
+            video.muted = false; // 直播流通常需要声音
+            video.loop = false;
+            video.controls = false;
+            video.dataset.originalFileName = streamData.name;
+            video.dataset.filePath = streamData.url;
+            video.dataset.streamId = streamData.id;
+            video.dataset.isLiveStream = 'true';
+            
+            video.style.width = '100%';
+            video.style.height = '100%';
+            video.style.objectFit = 'cover';
+            
+            // 创建包装器（初始大小，等待视频加载后调整）
+            const wrapper = document.createElement('div');
+            wrapper.className = 'video-wrapper';
+            wrapper.style.cssText = `
+                position: absolute;
+                width: 480px;
+                height: 270px;
+                cursor: move;
+                user-select: none;
+                transform-origin: center;
+                will-change: transform;
+            `;
+            
+            // 根据流类型处理媒体流
+            if (streamData.type === 'webcam' || streamData.type === 'obs') {
+                // 使用 getUserMedia 获取摄像头或虚拟摄像头
+                try {
+                    let constraints = { video: true, audio: true };
+                    
+                    if (streamData.type === 'webcam' && streamData.deviceId) {
+                        constraints.video = { deviceId: { exact: streamData.deviceId } };
+                    }
+                    
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    video.srcObject = stream;
+                } catch (error) {
+                    console.error('Error accessing media devices:', error);
+                    throw new Error(`无法访问${streamData.type === 'webcam' ? '摄像头' : 'OBS虚拟摄像头'}: ${error.message}`);
+                }
+            } else if (streamData.type === 'custom') {
+                // 自定义URL流
+                video.src = streamData.url;
+                video.crossOrigin = 'anonymous';
+            }
+            
+            // 创建视频容器
+            const videoContainer = document.createElement('div');
+            videoContainer.className = 'video-container';
+            videoContainer.style.cssText = `
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transform-origin: center;
+                transform-style: preserve-3d;
+                will-change: transform;
+                position: relative;
+            `;
+            
+            videoContainer.appendChild(video);
+            wrapper.appendChild(videoContainer);
+            
+            // 为直播流视频添加基本的事件监听器
+            video.addEventListener('loadedmetadata', () => {
+                console.log('Live stream metadata loaded');
+                
+                // 获取视频原始尺寸
+                const originalWidth = video.videoWidth || 1920; // 默认1920，如果无法获取
+                const originalHeight = video.videoHeight || 1080; // 默认1080，如果无法获取
+                
+                console.log('Live stream original size:', originalWidth, 'x', originalHeight);
+                
+                // 计算适合窗口的尺寸，但保持原始比例
+                const winWidth = window.innerWidth;
+                const winHeight = window.innerHeight;
+                const availWidth = winWidth * 0.6;  // 60% 窗口宽度（比普通视频小一些）
+                const availHeight = winHeight * 0.6;  // 60% 窗口高度
+                
+                // 计算缩放比例以适应窗口
+                const scaleX = availWidth / originalWidth;
+                const scaleY = availHeight / originalHeight;
+                const scale = Math.min(scaleX, scaleY, 1); // 不放大，只缩小
+                
+                // 设置wrapper尺寸为缩放后的实际显示尺寸
+                const displayWidth = originalWidth * scale;
+                const displayHeight = originalHeight * scale;
+                wrapper.style.width = `${displayWidth}px`;
+                wrapper.style.height = `${displayHeight}px`;
+                
+                // 居中显示
+                const centerX = (winWidth - displayWidth) / 2;
+                const centerY = (winHeight - displayHeight) / 2;
+                wrapper.style.left = `${centerX}px`;
+                wrapper.style.top = `${centerY}px`;
+                
+                console.log('Live stream positioned at:', centerX, centerY, 'size:', displayWidth, 'x', displayHeight);
+            });
+            
+            video.addEventListener('error', (e) => {
+                console.error('Live stream error:', e);
+            });
+            
+            // 设置初始translateX和translateY
+            const translateX = 0;
+            const translateY = 0;
+            
+            // 设置初始位置（临时位置，等待loadedmetadata事件后居中）
+            wrapper.style.left = '50px';
+            wrapper.style.top = '50px';
+            wrapper.style.zIndex = this.getTopZIndex() + 1;
+            
+            // 添加到DOM
+            document.body.appendChild(wrapper);
+            
+            // 保存视频数据
+            const videoData = {
+                video: video,
+                wrapper: wrapper,
+                container: videoContainer,
+                scale: 1,
+                rotation: 0,
+                flipX: false,
+                flipY: false,
+                translateX: translateX,
+                translateY: translateY,
+                isImage: false,
+                isLiveStream: true,
+                streamId: streamData.id,
+                streamData: streamData
+            };
+            
+            this.videos.push(videoData);
+            
+            // 添加正确的事件监听器，使其支持所有变换功能
+            wrapper.addEventListener('mousedown', (e) => this.eventHandlers.handleMouseDown(e));
+            wrapper.addEventListener('wheel', (e) => this.eventHandlers.handleWheel(e));
+            
+            // 应用初始变换
+            this.transformManager.updateVideoTransform(videoData);
+            
+            // 更新卡片列表（如果正在显示）
+            if (this.cardListManager.cardListVisible) {
+                this.cardListManager.showCardList();
+            }
+            
+            // 通知cards窗口更新数据
+            const { ipcRenderer } = require('electron');
+            ipcRenderer.send('update-cards', {
+                videos: this.videos.map(v => ({
+                    isImage: v.isImage || false,
+                    isLiveStream: v.isLiveStream || false,
+                    streamData: v.streamData ? {
+                        id: v.streamId || v.streamData.id,
+                        name: v.streamData.name,
+                        source: v.streamData.source
+                    } : null,
+                    video: {
+                        src: v.video.src || '',
+                        currentSrc: v.video.currentSrc || '',
+                        srcObject: v.video.srcObject ? 'stream' : null,
+                        dataset: {
+                            originalFileName: v.video.dataset.originalFileName,
+                            scale: v.scale,
+                            rotation: v.rotation,
+                            flipX: v.flipX,
+                            flipY: v.flipY,
+                            zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
+                        }
+                    },
+                    zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
+                }))
+            });
+            
+            console.log('Live stream added successfully:', streamData.name);
+            
+        } catch (error) {
+            console.error('Error adding live stream:', error);
+            // 通知用户错误
+            alert(`添加直播流失败: ${error.message}`);
+        }
+    }
+
+    // 移除直播流
+    removeLiveStream(streamId) {
+        const index = this.videos.findIndex(v => v.streamId === streamId);
+        if (index !== -1) {
+            const videoData = this.videos[index];
+            
+            // 停止媒体流
+            if (videoData.video.srcObject) {
+                const tracks = videoData.video.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+            }
+            
+            // 从DOM中移除
+            videoData.wrapper.remove();
+            
+            // 从数组中移除
+            this.videos.splice(index, 1);
+            
+            // 如果没有视频了，显示dropZone
+            if (this.videos.length === 0) {
+                this.dropZone.style.display = 'flex';
+            }
+            
+            // 更新卡片列表（如果正在显示）
+            if (this.cardListManager.cardListVisible) {
+                this.cardListManager.showCardList();
+            }
+            
+            // 通知cards窗口更新数据
+            const { ipcRenderer } = require('electron');
+            ipcRenderer.send('update-cards', {
+                videos: this.videos.map(v => ({
+                    isImage: v.isImage || false,
+                    isLiveStream: v.isLiveStream || false,
+                    streamData: v.streamData ? {
+                        id: v.streamId || v.streamData.id,
+                        name: v.streamData.name,
+                        source: v.streamData.source
+                    } : null,
+                    video: {
+                        src: v.video.src || '',
+                        currentSrc: v.video.currentSrc || '',
+                        srcObject: v.video.srcObject ? 'stream' : null,
+                        dataset: {
+                            originalFileName: v.video.dataset.originalFileName,
+                            scale: v.scale,
+                            rotation: v.rotation,
+                            flipX: v.flipX,
+                            flipY: v.flipY,
+                            zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
+                        }
+                    },
+                    zIndex: parseInt(v.wrapper?.style?.zIndex) || 0
+                }))
+            });
+            
+            console.log('Live stream removed:', streamId);
+        }
+    }
+
+    // 获取最高的z-index值
+    getTopZIndex() {
+        let maxZ = 0;
+        this.videos.forEach(videoData => {
+            const z = parseInt(videoData.wrapper.style.zIndex) || 0;
+            if (z > maxZ) maxZ = z;
+        });
+        return maxZ;
     }
 }
 

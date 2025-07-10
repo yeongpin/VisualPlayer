@@ -1,6 +1,44 @@
 {
     "versions": [
         {
+            "version": "v1.6.0-snapshot", 
+            "date": "2025-07-12",
+            "changes": [
+                {
+                    "key": "settings.changelog.addWebLiveStreamFeature",
+                    "description": "新增網路直播流功能，支援多種流媒體源接入"
+                },
+                {
+                    "key": "settings.changelog.addWebLiveStreamConfig",
+                    "description": "新增直播流配置窗口，支援OBS虛擬攝像頭、攝像頭、自定義URL"
+                },
+                {
+                    "key": "settings.changelog.addLiveStreamTransformSupport",
+                    "description": "添加直播流完整變換支援，包括旋轉、縮放、置頂等功能"
+                },
+                {
+                    "key": "settings.changelog.fixLiveStreamEventHandlers",
+                    "description": "修復直播流缺少事件監聽器問題，現在支援所有標準操作"
+                },
+                {
+                    "key": "settings.changelog.addLiveStreamCardIntegration",
+                    "description": "整合直播流到卡片系統，支援統一管理和控制"
+                },
+                {
+                    "key": "settings.changelog.improveLiveStreamUI",
+                    "description": "優化直播流用戶界面，提供現代化配置體驗"
+                },
+                {
+                    "key": "settings.changelog.addLiveStreamAutoScaling",
+                    "description": "新增直播流自動縮放功能，智能適應窗口大小"
+                },
+                {
+                    "key": "settings.changelog.enhanceLiveStreamCompatibility",
+                    "description": "增強直播流兼容性，支援RTMP、HTTP、WebRTC等多種協議"
+                }
+            ]
+        },
+        {
             "version": "v1.5.9-snapshot", 
             "date": "2025-07-11",
             "changes": [

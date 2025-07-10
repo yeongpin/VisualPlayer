@@ -464,3 +464,5 @@ input[type="range"]::-webkit-slider-thumb {
     padding-bottom: 10px;  /* 為滾動條留出空間 */
 }
 
+/* 移除了Live Stream相关样式，现在直播流使用普通的video-wrapper样式 */
+

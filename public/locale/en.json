@@ -259,7 +259,15 @@
             "improveAltClickCentering": "🎯 Improve Alt+left-click fit-to-screen functionality, fix centering calculation considering transform-origin",
             "fixLayoutSaveLoad": "💾 Fix layout save and load issues, correctly handle translateX/translateY data",
             "optimizeTransformOrder": "⚡ Optimize transform order to translate→scale→rotate, improve transform accuracy",
-            "enhancePositionConsistency": "🔧 Enhance position consistency, ensure elements appear at same position after save/load"
+            "enhancePositionConsistency": "🔧 Enhance position consistency, ensure elements appear at same position after save/load",
+            "addWebLiveStreamFeature": "✨ Add Web Live Stream feature with support for multiple streaming sources",
+            "addWebLiveStreamConfig": "🔧 Add live stream configuration window supporting OBS Virtual Camera, webcam, and custom URL",
+            "addLiveStreamTransformSupport": "🎛️ Add complete transform support for live streams including rotation, scaling, and z-index control",
+            "fixLiveStreamEventHandlers": "🐛 Fix live stream missing event handlers issue, now supports all standard operations",
+            "addLiveStreamCardIntegration": "🎯 Integrate live streams into card system for unified management and control",
+            "improveLiveStreamUI": "🎨 Improve live stream user interface with modern configuration experience",
+            "addLiveStreamAutoScaling": "📐 Add live stream auto-scaling feature with intelligent window size adaptation",
+            "enhanceLiveStreamCompatibility": "🌐 Enhance live stream compatibility supporting RTMP, HTTP, WebRTC and other protocols"
         },
         "keybinding": {
             "playPause": "Play/Pause",
@@ -316,12 +324,30 @@
             "cardList": "Open Card List"
         },
         "cards": {
-            "title": "Video Card List",
+            "title": "Video Cards List",
             "applyZIndex": "Apply Current Order to Z-Index",
             "saveLayout": "Save Layout",
             "loadLayout": "Load Layout",
+            "webLiveStream": "Web Live Stream",
             "refresh": "Refresh List",
             "close": "Close"
+        },
+        "webLiveStream": {
+            "title": "Web Live Stream Configuration",
+            "url": "Stream URL",
+            "urlPlaceholder": "Enter stream URL (e.g. rtmp://..., http://...)",
+            "deviceName": "Device Name",
+            "deviceNamePlaceholder": "Name this live stream",
+            "useOBSVirtualCamera": "Use OBS Virtual Camera",
+            "useWebcam": "Use Webcam",
+            "useCustomURL": "Use Custom URL",
+            "connect": "Connect",
+            "cancel": "Cancel",
+            "connecting": "Connecting...",
+            "connected": "Connected",
+            "disconnected": "Disconnected",
+            "error": "Connection Error",
+            "invalidURL": "Invalid URL format"
         }
     },
     "warpEditor": {

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Visual Player - Web Live Stream</title>
+    <link rel="stylesheet" href="styles/weblivestream.css">
+</head>
+<body>
+    <div class="titlebar">
+        <div class="title" data-i18n="webLiveStream.title">Web Live Stream Configuration</div>
+        <div class="titlebar-buttons">
+            <button class="titlebar-button close-button" title="Close" data-i18n="cards.close">×</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h3 data-i18n="webLiveStream.deviceName">Device Name</h3>
+            <input type="text" id="deviceName" class="input-field" data-i18n-placeholder="webLiveStream.deviceNamePlaceholder" placeholder="Name this live stream">
+        </div>
+
+        <div class="section">
+            <h3>Stream Source</h3>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="streamSource" value="obs" checked>
+                    <span class="radio-label" data-i18n="webLiveStream.useOBSVirtualCamera">Use OBS Virtual Camera</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="streamSource" value="webcam">
+                    <span class="radio-label" data-i18n="webLiveStream.useWebcam">Use Webcam</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="streamSource" value="custom">
+                    <span class="radio-label" data-i18n="webLiveStream.useCustomURL">Use Custom URL</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="section" id="urlSection" style="display: none;">
+            <h3 data-i18n="webLiveStream.url">Stream URL</h3>
+            <input type="text" id="streamUrl" class="input-field" data-i18n-placeholder="webLiveStream.urlPlaceholder" placeholder="Enter stream URL (e.g. rtmp://..., http://...)">
+            <div class="url-examples">
+                <p><strong>Examples:</strong></p>
+                <ul>
+                    <li><code>rtmp://live.example.com/live/stream_key</code></li>
+                    <li><code>http://example.com:8080/live/stream.m3u8</code></li>
+                    <li><code>https://example.com/live/stream.flv</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section" id="webcamSection" style="display: none;">
+            <h3>Webcam Selection</h3>
+            <select id="webcamSelect" class="input-field">
+                <option value="">Select a webcam...</option>
+            </select>
+        </div>
+
+        <div class="status-section">
+            <div id="statusIndicator" class="status-indicator disconnected">
+                <span class="status-dot"></span>
+                <span class="status-text" data-i18n="webLiveStream.disconnected">Disconnected</span>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="connectBtn" class="button primary" data-i18n="webLiveStream.connect">Connect</button>
+            <button id="cancelBtn" class="button secondary" data-i18n="webLiveStream.cancel">Cancel</button>
+        </div>
+    </div>
+
+    <script src="script/language/languageManager.js"></script>
+    <script src="weblivestream.js"></script>
+</body>
+</html> 

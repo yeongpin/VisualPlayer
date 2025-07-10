@@ -251,6 +251,12 @@ function createWindow() {
             moveableWindow.close();
         }
 
+        if (webLiveStreamWindow  && !webLiveStreamWindow .isDestroyed()) {
+            webLiveStreamWindow.close();
+        }
+
+        webLiveStreamWindow = null;
+
         cardsWindow = null;
         mainWindow = null;
     });
@@ -2009,6 +2015,131 @@ ipcMain.on('update-zindex-order', (event, newZIndexOrder) => {
     );
     if (mainWindow) {
         mainWindow.webContents.send('update-zindex-order', newZIndexOrder);
+    }
+});
+
+// 處理創建Web直播流窗口的請求
+let webLiveStreamWindow = null;
+ipcMain.on('create-weblivestream-window', (event) => {
+    if (webLiveStreamWindow) {
+        webLiveStreamWindow.focus();
+        return;
+    }
+
+    webLiveStreamWindow = new BrowserWindow({
+        width: 500,
+        height: 700,
+        modal: true,
+        alwaysOnTop: true,
+        frame: false,
+        resizable: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true,
+            webSecurity: false
+        }
+    });
+
+    require('@electron/remote/main').enable(webLiveStreamWindow.webContents);
+    webLiveStreamWindow.loadFile('public/weblivestream.html');
+
+    // 設置窗口在屏幕中央
+    webLiveStreamWindow.once('ready-to-show', () => {
+        webLiveStreamWindow.center();
+        webLiveStreamWindow.show();
+    });
+
+    webLiveStreamWindow.on('closed', () => {
+        webLiveStreamWindow = null;
+    });
+});
+
+// 處理直播流連接請求
+let liveStreams = new Map(); // 存儲當前的直播流
+
+ipcMain.on('connect-live-stream', async (event, config) => {
+    try {
+        console.log('Connecting to live stream:', config);
+        
+        // 生成唯一的流ID
+        const streamId = Date.now().toString();
+        
+        let streamData = {
+            id: streamId,
+            name: config.name,
+            type: config.type,
+            status: 'connected',
+            createdAt: new Date()
+        };
+
+        // 根據不同類型處理直播流
+        switch (config.type) {
+            case 'obs':
+                // OBS虛擬攝像頭處理
+                streamData.source = 'OBS Virtual Camera';
+                streamData.url = 'navigator:obs-camera';
+                break;
+                
+            case 'webcam':
+                // 攝像頭處理
+                streamData.deviceId = config.deviceId;
+                streamData.url = `navigator:${config.deviceId}`;
+                break;
+                
+            case 'custom':
+                // 自定義URL處理
+                streamData.url = config.url;
+                break;
+        }
+
+        // 儲存流信息
+        liveStreams.set(streamId, streamData);
+
+        // 通知主窗口添加直播流
+        const mainWindow = BrowserWindow.getAllWindows().find(win => 
+            win.webContents.getURL().includes('index.html')
+        );
+        if (mainWindow) {
+            mainWindow.webContents.send('add-live-stream', streamData);
+        }
+
+        // 回復連接成功
+        event.reply('live-stream-connected', {
+            success: true,
+            streamData: streamData
+        });
+
+    } catch (error) {
+        console.error('Failed to connect live stream:', error);
+        event.reply('live-stream-connected', {
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// 處理直播流斷開請求
+ipcMain.on('disconnect-live-stream', (event, streamId) => {
+    try {
+        if (liveStreams.has(streamId)) {
+            const streamData = liveStreams.get(streamId);
+            
+            // 通知主窗口移除直播流
+            const mainWindow = BrowserWindow.getAllWindows().find(win => 
+                win.webContents.getURL().includes('index.html')
+            );
+            if (mainWindow) {
+                mainWindow.webContents.send('remove-live-stream', streamId);
+            }
+
+            // 移除流信息
+            liveStreams.delete(streamId);
+            
+            console.log('Disconnected live stream:', streamData.name);
+        }
+    } catch (error) {
+        console.error('Error disconnecting live stream:', error);
     }
 });
 

@@ -12,6 +12,7 @@ const { createSvgIcon } = require('./icons.js');
 const cardsContainer = document.querySelector('.cards-container');
 const closeButton = document.querySelector('.close-button');
 const refreshButton = document.querySelector('.refresh-button');
+const webLiveStreamButton = document.querySelector('.weblivestream-button');
 
 let videos = []; // 保存視頻數據的引用
 let videoStates = new Map(); // 用於保存每個視頻的狀態
@@ -513,26 +514,98 @@ function createCard(videoData, index) {
         thumbnail = document.createElement('img');
         thumbnail.className = 'thumbnail';
         thumbnail.src = videoData.video.src;
-    } else if (thumbnailCache.has(cacheKey)) {
-        // 使用缓存的缩略图
-        console.log('Using cached thumbnail for:', cacheKey);
-        thumbnail = document.createElement('img');
-        thumbnail.src = thumbnailCache.get(cacheKey);
-        thumbnail.className = 'thumbnail';
-        thumbnail.style.objectFit = 'cover';
-    } else if (isStreamVideo) {
-        // 对于串流视频，使用占位符图像
-        console.log('Creating placeholder for stream video:', cacheKey);
-        const placeholderImg = document.createElement('img');
-        placeholderImg.src = 'assets/placeholder.png';
-        placeholderImg.className = 'thumbnail stream-placeholder';
-        placeholderImg.style.objectFit = 'cover';
-        placeholderImg.style.background = 'linear-gradient(45deg, #1a1a1a, #333)';
+    } else if (videoData.isLiveStream) {
+        // 直播流处理
+        console.log('Creating live stream thumbnail for:', videoData.streamData?.name);
         
-        // 添加串流标识
+        if (videoData.video.src && videoData.video.src.startsWith('http')) {
+            // 如果是URL流，使用video元素
+            thumbnail = document.createElement('video');
+            thumbnail.className = 'thumbnail live-stream';
+            thumbnail.src = videoData.video.src;
+            thumbnail.muted = true;
+            thumbnail.autoplay = true;
+            thumbnail.style.objectFit = 'cover';
+        } else {
+            // 使用直播流专用占位符
+            thumbnail = document.createElement('div');
+            thumbnail.className = 'thumbnail stream-placeholder';
+            thumbnail.style.cssText = `
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #ff4500, #ff6b35, #ff4500);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                position: relative;
+                overflow: hidden;
+            `;
+            
+            // 添加动态背景动画
+            const animatedBg = document.createElement('div');
+            animatedBg.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(45deg, 
+                    transparent 0%, 
+                    rgba(255,255,255,0.1) 25%, 
+                    transparent 50%, 
+                    rgba(255,255,255,0.1) 75%, 
+                    transparent 100%
+                );
+                animation: shimmer 2s infinite;
+                z-index: 1;
+            `;
+            
+            // 添加摄像头图标
+            const cameraIcon = document.createElement('div');
+            cameraIcon.innerHTML = '📹';
+            cameraIcon.style.cssText = `
+                font-size: 24px;
+                margin-bottom: 8px;
+                z-index: 2;
+                position: relative;
+            `;
+            
+            // 添加LIVE文字
+            const liveText = document.createElement('div');
+            liveText.innerHTML = 'LIVE';
+            liveText.style.cssText = `
+                font-size: 16px;
+                font-weight: bold;
+                letter-spacing: 2px;
+                z-index: 2;
+                position: relative;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            `;
+            
+            // 添加状态文字
+            const statusText = document.createElement('div');
+            statusText.innerHTML = 'Connecting...';
+            statusText.style.cssText = `
+                font-size: 10px;
+                margin-top: 4px;
+                opacity: 0.8;
+                z-index: 2;
+                position: relative;
+            `;
+            
+            thumbnail.appendChild(animatedBg);
+            thumbnail.appendChild(cameraIcon);
+            thumbnail.appendChild(liveText);
+            thumbnail.appendChild(statusText);
+        }
+        
+        // 添加直播标识
         const streamIndicator = document.createElement('div');
         streamIndicator.className = 'stream-indicator';
-        streamIndicator.innerHTML = '📡 LIVE STREAM';
+        streamIndicator.innerHTML = '🔴 LIVE';
         streamIndicator.style.cssText = `
             position: absolute;
             top: 5px;
@@ -546,11 +619,109 @@ function createCard(videoData, index) {
             z-index: 1;
         `;
         
-        // 创建容器来包含占位符和指示器
+        // 创建容器来包含视频和指示器
+        const streamContainer = document.createElement('div');
+        streamContainer.className = 'thumbnail';
+        streamContainer.style.position = 'relative';
+        streamContainer.appendChild(thumbnail);
+        streamContainer.appendChild(streamIndicator);
+        
+        thumbnail = streamContainer;
+    } else if (thumbnailCache.has(cacheKey)) {
+        // 使用缓存的缩略图
+        console.log('Using cached thumbnail for:', cacheKey);
+        thumbnail = document.createElement('img');
+        thumbnail.src = thumbnailCache.get(cacheKey);
+        thumbnail.className = 'thumbnail';
+        thumbnail.style.objectFit = 'cover';
+    } else if (isStreamVideo) {
+        // 对于串流视频，使用专用占位符
+        console.log('Creating placeholder for stream video:', cacheKey);
+        
+        // 创建直播流专用占位符
+        const streamPlaceholder = document.createElement('div');
+        streamPlaceholder.className = 'thumbnail stream-placeholder';
+        streamPlaceholder.style.cssText = `
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b35, #ff4500, #ff6b35);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            position: relative;
+            overflow: hidden;
+        `;
+        
+        // 添加动态背景动画
+        const animatedBg = document.createElement('div');
+        animatedBg.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                transparent 0%, 
+                rgba(255,255,255,0.1) 25%, 
+                transparent 50%, 
+                rgba(255,255,255,0.1) 75%, 
+                transparent 100%
+            );
+            animation: shimmer 3s infinite;
+            z-index: 1;
+        `;
+        
+        // 添加图标
+        const statusIcon = document.createElement('div');
+        statusIcon.innerHTML = '📡';
+        statusIcon.style.cssText = `
+            font-size: 20px;
+            margin-bottom: 6px;
+            z-index: 2;
+            position: relative;
+        `;
+        
+        // 添加状态文字
+        const statusText = document.createElement('div');
+        statusText.innerHTML = 'STREAM';
+        statusText.style.cssText = `
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            z-index: 2;
+            position: relative;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        `;
+        
+        // 添加副标题
+        const subText = document.createElement('div');
+        subText.innerHTML = 'Offline';
+        subText.style.cssText = `
+            font-size: 9px;
+            margin-top: 2px;
+            opacity: 0.8;
+            z-index: 2;
+            position: relative;
+        `;
+        
+        streamPlaceholder.appendChild(animatedBg);
+        streamPlaceholder.appendChild(statusIcon);
+        streamPlaceholder.appendChild(statusText);
+        streamPlaceholder.appendChild(subText);
+        
+        // 添加串流标识
+        const streamIndicator = document.createElement('div');
+        streamIndicator.className = 'stream-indicator';
+        streamIndicator.innerHTML = '📡 STREAM';
+        
+        // 创建容器
         thumbnail = document.createElement('div');
         thumbnail.className = 'thumbnail';
         thumbnail.style.position = 'relative';
-        thumbnail.appendChild(placeholderImg);
+        thumbnail.appendChild(streamPlaceholder);
         thumbnail.appendChild(streamIndicator);
     } else {
         // 创建视频元素作为缩略图
@@ -816,12 +987,26 @@ function createCard(videoData, index) {
     
     const title = document.createElement('div');
     title.className = 'card-title';
-    title.textContent = videoData.isImage ? `Image ${index + 1}` : `Video ${index + 1}`;
+    
+    // 根据媒体类型设置不同的标题
+    if (videoData.isImage) {
+        title.textContent = `Image ${index + 1}`;
+    } else if (videoData.isLiveStream) {
+        title.textContent = `🔴 ${videoData.streamData?.name || 'Live Stream'}`;
+    } else {
+        title.textContent = `Video ${index + 1}`;
+    }
     
     const details = document.createElement('div');
     details.className = 'card-details';
-    // 对于串流视频，显示特殊标识（重用之前声明的 isStreamVideo）
-    if (isStreamVideo) {
+    
+    // 根据媒体类型设置不同的详细信息
+    if (videoData.isLiveStream) {
+        // 显示直播流的源信息
+        const source = videoData.streamData?.source || 'Unknown';
+        details.textContent = `Live Stream - ${source}`;
+        details.style.color = '#ff4500'; // 橙色标识直播流
+    } else if (isStreamVideo) {
         details.textContent = `${videoData.video.dataset.originalFileName} (Streaming)`;
         details.style.color = '#ff4500'; // 橙色标识串流
     } else {
@@ -1570,8 +1755,8 @@ ipcRenderer.on('batch-delete-completed', (event, { successCount, failCount, erro
 });
 
 // 監聽scale更新事件
-ipcRenderer.on('media-scale-updated', (event, { videoSrc, scale, index }) => {
-    console.log(`Updating scale to ${scale} for video:`, videoSrc || `index ${index}`);
+ipcRenderer.on('media-scale-updated', (event, { videoSrc, scale, index, isLiveStream }) => {
+    console.log(`Updating scale to ${scale} for video:`, videoSrc || `index ${index}`, isLiveStream ? '(Live Stream)' : '');
     
     let targetCard = null;
     
@@ -1582,16 +1767,35 @@ ipcRenderer.on('media-scale-updated', (event, { videoSrc, scale, index }) => {
             const cardIndex = parseInt(card.dataset.index);
             if (cardIndex >= 0 && cardIndex < videos.length) {
                 const videoData = videos[cardIndex];
-                if (videoData && videoData.video.src === videoSrc) {
-                    targetCard = card;
-                    console.log(`Found target card at visual position ${visualIndex} (original index ${cardIndex})`);
+                if (videoData) {
+                    // 对于直播流，使用特殊的匹配逻辑
+                    if (isLiveStream && videoData.isLiveStream) {
+                        const liveStreamId = `live-stream-${videoData.streamData?.id}`;
+                        if (videoSrc === liveStreamId || videoSrc.includes('live-stream')) {
+                            targetCard = card;
+                            console.log(`Found live stream card at visual position ${visualIndex} (original index ${cardIndex})`);
+                            return;
+                        }
+                    }
+                    // 普通视频匹配
+                    else if (videoData.video.src === videoSrc) {
+                        targetCard = card;
+                        console.log(`Found target card at visual position ${visualIndex} (original index ${cardIndex})`);
+                        return;
+                    }
                 }
             }
         });
-    } else if (typeof index === 'number') {
-        // 回退到使用索引（為了向後兼容）
-        targetCard = cardsContainer.children[index];
-        console.log(`Using fallback index method for card ${index}`);
+    }
+    
+    // 如果通过videoSrc没找到，回退到使用索引
+    if (!targetCard && typeof index === 'number') {
+        const cards = Array.from(cardsContainer.querySelectorAll('.video-card'));
+        const targetCardByIndex = cards.find(card => parseInt(card.dataset.index) === index);
+        if (targetCardByIndex) {
+            targetCard = targetCardByIndex;
+            console.log(`Using fallback index method for card ${index}`);
+        }
     }
     
     if (targetCard && targetCard.scaleInput) {
@@ -2072,4 +2276,18 @@ document.querySelector('.apply-zindex-button').addEventListener('click', () => {
     } else {
         console.log('No cards found to apply z-index');
     }
-}); 
+});
+
+// 添加Web直播流按钮事件
+webLiveStreamButton.onclick = () => {
+    console.log('Web Live Stream button clicked');
+    // 创建直播流配置窗口
+    ipcRenderer.send('create-weblivestream-window');
+};
+
+// 为Web直播流按钮添加SVG图标
+webLiveStreamButton.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4zM14 13h-3v3H9v-3H6v-2h3V8h2v3h3v2z"/>
+    </svg>
+`;
