@@ -273,7 +273,10 @@
             "enhanceErrorMessages": "💬 增強錯誤信息提示，提供詳細的故障排除指導",
             "addDeviceEnumeration": "📋 新增設備枚舉功能，顯示所有可用的視頻輸入設備",
             "fixLiveStreamCompatibility": "🔧 修復新電腦Live Stream兼容性問題，改善設備識別",
-            "addStreamStatusMonitoring": "📊 新增流狀態監控，實時顯示視頻軌道信息"
+            "addStreamStatusMonitoring": "📊 新增流狀態監控，實時顯示視頻軌道信息",
+            "fixLiveStreamWarpEditor": "🎬 修復直播流在Warp Editor中顯示黑屏問題",
+            "improveStreamDetection": "🔍 改進直播流檢測邏輯，確保正確識別stream類型",
+            "addStreamPlaceholderDebugging": "🛠️ 新增stream placeholder詳細調試信息"
         },
         "keybinding": {
             "playPause": "播放/暫停",

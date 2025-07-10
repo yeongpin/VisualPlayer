@@ -246,6 +246,7 @@ class MainManager {
                     index: index,
                     src: videoData.video.src,
                     isImage: videoData.isImage,
+                    isLiveStream: videoData.isLiveStream || false, // 添加直播流标识
                     originalFileName: videoData.video.dataset.originalFileName,
                     currentWarpTransform: videoData.warpTransform || '', // 包含当前的变形状态
                     mainWindowSize: {

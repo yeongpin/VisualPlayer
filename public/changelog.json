@@ -1,8 +1,26 @@
 {
     "versions": [
         {
+            "version": "v1.6.2-snapshot", 
+            "date": "2025-07-15",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixLiveStreamWarpEditor",
+                    "description": "修復直播流在Warp Editor中顯示黑屏問題"
+                },
+                {
+                    "key": "settings.changelog.improveStreamDetection",
+                    "description": "改進直播流檢測邏輯，確保正確識別stream類型"
+                },
+                {
+                    "key": "settings.changelog.addStreamPlaceholderDebugging",
+                    "description": "新增stream placeholder詳細調試信息"
+                }
+            ]
+        },
+        {
             "version": "v1.6.1-snapshot", 
-            "date": "2025-07-12",
+            "date": "2025-07-14",
             "changes": [
                 {
                     "key": "settings.changelog.addLiveStreamDebugging",

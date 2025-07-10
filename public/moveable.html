@@ -52,6 +52,17 @@
             height: auto;
         }
 
+        .target.stream-placeholder {
+            cursor: move;
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+        .target.stream-placeholder:hover {
+            border-color: #2980b9;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
         /* 底部控制栏 - 使用与cards.css一致的样式 */
         .warp-controls {
             background: #2d2d2d;
@@ -250,7 +261,16 @@
             const container = document.querySelector('[data-croffle-ref="element$0"]');
             container.innerHTML = '';
 
-            if (mediaData.isImage) {
+            // 检查是否是直播流
+            if (mediaData.isLiveStream || 
+                (mediaData.src && (mediaData.src.includes('stream') || mediaData.src === '' || !mediaData.src.startsWith('http') && !mediaData.src.startsWith('file://')))) {
+                console.log('Loading live stream placeholder for warp editing:', {
+                    isLiveStream: mediaData.isLiveStream,
+                    src: mediaData.src,
+                    originalFileName: mediaData.originalFileName
+                });
+                createStreamPlaceholder(mediaData);
+            } else if (mediaData.isImage) {
                 mediaElement = document.createElement('img');
                 mediaElement.src = mediaData.src;
                 mediaElement.className = 'target image';
@@ -300,7 +320,68 @@
                 };
             }
 
+            if (!mediaData.isLiveStream && !(mediaData.src && mediaData.src.includes('stream'))) {
+                container.appendChild(mediaElement);
+            }
+        }
+
+        function createStreamPlaceholder(mediaData) {
+            console.log('Creating stream placeholder with data:', mediaData);
+            
+            // 创建placeholder容器
+            mediaElement = document.createElement('div');
+            mediaElement.className = 'target stream-placeholder';
+            mediaElement.setAttribute('data-croffle-ref', 'targetRef');
+            
+            // 使用主窗口的尺寸信息，如果没有则使用默认值
+            const defaultWidth = mediaData.mainWindowSize ? mediaData.mainWindowSize.width : 480;
+            const defaultHeight = mediaData.mainWindowSize ? mediaData.mainWindowSize.height : 270;
+            
+            console.log('Using placeholder dimensions:', { width: defaultWidth, height: defaultHeight });
+            
+            mediaElement.style.cssText = `
+                width: ${defaultWidth}px;
+                height: ${defaultHeight}px;
+                background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                border: 2px dashed #3498db;
+                border-radius: 8px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: #ecf0f1;
+                font-family: Arial, sans-serif;
+                position: relative;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            `;
+            
+            // 添加直播流图标和文字
+            mediaElement.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 10px; opacity: 0.8;">📡</div>
+                <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">直播流變形編輯</div>
+                <div style="font-size: 14px; opacity: 0.7; text-align: center; line-height: 1.4;">
+                    ${mediaData.originalFileName || 'Live Stream'}<br>
+                    <span style="font-size: 12px;">拖拽控制點進行變形操作</span>
+                </div>
+                <div style="position: absolute; top: 10px; right: 10px; background: rgba(231, 76, 60, 0.8); 
+                     color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: bold;">
+                    LIVE
+                </div>
+            `;
+            
+            // 应用现有的变形状态（如果存在）
+            if (mediaData.currentWarpTransform && mediaData.currentWarpTransform.trim()) {
+                console.log('Applying existing warp transform to stream placeholder:', mediaData.currentWarpTransform);
+                mediaElement.style.transform = mediaData.currentWarpTransform;
+            }
+            
+            const container = document.querySelector('[data-croffle-ref="element$0"]');
             container.appendChild(mediaElement);
+            
+            // 初始化变形控制
+            setTimeout(() => {
+                initMoveable();
+            }, 100);
         }
 
         function initMoveable() {

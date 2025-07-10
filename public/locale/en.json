@@ -273,7 +273,10 @@
             "enhanceErrorMessages": "💬 Enhance error message prompts with detailed troubleshooting guidance",
             "addDeviceEnumeration": "📋 Add device enumeration feature to display all available video input devices",
             "fixLiveStreamCompatibility": "🔧 Fix new computer Live Stream compatibility issues, improve device recognition",
-            "addStreamStatusMonitoring": "📊 Add stream status monitoring with real-time video track information display"
+            "addStreamStatusMonitoring": "📊 Add stream status monitoring with real-time video track information display",
+            "fixLiveStreamWarpEditor": "🎬 Fix live stream black screen issue in Warp Editor",
+            "improveStreamDetection": "🔍 Improve stream detection logic to correctly identify stream types",
+            "addStreamPlaceholderDebugging": "🛠️ Add detailed debugging information for stream placeholder"
         },
         "keybinding": {
             "playPause": "Play/Pause",
