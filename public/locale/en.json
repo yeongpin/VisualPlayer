@@ -276,7 +276,15 @@
             "addStreamStatusMonitoring": "📊 Add stream status monitoring with real-time video track information display",
             "fixLiveStreamWarpEditor": "🎬 Fix live stream black screen issue in Warp Editor",
             "improveStreamDetection": "🔍 Improve stream detection logic to correctly identify stream types",
-            "addStreamPlaceholderDebugging": "🛠️ Add detailed debugging information for stream placeholder"
+            "addStreamPlaceholderDebugging": "🛠️ Add detailed debugging information for stream placeholder",
+            "addCustomStreamDimensions": "📐 Add Web Live Stream custom dimensions feature with multiple size modes",
+            "addPresetRatioSelector": "🎯 Add preset ratio selector including 16:9, 4:3, 1:1, 21:9, 9:16, 3:4 common ratios",
+            "addCustomSizeInputs": "⚙️ Add custom width/height inputs supporting 320-7680px range settings",
+            "addQuickSizePresets": "⚡ Add quick size preset buttons: 720p, 1080p, 1440p, 4K",
+            "addRealTimeRatioCalculation": "🧮 Add real-time ratio calculation display, automatically calculate and show current aspect ratio",
+            "integrateDimensionsConstraints": "🔗 Integrate dimension constraints into getUserMedia API to ensure output matches configured size",
+            "improveStreamUIDesign": "🎨 Improve live stream configuration interface design with visual ratio preview",
+            "fixScrollbarStyling": "🖱️ Fix Web Live Stream window scrollbar styling issues"
         },
         "keybinding": {
             "playPause": "Play/Pause",

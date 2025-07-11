@@ -2069,6 +2069,7 @@ ipcMain.on('connect-live-stream', async (event, config) => {
             id: streamId,
             name: config.name,
             type: config.type,
+            dimensions: config.dimensions, // 添加尺寸配置
             status: 'connected',
             createdAt: new Date()
         };

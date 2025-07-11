@@ -276,7 +276,15 @@
             "addStreamStatusMonitoring": "📊 新增流狀態監控，實時顯示視頻軌道信息",
             "fixLiveStreamWarpEditor": "🎬 修復直播流在Warp Editor中顯示黑屏問題",
             "improveStreamDetection": "🔍 改進直播流檢測邏輯，確保正確識別stream類型",
-            "addStreamPlaceholderDebugging": "🛠️ 新增stream placeholder詳細調試信息"
+            "addStreamPlaceholderDebugging": "🛠️ 新增stream placeholder詳細調試信息",
+            "addCustomStreamDimensions": "📐 新增Web Live Stream自定義尺寸功能，支援多種尺寸模式",
+            "addPresetRatioSelector": "🎯 新增預設比例選擇器，包含16:9、4:3、1:1、21:9、9:16、3:4等常用比例",
+            "addCustomSizeInputs": "⚙️ 新增自定義寬度高度輸入，支援320-7680px範圍設定",
+            "addQuickSizePresets": "⚡ 新增快速尺寸預設按鈕：720p、1080p、1440p、4K",
+            "addRealTimeRatioCalculation": "🧮 新增實時比例計算顯示，自動計算並顯示當前寬高比",
+            "integrateDimensionsConstraints": "🔗 整合尺寸約束到getUserMedia API，確保輸出符合設定尺寸",
+            "improveStreamUIDesign": "🎨 優化直播流配置界面設計，新增視覺化比例預覽",
+            "fixScrollbarStyling": "🖱️ 修復Web Live Stream窗口滾動條樣式問題"
         },
         "keybinding": {
             "playPause": "播放/暫停",

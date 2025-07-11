@@ -247,6 +247,7 @@ class MainManager {
                     src: videoData.video.src,
                     isImage: videoData.isImage,
                     isLiveStream: videoData.isLiveStream || false, // 添加直播流标识
+                    streamData: videoData.streamData || null, // 添加流数据（包含尺寸配置）
                     originalFileName: videoData.video.dataset.originalFileName,
                     currentWarpTransform: videoData.warpTransform || '', // 包含当前的变形状态
                     mainWindowSize: {
@@ -1132,12 +1133,28 @@ class MainManager {
                     
                     let constraints = { video: true, audio: true };
                     
+                    // 构建视频约束
+                    let videoConstraints = {};
+                    
+                    // 设置设备ID
                     if (streamData.type === 'webcam' && streamData.deviceId) {
-                        constraints.video = { deviceId: { exact: streamData.deviceId } };
+                        videoConstraints.deviceId = { exact: streamData.deviceId };
                     } else if (streamData.type === 'obs' && obsDevice) {
-                        // 尝试使用找到的OBS设备
-                        constraints.video = { deviceId: { exact: obsDevice.deviceId } };
+                        videoConstraints.deviceId = { exact: obsDevice.deviceId };
                     }
+                    
+                    // 应用尺寸约束
+                    if (streamData.dimensions && streamData.dimensions.mode !== 'auto') {
+                        const { width, height } = streamData.dimensions;
+                        if (width && height) {
+                            videoConstraints.width = { ideal: width };
+                            videoConstraints.height = { ideal: height };
+                            console.log('Applying video constraints:', { width, height });
+                        }
+                    }
+                    
+                    // 如果有约束则应用，否则使用默认
+                    constraints.video = Object.keys(videoConstraints).length > 0 ? videoConstraints : true;
                     
                     console.log('Requesting media with constraints:', constraints);
                     
@@ -1201,11 +1218,20 @@ class MainManager {
             video.addEventListener('loadedmetadata', () => {
                 console.log('Live stream metadata loaded');
                 
-                // 获取视频原始尺寸
-                const originalWidth = video.videoWidth || 1920; // 默认1920，如果无法获取
-                const originalHeight = video.videoHeight || 1080; // 默认1080，如果无法获取
+                // 获取视频尺寸（优先使用用户配置的尺寸）
+                let originalWidth, originalHeight;
                 
-                console.log('Live stream original size:', originalWidth, 'x', originalHeight);
+                if (streamData.dimensions && streamData.dimensions.mode !== 'auto') {
+                    // 使用用户配置的尺寸
+                    originalWidth = streamData.dimensions.width || 1920;
+                    originalHeight = streamData.dimensions.height || 1080;
+                    console.log('Using configured dimensions:', originalWidth, 'x', originalHeight);
+                } else {
+                    // 使用设备原始尺寸
+                    originalWidth = video.videoWidth || 1920;
+                    originalHeight = video.videoHeight || 1080;
+                    console.log('Using device dimensions:', originalWidth, 'x', originalHeight);
+                }
                 
                 // 计算适合窗口的尺寸，但保持原始比例
                 const winWidth = window.innerWidth;
@@ -1231,6 +1257,7 @@ class MainManager {
                 wrapper.style.top = `${centerY}px`;
                 
                 console.log('Live stream positioned at:', centerX, centerY, 'size:', displayWidth, 'x', displayHeight);
+                console.log('Dimensions config:', streamData.dimensions);
             });
             
             video.addEventListener('error', (e) => {

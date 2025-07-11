@@ -57,6 +57,78 @@
             </select>
         </div>
 
+        <div class="section">
+            <h3>Stream Dimensions</h3>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="dimensionMode" value="auto" checked>
+                    <span class="radio-label">Auto (Device Default)</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="dimensionMode" value="preset">
+                    <span class="radio-label">Preset Ratios</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="dimensionMode" value="custom">
+                    <span class="radio-label">Custom Size</span>
+                </label>
+            </div>
+            
+            <div id="presetRatioSection" style="display: none; margin-top: 15px;">
+                <h4>Select Aspect Ratio</h4>
+                <div class="ratio-grid">
+                    <button type="button" class="ratio-button" data-ratio="16:9" data-size="1920x1080">
+                        <div class="ratio-preview ratio-16-9"></div>
+                        <span>16:9<br><small>1920×1080</small></span>
+                    </button>
+                    <button type="button" class="ratio-button" data-ratio="4:3" data-size="1440x1080">
+                        <div class="ratio-preview ratio-4-3"></div>
+                        <span>4:3<br><small>1440×1080</small></span>
+                    </button>
+                    <button type="button" class="ratio-button" data-ratio="1:1" data-size="1080x1080">
+                        <div class="ratio-preview ratio-1-1"></div>
+                        <span>1:1<br><small>1080×1080</small></span>
+                    </button>
+                    <button type="button" class="ratio-button" data-ratio="21:9" data-size="2560x1080">
+                        <div class="ratio-preview ratio-21-9"></div>
+                        <span>21:9<br><small>2560×1080</small></span>
+                    </button>
+                    <button type="button" class="ratio-button" data-ratio="9:16" data-size="1080x1920">
+                        <div class="ratio-preview ratio-9-16"></div>
+                        <span>9:16<br><small>1080×1920</small></span>
+                    </button>
+                    <button type="button" class="ratio-button" data-ratio="3:4" data-size="1080x1440">
+                        <div class="ratio-preview ratio-3-4"></div>
+                        <span>3:4<br><small>1080×1440</small></span>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="customSizeSection" style="display: none; margin-top: 15px;">
+                <h4>Custom Dimensions</h4>
+                <div class="custom-size-inputs">
+                    <div class="input-group">
+                        <label for="customWidth">Width (px)</label>
+                        <input type="number" id="customWidth" class="size-input" min="320" max="7680" value="1920" placeholder="1920">
+                    </div>
+                    <div class="dimension-separator">×</div>
+                    <div class="input-group">
+                        <label for="customHeight">Height (px)</label>
+                        <input type="number" id="customHeight" class="size-input" min="240" max="4320" value="1080" placeholder="1080">
+                    </div>
+                </div>
+                <div class="size-presets">
+                    <button type="button" class="preset-button" data-size="1280x720">720p</button>
+                    <button type="button" class="preset-button" data-size="1920x1080">1080p</button>
+                    <button type="button" class="preset-button" data-size="2560x1440">1440p</button>
+                    <button type="button" class="preset-button" data-size="3840x2160">4K</button>
+                </div>
+                <div class="size-info">
+                    <small>Current ratio: <span id="currentRatio">16:9</span></small>
+                </div>
+            </div>
+        </div>
+
         <div class="status-section">
             <div id="statusIndicator" class="status-indicator disconnected">
                 <span class="status-dot"></span>

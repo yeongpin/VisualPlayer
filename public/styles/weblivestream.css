@@ -267,4 +267,205 @@ select.input-field {
 select.input-field option {
     background: #2d2d2d;
     color: #fff;
+}
+
+/* Stream Dimensions Styles */
+.ratio-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.ratio-button {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 12px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #ccc;
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.ratio-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #ff6b35;
+}
+
+.ratio-button.selected {
+    background: rgba(255, 107, 53, 0.2);
+    border-color: #ff6b35;
+    color: #ff6b35;
+}
+
+.ratio-preview {
+    width: 40px;
+    height: 30px;
+    background: #ff6b35;
+    border-radius: 2px;
+    position: relative;
+}
+
+.ratio-preview.ratio-16-9 {
+    width: 40px;
+    height: 22px;
+}
+
+.ratio-preview.ratio-4-3 {
+    width: 40px;
+    height: 30px;
+}
+
+.ratio-preview.ratio-1-1 {
+    width: 30px;
+    height: 30px;
+}
+
+.ratio-preview.ratio-21-9 {
+    width: 40px;
+    height: 17px;
+}
+
+.ratio-preview.ratio-9-16 {
+    width: 17px;
+    height: 30px;
+}
+
+.ratio-preview.ratio-3-4 {
+    width: 22px;
+    height: 30px;
+}
+
+.custom-size-inputs {
+    display: flex;
+    align-items: end;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-group label {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 5px;
+}
+
+.size-input {
+    padding: 8px 10px;
+    background: #2d2d2d;
+    border: 1px solid #3d3d3d;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    transition: border-color 0.2s;
+}
+
+.size-input:focus {
+    outline: none;
+    border-color: #ff6b35;
+}
+
+.dimension-separator {
+    color: #999;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    height: 36px;
+}
+
+.size-presets {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.preset-button {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #3d3d3d;
+    border-radius: 4px;
+    padding: 6px 12px;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.preset-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #ff6b35;
+}
+
+.preset-button:active {
+    background: rgba(255, 107, 53, 0.2);
+}
+
+.size-info {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.size-info small {
+    color: #999;
+    font-size: 11px;
+}
+
+#currentRatio {
+    color: #ff6b35;
+    font-weight: bold;
+}
+
+.section h4 {
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    color: #999;
+    font-weight: normal;
 } 
+
+
+/* 修改 container 的滾動條樣式 */
+.container::-webkit-scrollbar {
+    width: 8px;  /* 垂直滾動條的寬度 */
+    background: transparent;
+}
+
+.container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    margin: 10px 0;  /* 上下留出一些間距 */
+}
+
+.container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.container::-webkit-scrollbar-button {
+    display: none;  /* 隱藏滾動條的按鈕 */
+}
+
+.container {
+    scrollbar-width: thin;  /* Firefox 的滾動條樣式 */
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);  /* Firefox 的滾動條顏色 */
+}

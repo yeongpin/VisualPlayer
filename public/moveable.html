@@ -333,11 +333,35 @@
             mediaElement.className = 'target stream-placeholder';
             mediaElement.setAttribute('data-croffle-ref', 'targetRef');
             
-            // 使用主窗口的尺寸信息，如果没有则使用默认值
-            const defaultWidth = mediaData.mainWindowSize ? mediaData.mainWindowSize.width : 480;
-            const defaultHeight = mediaData.mainWindowSize ? mediaData.mainWindowSize.height : 270;
+            // 优先使用配置的尺寸，然后是主窗口尺寸，最后是默认值
+            let defaultWidth, defaultHeight;
             
-            console.log('Using placeholder dimensions:', { width: defaultWidth, height: defaultHeight });
+            if (mediaData.streamData && mediaData.streamData.dimensions && mediaData.streamData.dimensions.mode !== 'auto') {
+                // 使用配置的尺寸
+                defaultWidth = mediaData.streamData.dimensions.width || 1920;
+                defaultHeight = mediaData.streamData.dimensions.height || 1080;
+                console.log('Using configured stream dimensions:', { width: defaultWidth, height: defaultHeight });
+            } else if (mediaData.mainWindowSize) {
+                // 使用主窗口尺寸
+                defaultWidth = mediaData.mainWindowSize.width;
+                defaultHeight = mediaData.mainWindowSize.height;
+                console.log('Using main window dimensions:', { width: defaultWidth, height: defaultHeight });
+            } else {
+                // 使用默认尺寸
+                defaultWidth = 480;
+                defaultHeight = 270;
+                console.log('Using default dimensions:', { width: defaultWidth, height: defaultHeight });
+            }
+            
+            // 如果尺寸太大，按比例缩小以适应编辑器
+            const maxWidth = 800;
+            const maxHeight = 600;
+            const scale = Math.min(1, maxWidth / defaultWidth, maxHeight / defaultHeight);
+            
+            defaultWidth = Math.round(defaultWidth * scale);
+            defaultHeight = Math.round(defaultHeight * scale);
+            
+            console.log('Final placeholder dimensions:', { width: defaultWidth, height: defaultHeight, scale });
             
             mediaElement.style.cssText = `
                 width: ${defaultWidth}px;

@@ -1,6 +1,64 @@
 {
     "versions": [
         {
+            "version": "v1.6.3-snapshot", 
+            "date": "2025-07-15",
+            "changes": [
+                {
+                    "key": "settings.changelog.addCustomStreamDimensions",
+                    "description": "新增Web Live Stream自定義尺寸功能，支援多種尺寸模式"
+                },
+                {
+                    "key": "settings.changelog.addPresetRatioSelector",
+                    "description": "新增預設比例選擇器，包含16:9、4:3、1:1、21:9、9:16、3:4等常用比例"
+                },
+                {
+                    "key": "settings.changelog.addCustomSizeInputs",
+                    "description": "新增自定義寬度高度輸入，支援320-7680px範圍設定"
+                },
+                {
+                    "key": "settings.changelog.addQuickSizePresets",
+                    "description": "新增快速尺寸預設按鈕：720p、1080p、1440p、4K"
+                },
+                {
+                    "key": "settings.changelog.addRealTimeRatioCalculation",
+                    "description": "新增實時比例計算顯示，自動計算並顯示當前寬高比"
+                },
+                {
+                    "key": "settings.changelog.integrateDimensionsConstraints",
+                    "description": "整合尺寸約束到getUserMedia API，確保輸出符合設定尺寸"
+                },
+                {
+                    "key": "settings.changelog.improveStreamUIDesign",
+                    "description": "優化直播流配置界面設計，新增視覺化比例預覽"
+                },
+                {
+                    "key": "settings.changelog.fixScrollbarStyling",
+                    "description": "修復Web Live Stream窗口滾動條樣式問題"
+                },
+                {
+                    "key": "settings.changelog.fixPresetRatioButtons",
+                    "description": "修復預設比例按鈕和快速預設按鈕無法點擊問題"
+                },
+                {
+                    "key": "settings.changelog.fixEventListenerTiming",
+                    "description": "修復事件監聽器時序問題，確保元素渲染後正確綁定事件"
+                },
+                {
+                    "key": "settings.changelog.addEventCleanupSystem",
+                    "description": "新增事件清理系統，使用cloneNode()和replaceWith()移除舊監聽器"
+                },
+                {
+                    "key": "settings.changelog.addDefaultRatioSelection",
+                    "description": "新增預設比例自動選擇功能，進入預設模式時自動選擇16:9比例"
+                },
+                {
+                    "key": "settings.changelog.enhanceStreamDebugging",
+                    "description": "增強直播流調試功能，添加詳細的控制台日誌和錯誤處理"
+                }
+            ]
+        },
+        {
             "version": "v1.6.2-snapshot", 
             "date": "2025-07-15",
             "changes": [

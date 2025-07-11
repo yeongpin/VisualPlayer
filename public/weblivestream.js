@@ -33,6 +33,12 @@ radioButtons.forEach(radio => {
     radio.addEventListener('change', handleSourceChange);
 });
 
+// 监听尺寸模式变化
+const dimensionRadioButtons = document.querySelectorAll('input[name="dimensionMode"]');
+dimensionRadioButtons.forEach(radio => {
+    radio.addEventListener('change', handleDimensionModeChange);
+});
+
 function handleSourceChange() {
     const selectedSource = document.querySelector('input[name="streamSource"]:checked').value;
     
@@ -51,6 +57,47 @@ function handleSourceChange() {
             break;
         case 'obs':
             // OBS虚拟摄像头不需要额外配置
+            break;
+    }
+}
+
+function handleDimensionModeChange() {
+    const selectedMode = document.querySelector('input[name="dimensionMode"]:checked').value;
+    const presetSection = document.getElementById('presetRatioSection');
+    const customSection = document.getElementById('customSizeSection');
+    
+    // 隐藏所有尺寸部分
+    presetSection.style.display = 'none';
+    customSection.style.display = 'none';
+    
+    // 显示相应的部分
+    switch (selectedMode) {
+        case 'preset':
+            presetSection.style.display = 'block';
+            // 重新初始化比例按钮（因为它们刚刚变为可见）
+            setTimeout(() => {
+                initRatioButtons();
+                // 默认选中16:9比例
+                const defaultButton = document.querySelector('.ratio-button[data-ratio="16:9"]');
+                if (defaultButton) {
+                    defaultButton.click();
+                    console.log('Default 16:9 ratio selected');
+                }
+                console.log('Ratio buttons initialized');
+            }, 50);
+            break;
+        case 'custom':
+            customSection.style.display = 'block';
+            // 重新初始化预设按钮和自定义输入
+            setTimeout(() => {
+                initPresetButtons();
+                initCustomSizeInputs();
+                updateCurrentRatio();
+                console.log('Custom size controls initialized');
+            }, 50);
+            break;
+        case 'auto':
+            // 自动模式不需要额外配置
             break;
     }
 }
@@ -106,6 +153,10 @@ connectBtn.onclick = async () => {
         name: deviceName,
         type: selectedSource
     };
+
+    // 添加尺寸配置
+    const dimensions = getSelectedDimensions();
+    streamConfig.dimensions = dimensions;
 
     // 验证配置
     switch (selectedSource) {
@@ -190,12 +241,182 @@ function disconnect() {
     isConnected = false;
 }
 
+// 比例按钮处理
+function initRatioButtons() {
+    const ratioButtons = document.querySelectorAll('.ratio-button');
+    console.log('Found ratio buttons:', ratioButtons.length);
+    
+    ratioButtons.forEach((button, index) => {
+        // 先移除现有的事件监听器（如果有的话）
+        button.replaceWith(button.cloneNode(true));
+        const newButton = document.querySelectorAll('.ratio-button')[index];
+        
+        newButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Ratio button clicked:', newButton.dataset.ratio);
+            
+            // 移除所有选中状态
+            document.querySelectorAll('.ratio-button').forEach(btn => btn.classList.remove('selected'));
+            // 添加当前选中状态
+            newButton.classList.add('selected');
+            
+            // 获取选中的尺寸
+            const size = newButton.dataset.size;
+            if (size) {
+                const [width, height] = size.split('x').map(Number);
+                const widthInput = document.getElementById('customWidth');
+                const heightInput = document.getElementById('customHeight');
+                
+                if (widthInput && heightInput) {
+                    widthInput.value = width;
+                    heightInput.value = height;
+                    updateCurrentRatio();
+                    console.log('Updated dimensions:', width, 'x', height);
+                } else {
+                    console.error('Width or height input not found');
+                }
+            }
+        });
+    });
+}
+
+// 预设按钮处理
+function initPresetButtons() {
+    const presetButtons = document.querySelectorAll('.preset-button');
+    console.log('Found preset buttons:', presetButtons.length);
+    
+    presetButtons.forEach((button, index) => {
+        // 先移除现有的事件监听器（如果有的话）
+        button.replaceWith(button.cloneNode(true));
+        const newButton = document.querySelectorAll('.preset-button')[index];
+        
+        newButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Preset button clicked:', newButton.textContent);
+            
+            const size = newButton.dataset.size;
+            if (size) {
+                const [width, height] = size.split('x').map(Number);
+                const widthInput = document.getElementById('customWidth');
+                const heightInput = document.getElementById('customHeight');
+                
+                if (widthInput && heightInput) {
+                    widthInput.value = width;
+                    heightInput.value = height;
+                    updateCurrentRatio();
+                    console.log('Updated dimensions via preset:', width, 'x', height);
+                } else {
+                    console.error('Width or height input not found');
+                }
+            }
+        });
+    });
+}
+
+// 自定义尺寸输入处理
+function initCustomSizeInputs() {
+    const widthInput = document.getElementById('customWidth');
+    const heightInput = document.getElementById('customHeight');
+    
+    if (!widthInput || !heightInput) {
+        console.error('Custom size inputs not found');
+        return;
+    }
+    
+    // 移除现有的事件监听器并添加新的
+    [widthInput, heightInput].forEach(input => {
+        // 克隆元素以移除所有事件监听器
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        
+        newInput.addEventListener('input', updateCurrentRatio);
+        newInput.addEventListener('change', updateCurrentRatio);
+    });
+    
+    console.log('Custom size inputs initialized');
+}
+
+// 更新当前比例显示
+function updateCurrentRatio() {
+    const widthInput = document.getElementById('customWidth');
+    const heightInput = document.getElementById('customHeight');
+    
+    if (!widthInput || !heightInput) {
+        console.error('Width or height input not found in updateCurrentRatio');
+        return;
+    }
+    
+    const width = parseInt(widthInput.value) || 1920;
+    const height = parseInt(heightInput.value) || 1080;
+    
+    console.log('Updating current ratio with:', width, 'x', height);
+    
+    // 计算最大公约数
+    function gcd(a, b) {
+        return b === 0 ? a : gcd(b, a % b);
+    }
+    
+    const divisor = gcd(width, height);
+    const ratioWidth = width / divisor;
+    const ratioHeight = height / divisor;
+    
+    const currentRatioSpan = document.getElementById('currentRatio');
+    if (currentRatioSpan) {
+        currentRatioSpan.textContent = `${ratioWidth}:${ratioHeight}`;
+        console.log('Updated ratio display to:', `${ratioWidth}:${ratioHeight}`);
+    } else {
+        console.error('Current ratio span not found');
+    }
+}
+
+// 获取选择的尺寸配置
+function getSelectedDimensions() {
+    const dimensionMode = document.querySelector('input[name="dimensionMode"]:checked').value;
+    
+    switch (dimensionMode) {
+        case 'auto':
+            return { mode: 'auto' };
+            
+        case 'preset':
+            const selectedRatio = document.querySelector('.ratio-button.selected');
+            if (selectedRatio) {
+                const size = selectedRatio.dataset.size;
+                const [width, height] = size.split('x').map(Number);
+                return {
+                    mode: 'preset',
+                    width: width,
+                    height: height,
+                    ratio: selectedRatio.dataset.ratio
+                };
+            }
+            return { mode: 'auto' }; // 回退到自动模式
+            
+        case 'custom':
+            const width = parseInt(document.getElementById('customWidth').value) || 1920;
+            const height = parseInt(document.getElementById('customHeight').value) || 1080;
+            return {
+                mode: 'custom',
+                width: width,
+                height: height
+            };
+            
+        default:
+            return { mode: 'auto' };
+    }
+}
+
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     // 加载语言
     if (window.languageManager) {
         window.languageManager.updatePageLanguage();
     }
+    
+    // 初始化尺寸控制
+    initRatioButtons();
+    initPresetButtons();
+    initCustomSizeInputs();
+    updateCurrentRatio();
     
     // 请求媒体权限以便枚举设备
     navigator.mediaDevices.getUserMedia({ video: true })
