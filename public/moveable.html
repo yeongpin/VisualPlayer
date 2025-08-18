@@ -263,7 +263,7 @@
 
             // 检查是否是直播流
             if (mediaData.isLiveStream || 
-                (mediaData.src && (mediaData.src.includes('stream') || mediaData.src === '' || !mediaData.src.startsWith('http') && !mediaData.src.startsWith('file://')))) {
+                (mediaData.src && mediaData.src.includes('stream'))) {
                 console.log('Loading live stream placeholder for warp editing:', {
                     isLiveStream: mediaData.isLiveStream,
                     src: mediaData.src,
@@ -322,6 +322,8 @@
 
             if (!mediaData.isLiveStream && !(mediaData.src && mediaData.src.includes('stream'))) {
                 container.appendChild(mediaElement);
+            } else if (mediaData.isLiveStream || (mediaData.src && mediaData.src.includes('stream'))) {
+                // 直播流已经在 createStreamPlaceholder 中添加了
             }
         }
 

@@ -1,6 +1,24 @@
 {
     "versions": [
         {
+            "version": "v1.6.4-snapshot", 
+            "date": "2025-08-18",
+            "changes": [
+                {
+                    "key": "settings.changelog.fixWarpEditorStreamDetection",
+                    "description": "修復Warp Editor中非直播內容錯誤顯示直播流界面的問題"
+                },
+                {
+                    "key": "settings.changelog.improveWarpEditorMediaDetection",
+                    "description": "改進Warp Editor媒體類型檢測邏輯，正確區分直播流和普通媒體文件"
+                },
+                {
+                    "key": "settings.changelog.optimizeWarpEditorUI",
+                    "description": "優化Warp Editor界面顯示，確保不同類型媒體顯示對應的編輯界面"
+                }
+            ]
+        },
+        {
             "version": "v1.6.3-snapshot", 
             "date": "2025-07-15",
             "changes": [

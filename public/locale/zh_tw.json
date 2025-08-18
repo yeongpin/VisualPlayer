@@ -284,7 +284,10 @@
             "addRealTimeRatioCalculation": "🧮 新增實時比例計算顯示，自動計算並顯示當前寬高比",
             "integrateDimensionsConstraints": "🔗 整合尺寸約束到getUserMedia API，確保輸出符合設定尺寸",
             "improveStreamUIDesign": "🎨 優化直播流配置界面設計，新增視覺化比例預覽",
-            "fixScrollbarStyling": "🖱️ 修復Web Live Stream窗口滾動條樣式問題"
+            "fixScrollbarStyling": "🖱️ 修復Web Live Stream窗口滾動條樣式問題",
+            "fixWarpEditorStreamDetection": "🐛 修復Warp Editor中非直播內容錯誤顯示直播流界面的問題",
+            "improveWarpEditorMediaDetection": "🔍 改進Warp Editor媒體類型檢測邏輯，正確區分直播流和普通媒體文件",
+            "optimizeWarpEditorUI": "🎨 優化Warp Editor界面顯示，確保不同類型媒體顯示對應的編輯界面"
         },
         "keybinding": {
             "playPause": "播放/暫停",

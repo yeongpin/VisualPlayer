@@ -284,7 +284,10 @@
             "addRealTimeRatioCalculation": "🧮 Add real-time ratio calculation display, automatically calculate and show current aspect ratio",
             "integrateDimensionsConstraints": "🔗 Integrate dimension constraints into getUserMedia API to ensure output matches configured size",
             "improveStreamUIDesign": "🎨 Improve live stream configuration interface design with visual ratio preview",
-            "fixScrollbarStyling": "🖱️ Fix Web Live Stream window scrollbar styling issues"
+            "fixScrollbarStyling": "🖱️ Fix Web Live Stream window scrollbar styling issues",
+            "fixWarpEditorStreamDetection": "🐛 Fix issue where non-live stream content incorrectly displays live stream interface in Warp Editor",
+            "improveWarpEditorMediaDetection": "🔍 Improve Warp Editor media type detection logic to correctly distinguish between live streams and regular media files",
+            "optimizeWarpEditorUI": "🎨 Optimize Warp Editor interface display to ensure different media types show corresponding editing interfaces"
         },
         "keybinding": {
             "playPause": "Play/Pause",
